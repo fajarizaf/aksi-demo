@@ -1,0 +1,916 @@
+const els = {
+  datasetName: document.getElementById("datasetName"),
+  sheetSelect: document.getElementById("sheetSelect"),
+  wilayahFilter: document.getElementById("wilayahFilter"),
+  bulanFilter: document.getElementById("bulanFilter"),
+  tahunFilter: document.getElementById("tahunFilter"),
+  searchInput: document.getElementById("searchInput"),
+  titleDate: document.getElementById("titleDate"),
+  sumTitik: document.getElementById("sumTitik"),
+  sumKota: document.getElementById("sumKota"),
+  sumMassa: document.getElementById("sumMassa"),
+  sumWilayahDominan: document.getElementById("sumWilayahDominan"),
+  sumIsuDominan: document.getElementById("sumIsuDominan"),
+  rekapWilayahBody: document.getElementById("rekapWilayahBody"),
+  isuList: document.getElementById("isuList"),
+  analisaList: document.getElementById("analisaList"),
+  rincianBody: document.getElementById("rincianBody"),
+  toast: document.getElementById("toast"),
+};
+
+const PROVINCE_CENTROIDS = {
+  ACEH: [4.6951, 96.7494],
+  "SUMATERA UTARA": [2.1924, 99.3812],
+  "SUMATERA BARAT": [-0.7399, 100.8000],
+  RIAU: [0.2933, 101.7068],
+  JAMBI: [-1.6101, 103.6131],
+  "SUMATERA SELATAN": [-3.3194, 103.9144],
+  BENGKULU: [-3.8004, 102.2655],
+  LAMPUNG: [-4.5586, 105.4068],
+  "KEPULAUAN BANGKA BELITUNG": [-2.7411, 106.4406],
+  "KEPULAUAN RIAU": [0.9167, 104.4500],
+  "DKI JAKARTA": [-6.2088, 106.8456],
+  "JAWA BARAT": [-6.9039, 107.6186],
+  "JAWA TENGAH": [-7.0051, 110.4381],
+  "DI YOGYAKARTA": [-7.7956, 110.3695],
+  "DAERAH ISTIMEWA YOGYAKARTA": [-7.7956, 110.3695],
+  "JAWA TIMUR": [-7.2504, 112.7688],
+  BANTEN: [-6.4058, 106.0640],
+  BALI: [-8.3405, 115.0920],
+  "NUSA TENGGARA BARAT": [-8.6529, 117.3616],
+  "NUSA TENGGARA TIMUR": [-8.6574, 121.0794],
+  KALIMANTAN_BARAT: [0.2788, 111.4753],
+  "KALIMANTAN BARAT": [0.2788, 111.4753],
+  "KALIMANTAN TENGAH": [-1.6815, 113.3823],
+  "KALIMANTAN SELATAN": [-3.0926, 115.2838],
+  "KALIMANTAN TIMUR": [0.5387, 116.4194],
+  "KALIMANTAN UTARA": [2.8441, 117.3000],
+  "SULAWESI UTARA": [1.4931, 124.8413],
+  "SULAWESI TENGAH": [-1.4300, 121.4456],
+  "SULAWESI SELATAN": [-3.6688, 119.9741],
+  "SULAWESI TENGGARA": [-3.5491, 121.7270],
+  GORONTALO: [0.6999, 122.4467],
+  "SULAWESI BARAT": [-2.8441, 119.2321],
+  MALUKU: [-3.2385, 130.1453],
+  "MALUKU UTARA": [1.5700, 127.8086],
+  PAPUA: [-4.2699, 138.0804],
+  "PAPUA BARAT": [-1.3361, 133.1747],
+  "PAPUA BARAT DAYA": [-0.8669, 131.2511],
+  "PAPUA TENGAH": [-3.6000, 136.8000],
+  "PAPUA PEGUNUNGAN": [-4.0000, 139.5000],
+  "PAPUA SELATAN": [-6.6500, 140.3000],
+};
+
+const state = {
+  workbook: null,
+  sheetName: null,
+  allRows: [],
+  filteredRows: [],
+  activeId: null,
+  datasetLabel: "Belum dimuat",
+};
+
+const XLSX_CDN_URLS = [
+  "https://unpkg.com/xlsx@0.19.3/dist/xlsx.full.min.js",
+  "https://cdn.jsdelivr.net/npm/xlsx@0.19.3/dist/xlsx.full.min.js",
+  "https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.19.3/xlsx.full.min.js",
+];
+
+let xlsxReadyPromise = null;
+
+function loadScript(url) {
+  return new Promise((resolve, reject) => {
+    const s = document.createElement("script");
+    s.src = url;
+    s.async = true;
+    s.onload = () => resolve();
+    s.onerror = () => reject(new Error(`Gagal memuat script: ${url}`));
+    document.head.appendChild(s);
+  });
+}
+
+async function ensureXLSX() {
+  if (window.XLSX) {
+    if (!window.xlsx) window.xlsx = window.XLSX;
+    return window.XLSX;
+  }
+  if (!xlsxReadyPromise) {
+    xlsxReadyPromise = (async () => {
+      for (const url of XLSX_CDN_URLS) {
+        try {
+          await loadScript(url);
+          if (window.XLSX) {
+            if (!window.xlsx) window.xlsx = window.XLSX;
+            return window.XLSX;
+          }
+        } catch {
+        }
+      }
+      throw new Error("Library XLSX gagal dimuat. Pastikan internet aktif atau gunakan CSV.");
+    })();
+  }
+  return xlsxReadyPromise;
+}
+
+function setTitleDate(text) {
+  els.titleDate.textContent = text;
+}
+
+function formatIndoDate(d) {
+  const months = [
+    "JANUARI",
+    "FEBRUARI",
+    "MARET",
+    "APRIL",
+    "MEI",
+    "JUNI",
+    "JULI",
+    "AGUSTUS",
+    "SEPTEMBER",
+    "OKTOBER",
+    "NOVEMBER",
+    "DESEMBER",
+  ];
+  return `${String(d.getDate()).padStart(2, "0")} ${months[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+function toast(msg) {
+  els.toast.textContent = msg;
+  els.toast.classList.add("is-show");
+  window.clearTimeout(toast._t);
+  toast._t = window.setTimeout(() => els.toast.classList.remove("is-show"), 2200);
+}
+
+function normalizeKey(v) {
+  return String(v ?? "")
+    .toLowerCase()
+    .trim()
+    .replace(/[^\p{L}\p{N}]+/gu, "");
+}
+
+function findHeader(headers, synonyms) {
+  const map = new Map(headers.map((h) => [normalizeKey(h), h]));
+  for (const s of synonyms) {
+    const hit = map.get(normalizeKey(s));
+    if (hit) return hit;
+  }
+  for (const h of headers) {
+    const nk = normalizeKey(h);
+    if (!nk) continue;
+    for (const s of synonyms) {
+      if (nk.includes(normalizeKey(s))) return h;
+    }
+  }
+  return null;
+}
+
+function parseMass(value) {
+  if (value == null) return null;
+  if (typeof value === "number" && Number.isFinite(value)) return Math.round(value);
+  const s = String(value).trim();
+  if (!s) return null;
+  const digits = s
+    .replace(/orang/gi, "")
+    .replace(/[+±≈~]/g, "")
+    .replace(/\s+/g, "")
+    .replace(/,/g, ".")
+    .match(/[\d.]+/g);
+  if (!digits || !digits.length) return null;
+  const joined = digits.join("");
+  const n = Number(joined.replace(/\./g, ""));
+  return Number.isFinite(n) ? n : null;
+}
+
+function formatNumberId(n) {
+  if (n == null || !Number.isFinite(n)) return "—";
+  return new Intl.NumberFormat("id-ID").format(n);
+}
+
+function formatMassa(n) {
+  if (n == null || !Number.isFinite(n)) return "—";
+  return `±${formatNumberId(n)}`;
+}
+
+function toStr(v) {
+  if (v == null) return "";
+  const s = String(v).trim();
+  return s;
+}
+
+function parseDateParts(value) {
+  const s = toStr(value);
+  if (!s) return null;
+  const iso = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+  if (iso) {
+    return {
+      year: iso[1],
+      month: String(iso[2]).padStart(2, "0"),
+      day: String(iso[3]).padStart(2, "0"),
+      iso: `${iso[1]}-${String(iso[2]).padStart(2, "0")}-${String(iso[3]).padStart(2, "0")}`,
+    };
+  }
+  const slash = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (slash) {
+    const a = Number(slash[1]);
+    const b = Number(slash[2]);
+    const year = slash[3];
+    let month = a;
+    let day = b;
+    if (a > 12 && b <= 12) {
+      day = a;
+      month = b;
+    }
+    return {
+      year,
+      month: String(month).padStart(2, "0"),
+      day: String(day).padStart(2, "0"),
+      iso: `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`,
+    };
+  }
+  const slashShortYear = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2})$/);
+  if (slashShortYear) {
+    const year = Number(slashShortYear[3]);
+    const fullYear = year >= 70 ? 1900 + year : 2000 + year;
+    const a = Number(slashShortYear[1]);
+    const b = Number(slashShortYear[2]);
+    let month = a;
+    let day = b;
+    if (a > 12 && b <= 12) {
+      day = a;
+      month = b;
+    }
+    return {
+      year: String(fullYear),
+      month: String(month).padStart(2, "0"),
+      day: String(day).padStart(2, "0"),
+      iso: `${fullYear}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`,
+    };
+  }
+  return null;
+}
+
+function getYearValue(value) {
+  return parseDateParts(value)?.year || "";
+}
+
+function getMonthValue(value) {
+  return parseDateParts(value)?.month || "";
+}
+
+function getMonthLabel(month) {
+  const labels = {
+    "01": "Januari",
+    "02": "Februari",
+    "03": "Maret",
+    "04": "April",
+    "05": "Mei",
+    "06": "Juni",
+    "07": "Juli",
+    "08": "Agustus",
+    "09": "September",
+    "10": "Oktober",
+    "11": "November",
+    "12": "Desember",
+  };
+  return labels[month] || month;
+}
+
+function canonicalProvince(v) {
+  const s = toStr(v);
+  if (!s) return "";
+  return s.replace(/\s+/g, " ").trim().toUpperCase();
+}
+
+function parseLatLngFromCell(v) {
+  const s = toStr(v);
+  if (!s) return null;
+  const m = s.match(/(-?\d+(?:\.\d+)?)\s*[,; ]\s*(-?\d+(?:\.\d+)?)/);
+  if (!m) return null;
+  const lat = Number(m[1]);
+  const lng = Number(m[2]);
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+  return [lat, lng];
+}
+
+function jitterLatLng([lat, lng], seed) {
+  const a = (seed * 9301 + 49297) % 233280;
+  const b = (seed * 233280 + 9301) % 49297;
+  const j1 = (a / 233280 - 0.5) * 0.6;
+  const j2 = (b / 49297 - 0.5) * 0.6;
+  return [lat + j1 * 0.2, lng + j2 * 0.2];
+}
+
+function inferMappingFromHeaders(headers) {
+  const mapping = {
+    no: findHeader(headers, ["no", "nomor"]),
+    wilayah: findHeader(headers, ["wilayah", "provinsi", "province", "region"]),
+    kotaKab: findHeader(headers, ["kota/kabupaten", "kota kabupaten", "kota", "kabupaten", "city"]),
+    lokasi: findHeader(headers, ["lokasi", "tempat", "lokasi kegiatan", "lokasi (kegiatan)", "lokasi kegiatan/aksi"]),
+    kegiatan: findHeader(headers, ["kegiatan", "aksi", "kegiatan / aliansi", "kegiatan/aliansi", "kelompok aksi"]),
+    aliansi: findHeader(headers, ["aliansi", "organisasi", "kelompok", "aliansi/organisasi", "kelompok aksi"]),
+    waktu: findHeader(headers, ["waktu", "jam", "tanggal", "hari", "time", "tgl"]),
+    lokasiAksi: findHeader(headers, ["lokasi aksi", "lokasi_aksi", "lokasi aksi (alamat)", "alamat lokasi aksi"]),
+    tuntutan: findHeader(headers, ["tuntutan", "demand", "tuntutan/isu", "isu/tuntutan"]),
+    isu: findHeader(headers, ["isu dominan", "isu", "kategori", "tema", "issue"]),
+    massa: findHeader(headers, ["estimasi massa", "massa", "estimasi", "jumlah massa", "jumlah peserta", "estimasi peserta"]),
+    lat: findHeader(headers, ["lat", "latitude", "lintang"]),
+    lng: findHeader(headers, ["lng", "lon", "long", "longitude", "bujur"]),
+    koordinat: findHeader(headers, ["koordinat", "coordinate", "latlng", "lat lon"]),
+  };
+  return mapping;
+}
+
+function buildRowsFromRecords(json) {
+  if (!json.length) return { rows: [], mapping: null };
+  const headerSet = new Set();
+  json.slice(0, 50).forEach((r) => {
+    Object.keys(r || {}).forEach((k) => headerSet.add(k));
+  });
+  const headers = Array.from(headerSet);
+  const mapping = inferMappingFromHeaders(headers);
+  const rows = json
+    .map((r, idx) => {
+      const no = toStr(r[mapping.no] ?? r["NO"] ?? r["No"]);
+      const wilayah = canonicalProvince(r[mapping.wilayah] ?? r["Wilayah"] ?? r["Provinsi"]);
+      const kotaKab = toStr(r[mapping.kotaKab] ?? r["Kota"] ?? r["Kabupaten"] ?? r["Kota/Kabupaten"]);
+      const lokasi = toStr(r[mapping.lokasi] ?? r["Lokasi"] ?? r["Lokasi Kegiatan"] ?? r["Tempat"]);
+      const kegiatan = toStr(r[mapping.kegiatan] ?? r["Kegiatan"] ?? r["Aksi"]);
+      const aliansi = toStr(r[mapping.aliansi] ?? r["Aliansi"] ?? r["Organisasi"]);
+      const waktu = toStr(r[mapping.waktu] ?? r["Waktu"]);
+      const lokasiAksi = toStr(r[mapping.lokasiAksi] ?? r["Lokasi Aksi"]);
+      const tuntutan = toStr(r[mapping.tuntutan] ?? r["Tuntutan"]);
+      const isu = toStr(r[mapping.isu] ?? r["Isu"]);
+      const estimasiMassa = parseMass(r[mapping.massa] ?? r["Estimasi Massa"] ?? r["Massa"]);
+
+      let lat = null;
+      let lng = null;
+      const coordCell = r[mapping.koordinat];
+      const pair = parseLatLngFromCell(coordCell);
+      if (pair) [lat, lng] = pair;
+      const latCell = r[mapping.lat];
+      const lngCell = r[mapping.lng];
+      if (lat == null && lng == null && latCell !== "" && lngCell !== "") {
+        const a = Number(String(latCell).replace(",", "."));
+        const b = Number(String(lngCell).replace(",", "."));
+        if (Number.isFinite(a) && Number.isFinite(b)) {
+          lat = a;
+          lng = b;
+        }
+      }
+      if (lat == null || lng == null) {
+        const base = PROVINCE_CENTROIDS[wilayah];
+        if (base) {
+          const [jlat, jlng] = jitterLatLng(base, idx + 1);
+          lat = jlat;
+          lng = jlng;
+        }
+      }
+
+      const locationLabel =
+        [kotaKab, wilayah].filter(Boolean).join(", ") || lokasi || "Lokasi tidak diketahui";
+
+      const id = `${idx + 1}-${normalizeKey(locationLabel)}-${normalizeKey(kegiatan || aliansi)}`;
+      return {
+        id,
+        no,
+        wilayah,
+        kotaKab,
+        lokasi,
+        kegiatan,
+        aliansi,
+        waktu,
+        lokasiAksi,
+        tuntutan,
+        isu,
+        estimasiMassa,
+        lat,
+        lng,
+        locationLabel,
+        _raw: r,
+      };
+    })
+    .filter((r) => r.wilayah || r.kotaKab || r.lokasi || r.kegiatan || r.tuntutan || r.isu);
+  return { rows, mapping };
+}
+
+function buildRowsFromSheet(sheet) {
+  const XLSXRef = window.XLSX;
+  if (!XLSXRef) {
+    throw new Error("Library XLSX belum tersedia. Coba impor ulang atau gunakan CSV.");
+  }
+  const json = XLSXRef.utils.sheet_to_json(sheet, { defval: "", raw: false });
+  return buildRowsFromRecords(json);
+}
+
+function uniq(arr) {
+  return Array.from(new Set(arr.filter(Boolean)));
+}
+
+function groupBy(arr, keyFn) {
+  const m = new Map();
+  for (const item of arr) {
+    const k = keyFn(item) ?? "";
+    if (!m.has(k)) m.set(k, []);
+    m.get(k).push(item);
+  }
+  return m;
+}
+
+function computeStats(rows) {
+  const titik = rows.length;
+  const kota = uniq(rows.map((r) => (r.kotaKab || "").trim().toUpperCase())).length;
+  const massaSum = rows.reduce((a, r) => a + (Number.isFinite(r.estimasiMassa) ? r.estimasiMassa : 0), 0);
+
+  const byWilayah = groupBy(rows, (r) => r.wilayah || "TIDAK DIKETAHUI");
+  const wilayahAgg = Array.from(byWilayah.entries()).map(([wilayah, items]) => {
+    const mass = items.reduce((a, r) => a + (Number.isFinite(r.estimasiMassa) ? r.estimasiMassa : 0), 0);
+    return { wilayah, titik: items.length, mass };
+  });
+  wilayahAgg.sort((a, b) => b.titik - a.titik || b.mass - a.mass);
+
+  const byIsu = groupBy(rows, (r) => (r.isu || r.tuntutan || "").trim().toUpperCase() || "LAINNYA");
+  const isuAgg = Array.from(byIsu.entries()).map(([isu, items]) => ({ isu, count: items.length }));
+  isuAgg.sort((a, b) => b.count - a.count);
+
+  const wilayahDominan = wilayahAgg[0]?.wilayah ?? "—";
+  const isuDominan = isuAgg[0]?.isu ?? "—";
+
+  return {
+    titik,
+    kota,
+    massaSum,
+    wilayahAgg,
+    isuAgg,
+    wilayahDominan,
+    isuDominan,
+  };
+}
+
+let map;
+let markerCluster;
+let labelLayer;
+const markerIndex = new Map();
+const labelIndex = new Map();
+
+function initMap() {
+  map = L.map("map", { zoomControl: true }).setView([-2.3, 118.2], 5);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 19,
+  }).addTo(map);
+  markerCluster = L.markerClusterGroup({ showCoverageOnHover: false, maxClusterRadius: 52 });
+  labelLayer = L.layerGroup();
+  map.addLayer(markerCluster);
+  map.addLayer(labelLayer);
+}
+
+function buildPopupHtml(row) {
+  const title = row.kotaKab || row.lokasi || "Titik Aksi";
+  const lines = [
+    ["Wilayah", row.wilayah],
+    ["Lokasi", row.lokasi],
+    ["Kegiatan", row.kegiatan || row.aliansi],
+    ["Waktu", row.waktu],
+    ["Lokasi Aksi", row.lokasiAksi],
+    ["Tuntutan", row.tuntutan],
+    ["Isu", row.isu],
+    ["Estimasi Massa", formatMassa(row.estimasiMassa)],
+  ]
+    .filter(([, v]) => toStr(v))
+    .map(
+      ([k, v]) =>
+        `<div style="display:flex;gap:10px;justify-content:space-between;"><div style="color:rgba(255,255,255,.75);font-weight:800;">${escapeHtml(
+          k
+        )}</div><div style="text-align:right;font-weight:800;">${escapeHtml(String(v))}</div></div>`
+    )
+    .join("");
+  return `<div style="min-width:240px;max-width:320px;"><div style="font-weight:900;margin-bottom:8px;color:#f6c453;">${escapeHtml(
+    title
+  )}</div>${lines}</div>`;
+}
+
+function escapeHtml(s) {
+  return String(s ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function makeRedIcon() {
+  return L.divIcon({
+    className: "",
+    html: `<div style="width:12px;height:12px;background:#e94b4b;border:2px solid rgba(255,255,255,.85);border-radius:50%;box-shadow:0 10px 25px rgba(0,0,0,.35)"></div>`,
+    iconSize: [12, 12],
+    iconAnchor: [6, 6],
+  });
+}
+
+function updateMapWithRows(rows) {
+  markerCluster.clearLayers();
+  labelLayer.clearLayers();
+  markerIndex.clear();
+  labelIndex.clear();
+
+  const redIcon = makeRedIcon();
+  const bounds = [];
+
+  for (const row of rows) {
+    if (!Number.isFinite(row.lat) || !Number.isFinite(row.lng)) continue;
+    const marker = L.marker([row.lat, row.lng], { icon: redIcon, title: row.locationLabel });
+    marker.on("click", () => {
+      setActiveRow(row.id);
+      marker.bindPopup(buildPopupHtml(row), { closeButton: true, maxWidth: 360 }).openPopup();
+    });
+    markerCluster.addLayer(marker);
+    markerIndex.set(row.id, marker);
+    bounds.push([row.lat, row.lng]);
+  }
+
+  const byWilayah = groupBy(rows, (r) => r.wilayah || "TIDAK DIKETAHUI");
+  const wilayahAgg = Array.from(byWilayah.entries())
+    .map(([wilayah, items]) => ({ wilayah, items }))
+    .filter((x) => x.wilayah && x.wilayah !== "TIDAK DIKETAHUI")
+    .sort((a, b) => b.items.length - a.items.length)
+    .slice(0, 10);
+
+  for (const w of wilayahAgg) {
+    const base = PROVINCE_CENTROIDS[w.wilayah];
+    if (!base) continue;
+    const items = w.items.slice().sort((a, b) => (b.estimasiMassa || 0) - (a.estimasiMassa || 0));
+    const byLocation = groupBy(items, (r) => {
+      const name = (r.kotaKab || r.lokasi || "Titik").trim();
+      return normalizeKey(name);
+    });
+    const locationAgg = Array.from(byLocation.entries())
+      .map(([, locItems]) => {
+        const name = (locItems[0]?.kotaKab || locItems[0]?.lokasi || "Titik").trim();
+        const count = locItems.length;
+        const mass = locItems.reduce((a, r) => a + (Number.isFinite(r.estimasiMassa) ? r.estimasiMassa : 0), 0);
+        return { name, count, mass };
+      })
+      .sort((a, b) => b.count - a.count || b.mass - a.mass || a.name.localeCompare(b.name));
+    const top = locationAgg.slice(0, 3);
+    const totalMass = items.reduce((a, r) => a + (Number.isFinite(r.estimasiMassa) ? r.estimasiMassa : 0), 0);
+    const htmlRows = top
+      .map((r) => {
+        const name = r.count > 1 ? `${r.name} (${r.count} titik)` : r.name;
+        const mass = r.mass ? formatMassa(r.mass) : "—";
+        return `<div class="labelMarker__row"><span class="labelMarker__label">${escapeHtml(
+          name
+        )}</span><span class="labelMarker__value">${escapeHtml(mass)}</span></div>`;
+      })
+      .join("");
+    const html = `<div class="labelMarker"><div class="labelMarker__title">${escapeHtml(
+      w.wilayah
+    )}</div><div class="labelMarker__summary"><div class="labelMarker__stat"><span class="labelMarker__statLabel">Titik Aksi</span><span class="labelMarker__statValue">${escapeHtml(
+      String(w.items.length)
+    )}</span></div><div class="labelMarker__stat"><span class="labelMarker__statLabel">Total Massa</span><span class="labelMarker__statValue">${escapeHtml(
+      formatMassa(totalMass)
+    )}</span></div></div>${htmlRows}</div>`;
+    const labelMarker = L.marker(base, {
+      icon: L.divIcon({ className: "", html, iconSize: [240, 0], iconAnchor: [120, 10] }),
+      interactive: true,
+    });
+    labelMarker.on("click", () => {
+      els.wilayahFilter.value = w.wilayah;
+      applyFiltersAndRender();
+      map.setView(base, Math.max(map.getZoom(), 6));
+    });
+    labelLayer.addLayer(labelMarker);
+    labelIndex.set(w.wilayah, labelMarker);
+  }
+
+  if (bounds.length) {
+    map.fitBounds(bounds, { padding: [30, 30], maxZoom: 8 });
+  } else {
+    map.setView([-2.3, 118.2], 5);
+  }
+}
+
+function setActiveRow(id) {
+  state.activeId = id;
+  renderTable(state.filteredRows);
+  const el = document.querySelector(`[data-row-id="${CSS.escape(id)}"]`);
+  if (el) el.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+function renderSummary(stats) {
+  els.sumTitik.textContent = formatNumberId(stats.titik);
+  els.sumKota.textContent = formatNumberId(stats.kota);
+  els.sumMassa.textContent = stats.massaSum ? `${formatMassa(stats.massaSum)} ORANG` : "—";
+  els.sumWilayahDominan.textContent = stats.wilayahDominan || "—";
+  els.sumIsuDominan.textContent = stats.isuDominan || "—";
+
+  els.rekapWilayahBody.innerHTML = "";
+  for (const r of stats.wilayahAgg.slice(0, 12)) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td>${escapeHtml(r.wilayah)}</td><td class="num">${formatNumberId(
+      r.titik
+    )}</td><td class="num">${formatMassa(r.mass)}</td>`;
+    tr.addEventListener("click", () => {
+      if (r.wilayah && r.wilayah !== "TIDAK DIKETAHUI") {
+        els.wilayahFilter.value = r.wilayah;
+        applyFiltersAndRender();
+      }
+    });
+    els.rekapWilayahBody.appendChild(tr);
+  }
+
+  els.isuList.innerHTML = "";
+  for (const r of stats.isuAgg.slice(0, 6)) {
+    const div = document.createElement("div");
+    div.className = "issueItem";
+    div.innerHTML = `<div class="issueItem__name" style="font-size:10px;">${escapeHtml(r.isu)}</div><div class="issueItem__count">${formatNumberId(
+      r.count
+    )}</div>`;
+    els.isuList.appendChild(div);
+  }
+
+  const analisa = buildAnalisa(stats);
+  els.analisaList.innerHTML = "";
+  for (const t of analisa) {
+    const li = document.createElement("li");
+    li.textContent = t;
+    els.analisaList.appendChild(li);
+  }
+}
+
+function buildAnalisa(stats) {
+  const lines = [];
+  if (stats.wilayahAgg.length) {
+    const top = stats.wilayahAgg[0];
+    const p = stats.titik ? Math.round((top.titik / stats.titik) * 100) : 0;
+    lines.push(`Wilayah dominan ${top.wilayah} dengan ${top.titik} titik (${p}%).`);
+  }
+  if (stats.isuAgg.length) {
+    const topIsu = stats.isuAgg[0];
+    lines.push(`Isu dominan ${topIsu.isu} muncul pada ${topIsu.count} titik aksi.`);
+  }
+  if (stats.massaSum) {
+    lines.push(`Total estimasi massa nasional sekitar ${formatMassa(stats.massaSum)} orang.`);
+  }
+  const wilayahTakDiketahui = stats.wilayahAgg.find((x) => x.wilayah === "TIDAK DIKETAHUI");
+  if (wilayahTakDiketahui && wilayahTakDiketahui.titik) {
+    lines.push(
+      `Terdapat ${wilayahTakDiketahui.titik} baris tanpa wilayah yang terdeteksi; lengkapi kolom wilayah/koordinat untuk pemetaan yang lebih akurat.`
+    );
+  }
+  return lines.slice(0, 5);
+}
+
+function renderTable(rows) {
+  els.rincianBody.innerHTML = "";
+  rows.forEach((r, idx) => {
+    const tr = document.createElement("tr");
+    tr.dataset.rowId = r.id;
+    if (state.activeId === r.id) tr.classList.add("is-active");
+    const noCell = toStr(r.no) || String(idx + 1);
+    const tanggalCell = r.waktu || "—";
+    const wilayahCell = r.wilayah || "—";
+    const massaCell = formatMassa(r.estimasiMassa);
+    const lokasiCell = r.lokasi || "—";
+    const kelompokCell = r.aliansi || r.kegiatan || "—";
+    const tuntutanCell = r.tuntutan || r.isu || "—";
+    tr.innerHTML = `<td class="num">${escapeHtml(noCell)}</td><td>${escapeHtml(
+      tanggalCell
+    )}</td><td>${escapeHtml(wilayahCell)}</td><td class="num">${escapeHtml(
+      massaCell
+    )}</td><td>${escapeHtml(lokasiCell)}</td><td>${escapeHtml(
+      kelompokCell
+    )}</td><td>${escapeHtml(tuntutanCell)}</td>`;
+    tr.addEventListener("click", () => {
+      setActiveRow(r.id);
+      const marker = markerIndex.get(r.id);
+      if (marker) {
+        map.setView(marker.getLatLng(), Math.max(map.getZoom(), 7));
+        marker.fire("click");
+      }
+    });
+    els.rincianBody.appendChild(tr);
+  });
+}
+
+function applyFiltersAndRender() {
+  const wilayah = toStr(els.wilayahFilter.value);
+  const bulan = toStr(els.bulanFilter.value);
+  const tahun = toStr(els.tahunFilter.value);
+  const q = normalizeKey(els.searchInput.value);
+  state.filteredRows = state.allRows.filter((r) => {
+    const okWilayah = !wilayah || r.wilayah === wilayah;
+    if (!okWilayah) return false;
+    const rowMonth = getMonthValue(r.waktu);
+    const rowYear = getYearValue(r.waktu);
+    const okBulan = !bulan || rowMonth === bulan;
+    const okTahun = !tahun || rowYear === tahun;
+    if (!okBulan || !okTahun) return false;
+    if (!q) return true;
+    const hay = normalizeKey(
+      [r.no, r.wilayah, r.kotaKab, r.lokasi, r.kegiatan, r.aliansi, r.waktu, r.lokasiAksi, r.tuntutan, r.isu].join(" ")
+    );
+    return hay.includes(q);
+  });
+
+  const stats = computeStats(state.filteredRows);
+  renderSummary(stats);
+  renderTable(state.filteredRows);
+  updateMapWithRows(state.filteredRows);
+}
+
+function populateFilters(rows) {
+  const selectedWilayah = toStr(els.wilayahFilter.value);
+  const selectedBulan = toStr(els.bulanFilter.value);
+  const selectedTahun = toStr(els.tahunFilter.value);
+  const wilayahs = uniq(rows.map((r) => r.wilayah).filter(Boolean)).sort((a, b) => a.localeCompare(b));
+  const months = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"];
+  const years = uniq(rows.map((r) => getYearValue(r.waktu)).filter(Boolean)).sort((a, b) => b.localeCompare(a));
+
+  els.wilayahFilter.innerHTML = "";
+  const base = document.createElement("option");
+  base.value = "";
+  base.textContent = "Semua Wilayah";
+  els.wilayahFilter.appendChild(base);
+  wilayahs.forEach((w) => {
+    const opt = document.createElement("option");
+    opt.value = w;
+    opt.textContent = w;
+    els.wilayahFilter.appendChild(opt);
+  });
+
+  els.bulanFilter.innerHTML = "";
+  const monthBase = document.createElement("option");
+  monthBase.value = "";
+  monthBase.textContent = "Semua Bulan";
+  els.bulanFilter.appendChild(monthBase);
+  months.forEach((month) => {
+    const opt = document.createElement("option");
+    opt.value = month;
+    opt.textContent = getMonthLabel(month);
+    els.bulanFilter.appendChild(opt);
+  });
+
+  els.tahunFilter.innerHTML = "";
+  const yearBase = document.createElement("option");
+  yearBase.value = "";
+  yearBase.textContent = "Semua Tahun";
+  els.tahunFilter.appendChild(yearBase);
+  years.forEach((year) => {
+    const opt = document.createElement("option");
+    opt.value = year;
+    opt.textContent = year;
+    els.tahunFilter.appendChild(opt);
+  });
+
+  els.wilayahFilter.value = wilayahs.includes(selectedWilayah) ? selectedWilayah : "";
+  els.bulanFilter.value = months.includes(selectedBulan) ? selectedBulan : "";
+  els.tahunFilter.value = years.includes(selectedTahun) ? selectedTahun : "";
+  els.wilayahFilter.disabled = false;
+  els.bulanFilter.disabled = false;
+  els.tahunFilter.disabled = years.length === 0;
+  els.searchInput.disabled = false;
+}
+
+function populateSheets(wb) {
+  els.sheetSelect.innerHTML = "";
+  wb.SheetNames.forEach((name) => {
+    const opt = document.createElement("option");
+    opt.value = name;
+    opt.textContent = name;
+    els.sheetSelect.appendChild(opt);
+  });
+  els.sheetSelect.disabled = wb.SheetNames.length <= 1 ? true : false;
+}
+
+function loadWorkbook(wb, datasetLabel) {
+  state.workbook = wb;
+  state.datasetLabel = datasetLabel;
+  els.datasetName.textContent = datasetLabel;
+  populateSheets(wb);
+  const sheetName = state.sheetName && wb.SheetNames.includes(state.sheetName) ? state.sheetName : wb.SheetNames[0];
+  state.sheetName = sheetName;
+  els.sheetSelect.value = sheetName;
+  const sheet = wb.Sheets[sheetName];
+  const { rows } = buildRowsFromSheet(sheet);
+  state.allRows = rows;
+  state.activeId = null;
+  populateFilters(rows);
+  applyFiltersAndRender();
+  toast(`Data dimuat: ${rows.length} baris`);
+}
+
+function loadRows(rows, datasetLabel) {
+  state.workbook = null;
+  state.sheetName = null;
+  state.datasetLabel = datasetLabel;
+  els.datasetName.textContent = datasetLabel;
+  els.sheetSelect.innerHTML = "";
+  els.sheetSelect.disabled = true;
+  state.allRows = rows;
+  state.activeId = null;
+  populateFilters(rows);
+  applyFiltersAndRender();
+  toast(`Data dimuat: ${rows.length} baris`);
+}
+
+function parseCsvToRecords(text) {
+  const rows = [];
+  let row = [];
+  let cur = "";
+  let inQuotes = false;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (inQuotes) {
+      if (ch === '"') {
+        const next = text[i + 1];
+        if (next === '"') {
+          cur += '"';
+          i++;
+        } else {
+          inQuotes = false;
+        }
+      } else {
+        cur += ch;
+      }
+      continue;
+    }
+    if (ch === '"') {
+      inQuotes = true;
+      continue;
+    }
+    if (ch === ",") {
+      row.push(cur);
+      cur = "";
+      continue;
+    }
+    if (ch === "\n") {
+      row.push(cur);
+      cur = "";
+      rows.push(row);
+      row = [];
+      continue;
+    }
+    if (ch === "\r") continue;
+    cur += ch;
+  }
+  row.push(cur);
+  rows.push(row);
+
+  const trimmed = rows
+    .map((r) => r.map((c) => String(c ?? "").trim()))
+    .filter((r) => r.some((c) => c !== ""));
+  if (!trimmed.length) return [];
+  const headers = trimmed[0].map((h, idx) => (h ? h : `kolom_${idx + 1}`));
+  const records = [];
+  for (const r of trimmed.slice(1)) {
+    const obj = {};
+    headers.forEach((h, idx) => {
+      obj[h] = r[idx] ?? "";
+    });
+    records.push(obj);
+  }
+  return records;
+}
+
+async function loadSample() {
+  return;
+}
+
+function handleFile(file) {
+  return;
+}
+
+function wireEvents() {
+  els.sheetSelect.addEventListener("change", () => {
+    if (!state.workbook) return;
+    state.sheetName = els.sheetSelect.value;
+    loadWorkbook(state.workbook, state.datasetLabel);
+  });
+  els.wilayahFilter.addEventListener("change", () => applyFiltersAndRender());
+  els.bulanFilter.addEventListener("change", () => applyFiltersAndRender());
+  els.tahunFilter.addEventListener("change", () => applyFiltersAndRender());
+  els.searchInput.addEventListener("input", () => applyFiltersAndRender());
+}
+
+async function loadActiveDatasetOnStart() {
+  try {
+    const [metaRes, recRes] = await Promise.all([fetch("/api/active"), fetch("/api/active/records")]);
+    if (!metaRes.ok) throw new Error(`Gagal memuat metadata (${metaRes.status})`);
+    if (!recRes.ok) throw new Error(`Gagal memuat data (${recRes.status})`);
+    const meta = await metaRes.json();
+    const data = await recRes.json();
+    const records = Array.isArray(data.records) ? data.records : [];
+    if (!records.length) {
+      toast("Belum ada dataset aktif. Buka Admin Data untuk impor atau input manual.");
+      return;
+    }
+    const out = buildRowsFromRecords(records);
+    loadRows(out.rows, meta?.dataset?.name || "Dataset Aktif");
+  } catch (e) {
+    toast(toStr(e.message || e));
+  }
+}
+
+initMap();
+wireEvents();
+setTitleDate(formatIndoDate(new Date()));
+loadActiveDatasetOnStart();

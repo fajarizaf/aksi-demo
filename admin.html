@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Data Aksi</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="topbar__inner">
+        <div class="topbar__title">
+          <div class="topbar__titleMain">ADMIN DATA AKSI</div>
+          <div class="topbar__titleSub">Manajemen dataset impor (tersimpan)</div>
+        </div>
+        <div class="topbar__controls">
+          <a class="btn btn--ghost" href="./index.html">Kembali ke Peta</a>
+          <button id="logoutBtn" class="btn btn--ghost" type="button">Logout</button>
+        </div>
+      </div>
+      <div class="subbar">
+        <div class="subbar__left">
+          <div class="chip">
+            <span class="chip__label">Dataset Aktif</span>
+            <span class="chip__value" id="activeDatasetName">—</span>
+          </div>
+        </div>
+        <div class="subbar__right">
+          <button id="refreshBtn" class="btn btn--ghost">Refresh</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="adminWrap">
+      <section class="card">
+        <div class="card__title">Impor Dataset</div>
+        <div class="adminForm">
+          <label class="btn btn--ghost">
+            <input id="fileInput" type="file" accept=".xlsx,.xls,.csv" hidden />
+            Pilih File (Excel/CSV)
+          </label>
+          <button id="loadSampleBtn" class="btn">Muat Contoh</button>
+          <input id="datasetNameInput" class="input adminForm__name" placeholder="Nama dataset" />
+          <select id="sheetSelect" class="select adminForm__sheet" disabled></select>
+          <button id="saveBtn" class="btn" disabled>Simpan</button>
+        </div>
+        <div class="adminHint" id="importHint">Pilih file untuk mulai impor.</div>
+      </section>
+
+      <section class="card">
+        <div class="card__title">Input Manual</div>
+        <form id="manualForm" class="adminForm adminForm--grid">
+          <input id="mTanggal" class="input" type="date" required />
+          <select id="mWilayah" class="select" required>
+            <option value="">Pilih WILAYAH</option>
+            <option value="ACEH">ACEH</option>
+            <option value="SUMATERA UTARA">SUMATERA UTARA</option>
+            <option value="SUMATERA BARAT">SUMATERA BARAT</option>
+            <option value="RIAU">RIAU</option>
+            <option value="JAMBI">JAMBI</option>
+            <option value="SUMATERA SELATAN">SUMATERA SELATAN</option>
+            <option value="BENGKULU">BENGKULU</option>
+            <option value="LAMPUNG">LAMPUNG</option>
+            <option value="KEPULAUAN BANGKA BELITUNG">KEPULAUAN BANGKA BELITUNG</option>
+            <option value="KEPULAUAN RIAU">KEPULAUAN RIAU</option>
+            <option value="DKI JAKARTA">DKI JAKARTA</option>
+            <option value="JAWA BARAT">JAWA BARAT</option>
+            <option value="JAWA TENGAH">JAWA TENGAH</option>
+            <option value="DI YOGYAKARTA">DI YOGYAKARTA</option>
+            <option value="JAWA TIMUR">JAWA TIMUR</option>
+            <option value="BANTEN">BANTEN</option>
+            <option value="BALI">BALI</option>
+            <option value="NUSA TENGGARA BARAT">NUSA TENGGARA BARAT</option>
+            <option value="NUSA TENGGARA TIMUR">NUSA TENGGARA TIMUR</option>
+            <option value="KALIMANTAN BARAT">KALIMANTAN BARAT</option>
+            <option value="KALIMANTAN TENGAH">KALIMANTAN TENGAH</option>
+            <option value="KALIMANTAN SELATAN">KALIMANTAN SELATAN</option>
+            <option value="KALIMANTAN TIMUR">KALIMANTAN TIMUR</option>
+            <option value="KALIMANTAN UTARA">KALIMANTAN UTARA</option>
+            <option value="SULAWESI UTARA">SULAWESI UTARA</option>
+            <option value="SULAWESI TENGAH">SULAWESI TENGAH</option>
+            <option value="SULAWESI SELATAN">SULAWESI SELATAN</option>
+            <option value="SULAWESI TENGGARA">SULAWESI TENGGARA</option>
+            <option value="GORONTALO">GORONTALO</option>
+            <option value="SULAWESI BARAT">SULAWESI BARAT</option>
+            <option value="MALUKU">MALUKU</option>
+            <option value="MALUKU UTARA">MALUKU UTARA</option>
+            <option value="PAPUA">PAPUA</option>
+            <option value="PAPUA BARAT">PAPUA BARAT</option>
+            <option value="PAPUA BARAT DAYA">PAPUA BARAT DAYA</option>
+            <option value="PAPUA TENGAH">PAPUA TENGAH</option>
+            <option value="PAPUA PEGUNUNGAN">PAPUA PEGUNUNGAN</option>
+            <option value="PAPUA SELATAN">PAPUA SELATAN</option>
+          </select>
+          <input id="mJumlahMassa" class="input" placeholder="JUMLAH MASSA" required />
+          <input id="mLokasi" class="input" placeholder="LOKASI" required />
+          <input id="mKelompokAksi" class="input" placeholder="KELOMPOK AKSI" required />
+          <input id="mTuntutan" class="input" placeholder="TUNTUTAN" required />
+          <input
+            id="mGoogleMaps"
+            class="input"
+            type="url"
+            placeholder="GOOGLE MAPS (wajib, contoh: maps.app.goo.gl/...)"
+            required
+          />
+          <div class="adminForm__actions">
+            <button id="mSubmit" class="btn" type="submit">Tambah</button>
+            <button id="mCancelEdit" class="btn btn--ghost" type="button" hidden>Batal Edit</button>
+          </div>
+        </form>
+        <div class="adminHint" id="manualHint">Semua field wajib diisi. Jika tidak ada dataset aktif, input manual akan membuat dataset “Manual” otomatis.</div>
+      </section>
+
+      <section class="card">
+        <div class="card__title">Dataset Tersimpan</div>
+        <div class="tableWrap">
+          <table class="table adminTable">
+            <thead>
+              <tr>
+                <th>Nama</th>
+                <th>Tipe</th>
+                <th>Sheet</th>
+                <th class="num">Baris</th>
+                <th>Diperbarui</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="datasetBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card__title">Data Aktif</div>
+        <div class="adminFilter">
+          <input id="filterKeyword" class="input adminFilter__item" placeholder="Cari lokasi / kelompok aksi / tuntutan" />
+          <select id="filterWilayah" class="select adminFilter__item">
+            <option value="">Semua Wilayah</option>
+          </select>
+          <input id="filterTanggal" class="input adminFilter__item" type="date" />
+          <select id="filterBulan" class="select adminFilter__item">
+            <option value="">Semua Bulan</option>
+          </select>
+          <select id="filterTahun" class="select adminFilter__item">
+            <option value="">Semua Tahun</option>
+          </select>
+          <button id="clearFilterBtn" class="btn btn--ghost" type="button">Reset Filter</button>
+        </div>
+        <div class="tableWrap">
+          <table class="table adminTable">
+            <thead>
+              <tr>
+                <th>TANGGAL</th>
+                <th>WILAYAH</th>
+                <th class="num">JUMLAH MASSA</th>
+                <th>LOKASI</th>
+                <th>KELOMPOK AKSI</th>
+                <th>TUNTUTAN</th>
+                <th>MAPS</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="recordBody"></tbody>
+          </table>
+        </div>
+        <div class="adminTableFooter">
+          <div id="recordSummary" class="adminTableFooter__summary">Menampilkan 0 dari 0 data</div>
+          <div class="adminPagination">
+            <button id="prevPageBtn" class="btn btn--ghost" type="button">Sebelumnya</button>
+            <span id="pageInfo" class="adminPagination__info">Halaman 1 dari 1</span>
+            <button id="nextPageBtn" class="btn btn--ghost" type="button">Berikutnya</button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="./admin.js?v=20260616-5"></script>
+  </body>
+</html>

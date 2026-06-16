@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login Admin</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="authPage">
+      <section class="authCard">
+        <div class="authCard__title">Login Admin</div>
+        <div class="authCard__sub">Masuk untuk mengelola data jumlah massa aksi demo di berbagai wilayah indonesia</div>
+        <form id="loginForm" class="authForm">
+          <input id="usernameInput" class="input" placeholder="Username" autocomplete="username" />
+          <input id="passwordInput" class="input" type="password" placeholder="Password" autocomplete="current-password" />
+          <button class="btn" type="submit">Masuk</button>
+        </form>
+        <div class="authHint">Kelola data impor, input manual, dan manajemen dataset. terkait data masa aksi demo</div>
+      </section>
+    </main>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="./login.js?v=20260616-1"></script>
+  </body>
+</html>

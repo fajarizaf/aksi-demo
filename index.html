@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Peta Sebaran Aksi</title>
+    <link rel="preconnect" href="https://unpkg.com" />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="topbar__inner">
+        <div class="topbar__title">
+          <div class="topbar__titleMain">PETA SEBARAN AKSI</div>
+          <div class="topbar__titleSub" id="titleDate">—</div>
+        </div>
+        <div class="topbar__controls">
+          <a class="btn btn--ghost" href="./admin.html">Admin Data</a>
+        </div>
+      </div>
+      <div class="subbar">
+        <div class="subbar__left">
+          <div class="chip">
+            <span class="chip__label">Dataset</span>
+            <span class="chip__value" id="datasetName">Belum dimuat</span>
+          </div>
+          <div class="chip">
+            <span class="chip__label">Sheet</span>
+            <select id="sheetSelect" class="select" disabled></select>
+          </div>
+        </div>
+        <div class="subbar__right">
+          <select id="wilayahFilter" class="select" disabled>
+            <option value="">Semua Wilayah</option>
+          </select>
+          <select id="bulanFilter" class="select" disabled>
+            <option value="">Semua Bulan</option>
+          </select>
+          <select id="tahunFilter" class="select" disabled>
+            <option value="">Semua Tahun</option>
+          </select>
+          <input
+            id="searchInput"
+            class="input"
+            placeholder="Cari lokasi / kegiatan / tuntutan…"
+            disabled
+          />
+        </div>
+      </div>
+    </header>
+    <main class="layout">
+      <section class="mapPanel">
+        <div id="map" class="map"></div>
+        <div class="legend">
+          <div class="legend__title">Keterangan</div>
+          <div class="legend__row"><span class="dot dot--red"></span> Titik aksi</div>
+          <div class="legend__row">
+            <span class="dot dot--gold"></span> Label wilayah (ringkasan)
+          </div>
+        </div>
+      </section>
+      <section class="bottomPanel">
+        <div class="bottomPanel__title">Rincian Data</div>
+        <div class="tableWrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th class="num">NO</th>
+                <th>TANGGAL</th>
+                <th>WILAYAH</th>
+                <th class="num">JUMLAH MASSA</th>
+                <th>LOKASI</th>
+                <th>KELOMPOK AKSI</th>
+                <th>TUNTUTAN</th>
+              </tr>
+            </thead>
+            <tbody id="rincianBody"></tbody>
+          </table>
+        </div>
+      </section>
+      <aside class="sidePanel">
+        <div class="card">
+          <div class="card__title">Ringkasan Nasional</div>
+          <div class="summaryGrid">
+            <div class="summaryItem">
+              <div class="summaryItem__label">Titik Aksi</div>
+              <div class="summaryItem__value" id="sumTitik" style="font-size:14px;">—</div>
+            </div>
+            <div class="summaryItem">
+              <div class="summaryItem__label">Kota / Kabupaten</div>
+              <div class="summaryItem__value" id="sumKota" style="font-size:14px;">—</div>
+            </div>
+            <div class="summaryItem">
+              <div class="summaryItem__label">Estimasi Massa</div>
+              <div class="summaryItem__value" id="sumMassa" style="font-size:14px;">—</div>
+            </div>
+            <div class="summaryItem">
+              <div class="summaryItem__label">Wilayah Dominan</div>
+              <div class="summaryItem__value" id="sumWilayahDominan" style="font-size:14px;">—</div>
+            </div>
+            <div class="summaryItem">
+              <div class="summaryItem__label">Isu Dominan</div>
+              <div class="summaryItem__value" id="sumIsuDominan" style="font-size:10px;">—</div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card__title">Rekap Per Wilayah</div>
+          <div class="tableWrap tableWrap--compact">
+            <table class="table table--compact">
+              <thead>
+                <tr>
+                  <th>Wilayah</th>
+                  <th class="num">Titik</th>
+                  <th class="num">Massa</th>
+                </tr>
+              </thead>
+              <tbody id="rekapWilayahBody"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card__title">Isu Dominan</div>
+          <div class="issueList" id="isuList"></div>
+        </div>
+        <div class="card">
+          <div class="card__title">Analisa Singkat</div>
+          <ol class="analysis" id="analisaList"></ol>
+        </div>
+      </aside>
+    </main>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
+    ></script>
+    <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+    <script src="./app.js?v=20260616-2"></script>
+  </body>
+</html>
