@@ -452,15 +452,103 @@ let labelLayer;
 const markerIndex = new Map();
 const labelIndex = new Map();
 
+function getLabelLimitByZoom() {
+  return 10;
+}
+
+function updateLabelMarkerScale() {
+  if (!map) return;
+  const zoom = map.getZoom();
+  const clamped = Math.max(3, Math.min(10, zoom));
+  const progress = (clamped - 3) / 7;
+  const eased = Math.pow(progress, 2.7);
+  const scale = 0.0006 + eased * 0.66;
+  const minWidth = 5 + eased * 155;
+  const padding = 0.1 + eased * 7.4;
+  const radius = 0.6 + eased * 9.4;
+  const titleSize = 0.8 + eased * 8.2;
+  const titleGap = 0.1 + eased * 5.9;
+  const summaryGap = 0.1 + eased * 4.9;
+  const summaryMargin = 0.1 + eased * 5.9;
+  const statPaddingY = 0.1 + eased * 4.9;
+  const statPaddingX = 0.1 + eased * 5.9;
+  const statGap = 0.1 + eased * 1.9;
+  const statRadius = 0.6 + eased * 7.4;
+  const statLabelSize = 0.6 + eased * 6.4;
+  const statValueSize = 0.8 + eased * 8.2;
+  const rowSize = 0.6 + eased * 7.9;
+  const rowGap = 0.1 + eased * 5.9;
+  const rowMargin = 0.1 + eased * 3.9;
+  const rowPadding = 0.1 + eased * 3.9;
+  const root = document.documentElement.style;
+  root.setProperty("--label-marker-scale", scale.toFixed(3));
+  root.setProperty("--label-marker-min-width", `${minWidth.toFixed(1)}px`);
+  root.setProperty("--label-marker-padding", `${padding.toFixed(1)}px`);
+  root.setProperty("--label-marker-radius", `${radius.toFixed(1)}px`);
+  root.setProperty("--label-marker-title-size", `${titleSize.toFixed(1)}px`);
+  root.setProperty("--label-marker-title-gap", `${titleGap.toFixed(1)}px`);
+  root.setProperty("--label-marker-summary-gap", `${summaryGap.toFixed(1)}px`);
+  root.setProperty("--label-marker-summary-margin", `${summaryMargin.toFixed(1)}px`);
+  root.setProperty("--label-marker-stat-padding-y", `${statPaddingY.toFixed(1)}px`);
+  root.setProperty("--label-marker-stat-padding-x", `${statPaddingX.toFixed(1)}px`);
+  root.setProperty("--label-marker-stat-gap", `${statGap.toFixed(1)}px`);
+  root.setProperty("--label-marker-stat-radius", `${statRadius.toFixed(1)}px`);
+  root.setProperty("--label-marker-stat-label-size", `${statLabelSize.toFixed(1)}px`);
+  root.setProperty("--label-marker-stat-value-size", `${statValueSize.toFixed(1)}px`);
+  root.setProperty("--label-marker-row-size", `${rowSize.toFixed(1)}px`);
+  root.setProperty("--label-marker-row-gap", `${rowGap.toFixed(1)}px`);
+  root.setProperty("--label-marker-row-margin", `${rowMargin.toFixed(1)}px`);
+  root.setProperty("--label-marker-row-padding", `${rowPadding.toFixed(1)}px`);
+}
+
+function updatePointMarkerScale() {
+  if (!map) return;
+  const zoom = map.getZoom();
+  const clamped = Math.max(3, Math.min(10, zoom));
+  const progress = (clamped - 3) / 7;
+  const inverse = 1 - progress;
+  const size = 10 + inverse * 16;
+  const ring = 2 + inverse * 3;
+  const glow = 10 + inverse * 18;
+  const root = document.documentElement.style;
+  root.setProperty("--point-marker-size", `${size.toFixed(1)}px`);
+  root.setProperty("--point-marker-ring", `${ring.toFixed(1)}px`);
+  root.setProperty("--point-marker-glow", `${glow.toFixed(1)}px`);
+}
+
 function initMap() {
   map = L.map("map", { zoomControl: true }).setView([-2.3, 118.2], 5);
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     maxZoom: 19,
   }).addTo(map);
-  markerCluster = L.markerClusterGroup({ showCoverageOnHover: false, maxClusterRadius: 52 });
+  markerCluster = L.markerClusterGroup({
+    showCoverageOnHover: false,
+    maxClusterRadius: 52,
+    iconCreateFunction(cluster) {
+      const count = cluster.getChildCount();
+      const size = count >= 50 ? 58 : count >= 10 ? 50 : 42;
+      return L.divIcon({
+        className: "clusterMarkerIcon",
+        html: `<div class="clusterMarker" style="width:${size}px;height:${size}px;"><span>${escapeHtml(
+          String(count)
+        )}</span></div>`,
+        iconSize: [size, size],
+        iconAnchor: [size / 2, size / 2],
+      });
+    },
+  });
   labelLayer = L.layerGroup();
   map.addLayer(markerCluster);
   map.addLayer(labelLayer);
+  updateLabelMarkerScale();
+  updatePointMarkerScale();
+  map.on("zoom zoomend", () => {
+    updateLabelMarkerScale();
+    updatePointMarkerScale();
+  });
+  map.on("zoomend", () => {
+    if (Array.isArray(state.filteredRows)) renderLabelMarkers(state.filteredRows);
+  });
 }
 
 function buildPopupHtml(row) {
@@ -497,20 +585,123 @@ function escapeHtml(s) {
     .replace(/'/g, "&#039;");
 }
 
+function getLocationGroupKey(row) {
+  const lokasi = toStr(row?.lokasi || row?.kotaKab || row?.locationLabel || "Titik Aksi");
+  const wilayah = toStr(row?.wilayah || "TIDAK DIKETAHUI");
+  return `${normalizeKey(wilayah)}__${normalizeKey(lokasi)}`;
+}
+
 function makeRedIcon() {
   return L.divIcon({
-    className: "",
-    html: `<div style="width:12px;height:12px;background:#e94b4b;border:2px solid rgba(255,255,255,.85);border-radius:50%;box-shadow:0 10px 25px rgba(0,0,0,.35)"></div>`,
-    iconSize: [12, 12],
-    iconAnchor: [6, 6],
+    className: "pointMarkerIcon",
+    html: `<div class="pointMarkerWrap"><div class="pointMarker"></div></div>`,
+    iconSize: [0, 0],
+    iconAnchor: [0, 0],
   });
+}
+
+function renderLabelMarkers(rows) {
+  labelLayer.clearLayers();
+  labelIndex.clear();
+  const labelLimit = getLabelLimitByZoom();
+  if (labelLimit <= 0) return;
+  const byLocation = groupBy(rows, (r) => {
+    return getLocationGroupKey(r);
+  });
+  const locationAgg = Array.from(byLocation.entries())
+    .map(([key, items]) => {
+      const sortedItems = items.slice().sort((a, b) => (b.estimasiMassa || 0) - (a.estimasiMassa || 0));
+      const primary = sortedItems[0];
+      const coordItems = sortedItems.filter((r) => Number.isFinite(r.lat) && Number.isFinite(r.lng));
+      if (!primary || !coordItems.length) return null;
+      const totalMass = sortedItems.reduce((a, r) => a + (Number.isFinite(r.estimasiMassa) ? r.estimasiMassa : 0), 0);
+      const center = [
+        coordItems.reduce((a, r) => a + r.lat, 0) / coordItems.length,
+        coordItems.reduce((a, r) => a + r.lng, 0) / coordItems.length,
+      ];
+      return {
+        key,
+        items: sortedItems,
+        primary,
+        lokasi: toStr(primary.lokasi || primary.kotaKab || primary.locationLabel || "Titik Aksi"),
+        wilayah: toStr(primary.wilayah || "—"),
+        totalMass,
+        center,
+      };
+    })
+    .filter(Boolean)
+    .sort((a, b) => b.items.length - a.items.length || b.totalMass - a.totalMass || a.lokasi.localeCompare(b.lokasi))
+    .slice(0, labelLimit);
+
+  for (const loc of locationAgg) {
+    const byActionGroup = groupBy(loc.items, (r) => normalizeKey(r.kegiatan || r.aliansi || r.tuntutan || "lainnya"));
+    const topGroups = Array.from(byActionGroup.entries())
+      .map(([, groupItems]) => {
+        const name = toStr(groupItems[0]?.kegiatan || groupItems[0]?.aliansi || groupItems[0]?.tuntutan || "Lainnya");
+        const count = groupItems.length;
+        return { name, count };
+      })
+      .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name))
+      .slice(0, 2);
+    const htmlRows = [
+      `<div class="labelMarker__row"><span class="labelMarker__label">Wilayah</span><span class="labelMarker__value">${escapeHtml(
+        loc.wilayah || "—"
+      )}</span></div>`,
+      ...topGroups.map(
+        (group) =>
+          `<div class="labelMarker__row"><span class="labelMarker__label">${escapeHtml(
+            group.name
+          )}</span><span class="labelMarker__value">${escapeHtml(`${group.count} aksi`)}</span></div>`
+      ),
+    ].join("");
+    const html = `<div class="labelMarkerWrap"><div class="labelMarker"><div class="labelMarker__title">${escapeHtml(
+      loc.lokasi
+    )}</div><div class="labelMarker__summary"><div class="labelMarker__stat"><span class="labelMarker__statLabel">Titik Aksi</span><span class="labelMarker__statValue">${escapeHtml(
+      String(loc.items.length)
+    )}</span></div><div class="labelMarker__stat"><span class="labelMarker__statLabel">Total Massa</span><span class="labelMarker__statValue">${escapeHtml(
+      formatMassa(loc.totalMass)
+    )}</span></div></div>${htmlRows}</div></div>`;
+    const labelMarker = L.marker(loc.center, {
+      icon: L.divIcon({ className: "labelMarkerIcon", html, iconSize: [0, 0], iconAnchor: [0, 0] }),
+      interactive: true,
+    });
+    labelMarker.on("click", () => {
+      const primaryMarker = markerIndex.get(loc.primary.id);
+      map.setView(loc.center, Math.max(map.getZoom(), 8));
+      if (primaryMarker) primaryMarker.fire("click");
+    });
+    labelLayer.addLayer(labelMarker);
+    labelIndex.set(loc.key, labelMarker);
+  }
+}
+
+function focusMapToLabels(rows, options = {}) {
+  if (!map || !Array.isArray(rows) || !rows.length) return;
+  const markers = [];
+  const seen = new Set();
+  rows.forEach((row) => {
+    const key = getLocationGroupKey(row);
+    if (!key || seen.has(key)) return;
+    const labelMarker = labelIndex.get(key);
+    if (!labelMarker) return;
+    seen.add(key);
+    markers.push(labelMarker);
+  });
+  if (!markers.length) return;
+
+  const preferredZoom = Number.isFinite(options.preferredZoom) ? options.preferredZoom : 9;
+  if (markers.length === 1) {
+    map.setView(markers[0].getLatLng(), Math.max(map.getZoom(), preferredZoom));
+    return;
+  }
+
+  const bounds = markers.map((marker) => marker.getLatLng());
+  map.fitBounds(bounds, { padding: [50, 50], maxZoom: preferredZoom });
 }
 
 function updateMapWithRows(rows) {
   markerCluster.clearLayers();
-  labelLayer.clearLayers();
   markerIndex.clear();
-  labelIndex.clear();
 
   const redIcon = makeRedIcon();
   const bounds = [];
@@ -527,59 +718,7 @@ function updateMapWithRows(rows) {
     bounds.push([row.lat, row.lng]);
   }
 
-  const byWilayah = groupBy(rows, (r) => r.wilayah || "TIDAK DIKETAHUI");
-  const wilayahAgg = Array.from(byWilayah.entries())
-    .map(([wilayah, items]) => ({ wilayah, items }))
-    .filter((x) => x.wilayah && x.wilayah !== "TIDAK DIKETAHUI")
-    .sort((a, b) => b.items.length - a.items.length)
-    .slice(0, 10);
-
-  for (const w of wilayahAgg) {
-    const base = PROVINCE_CENTROIDS[w.wilayah];
-    if (!base) continue;
-    const items = w.items.slice().sort((a, b) => (b.estimasiMassa || 0) - (a.estimasiMassa || 0));
-    const byLocation = groupBy(items, (r) => {
-      const name = (r.kotaKab || r.lokasi || "Titik").trim();
-      return normalizeKey(name);
-    });
-    const locationAgg = Array.from(byLocation.entries())
-      .map(([, locItems]) => {
-        const name = (locItems[0]?.kotaKab || locItems[0]?.lokasi || "Titik").trim();
-        const count = locItems.length;
-        const mass = locItems.reduce((a, r) => a + (Number.isFinite(r.estimasiMassa) ? r.estimasiMassa : 0), 0);
-        return { name, count, mass };
-      })
-      .sort((a, b) => b.count - a.count || b.mass - a.mass || a.name.localeCompare(b.name));
-    const top = locationAgg.slice(0, 3);
-    const totalMass = items.reduce((a, r) => a + (Number.isFinite(r.estimasiMassa) ? r.estimasiMassa : 0), 0);
-    const htmlRows = top
-      .map((r) => {
-        const name = r.count > 1 ? `${r.name} (${r.count} titik)` : r.name;
-        const mass = r.mass ? formatMassa(r.mass) : "—";
-        return `<div class="labelMarker__row"><span class="labelMarker__label">${escapeHtml(
-          name
-        )}</span><span class="labelMarker__value">${escapeHtml(mass)}</span></div>`;
-      })
-      .join("");
-    const html = `<div class="labelMarker"><div class="labelMarker__title">${escapeHtml(
-      w.wilayah
-    )}</div><div class="labelMarker__summary"><div class="labelMarker__stat"><span class="labelMarker__statLabel">Titik Aksi</span><span class="labelMarker__statValue">${escapeHtml(
-      String(w.items.length)
-    )}</span></div><div class="labelMarker__stat"><span class="labelMarker__statLabel">Total Massa</span><span class="labelMarker__statValue">${escapeHtml(
-      formatMassa(totalMass)
-    )}</span></div></div>${htmlRows}</div>`;
-    const labelMarker = L.marker(base, {
-      icon: L.divIcon({ className: "", html, iconSize: [240, 0], iconAnchor: [120, 10] }),
-      interactive: true,
-    });
-    labelMarker.on("click", () => {
-      els.wilayahFilter.value = w.wilayah;
-      applyFiltersAndRender();
-      map.setView(base, Math.max(map.getZoom(), 6));
-    });
-    labelLayer.addLayer(labelMarker);
-    labelIndex.set(w.wilayah, labelMarker);
-  }
+  renderLabelMarkers(rows);
 
   if (bounds.length) {
     map.fitBounds(bounds, { padding: [30, 30], maxZoom: 8 });
@@ -681,11 +820,9 @@ function renderTable(rows) {
     )}</td><td>${escapeHtml(tuntutanCell)}</td>`;
     tr.addEventListener("click", () => {
       setActiveRow(r.id);
+      focusMapToLabels([r], { preferredZoom: 11 });
       const marker = markerIndex.get(r.id);
-      if (marker) {
-        map.setView(marker.getLatLng(), Math.max(map.getZoom(), 7));
-        marker.fire("click");
-      }
+      if (marker) marker.fire("click");
     });
     els.rincianBody.appendChild(tr);
   });
@@ -715,6 +852,9 @@ function applyFiltersAndRender() {
   renderSummary(stats);
   renderTable(state.filteredRows);
   updateMapWithRows(state.filteredRows);
+  if (wilayah || q) {
+    focusMapToLabels(state.filteredRows, { preferredZoom: q ? 11 : 9 });
+  }
 }
 
 function populateFilters(rows) {

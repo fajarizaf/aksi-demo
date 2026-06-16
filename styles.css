@@ -10,6 +10,27 @@
   --green:#3ad07b;
   --shadow:0 10px 30px rgba(0,0,0,.35);
   --radius:14px;
+  --label-marker-scale:1;
+  --label-marker-min-width:240px;
+  --label-marker-padding:12px;
+  --label-marker-radius:16px;
+  --label-marker-title-size:13px;
+  --label-marker-title-gap:10px;
+  --label-marker-summary-gap:8px;
+  --label-marker-summary-margin:10px;
+  --label-marker-stat-padding-y:8px;
+  --label-marker-stat-padding-x:9px;
+  --label-marker-stat-gap:3px;
+  --label-marker-stat-radius:12px;
+  --label-marker-stat-label-size:10px;
+  --label-marker-stat-value-size:13px;
+  --label-marker-row-size:12px;
+  --label-marker-row-gap:10px;
+  --label-marker-row-margin:6px;
+  --label-marker-row-padding:6px;
+  --point-marker-size:14px;
+  --point-marker-ring:2px;
+  --point-marker-glow:14px;
 }
 
 *{box-sizing:border-box}
@@ -270,49 +291,63 @@ body{
 .leaflet-container{background:#0b1220}
 .leaflet-control-attribution{display:none}
 
+.labelMarkerIcon{
+  background:transparent;
+  border:0;
+}
+
+.labelMarkerWrap{
+  transform:translate(-50%, calc(-100% - 8px));
+  transform-origin:center bottom;
+}
+
 .labelMarker{
-  border-radius:16px;
-  padding:12px;
-  min-width:240px;
+  border-radius:var(--label-marker-radius);
+  padding:var(--label-marker-padding);
+  min-width:var(--label-marker-min-width);
   border:1px solid rgba(246,196,83,.35);
   background:linear-gradient(180deg, rgba(8,15,28,.94), rgba(12,21,40,.92));
   box-shadow:0 14px 34px rgba(0,0,0,.45);
   backdrop-filter:blur(6px);
+  transform:scale(var(--label-marker-scale));
+  transform-origin:center bottom;
+  transition:transform .16s ease-out;
+  will-change:transform;
 }
 .labelMarker__title{
   font-weight:900;
   text-transform:uppercase;
   letter-spacing:.6px;
-  font-size:13px;
+  font-size:var(--label-marker-title-size);
   color:var(--gold);
-  margin-bottom:10px;
+  margin-bottom:var(--label-marker-title-gap);
   line-height:1.35;
   text-shadow:0 1px 0 rgba(0,0,0,.35);
 }
 .labelMarker__summary{
   display:grid;
   grid-template-columns:1fr 1fr;
-  gap:8px;
-  margin-bottom:10px;
+  gap:var(--label-marker-summary-gap);
+  margin-bottom:var(--label-marker-summary-margin);
 }
 .labelMarker__stat{
   display:flex;
   flex-direction:column;
-  gap:3px;
-  padding:8px 9px;
-  border-radius:12px;
+  gap:var(--label-marker-stat-gap);
+  padding:var(--label-marker-stat-padding-y) var(--label-marker-stat-padding-x);
+  border-radius:var(--label-marker-stat-radius);
   background:rgba(255,255,255,.06);
   border:1px solid rgba(255,255,255,.08);
 }
 .labelMarker__statLabel{
-  font-size:10px;
+  font-size:var(--label-marker-stat-label-size);
   font-weight:800;
   letter-spacing:.4px;
   text-transform:uppercase;
   color:rgba(255,255,255,.72);
 }
 .labelMarker__statValue{
-  font-size:13px;
+  font-size:var(--label-marker-stat-value-size);
   font-weight:900;
   color:#fff7d6;
   text-shadow:0 1px 0 rgba(0,0,0,.4);
@@ -320,12 +355,12 @@ body{
 .labelMarker__row{
   display:flex;
   justify-content:space-between;
-  gap:10px;
+  gap:var(--label-marker-row-gap);
   align-items:flex-start;
-  font-size:12px;
+  font-size:var(--label-marker-row-size);
   color:rgba(255,255,255,.94);
-  margin-top:6px;
-  padding-top:6px;
+  margin-top:var(--label-marker-row-margin);
+  padding-top:var(--label-marker-row-padding);
   border-top:1px solid rgba(255,255,255,.08);
 }
 .labelMarker__label{
@@ -340,6 +375,50 @@ body{
   color:#ffe08a;
   text-shadow:0 1px 0 rgba(0,0,0,.4);
   white-space:nowrap;
+}
+
+.pointMarkerIcon{
+  background:transparent;
+  border:0;
+}
+
+.pointMarkerWrap{
+  transform:translate(-50%, -50%);
+}
+
+.pointMarker{
+  width:var(--point-marker-size);
+  height:var(--point-marker-size);
+  border-radius:50%;
+  border:var(--point-marker-ring) solid rgba(255,255,255,.96);
+  background:radial-gradient(circle at 35% 35%, #ffb4b4 0%, #ff5a5a 30%, #e53935 65%, #9f1010 100%);
+  box-shadow:
+    0 0 0 calc(var(--point-marker-ring) + 1px) rgba(246,196,83,.55),
+    0 0 var(--point-marker-glow) rgba(233,75,75,.9),
+    0 10px 22px rgba(0,0,0,.4);
+}
+
+.clusterMarkerIcon{
+  background:transparent;
+  border:0;
+}
+
+.clusterMarker{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:50%;
+  border:3px solid rgba(255,255,255,.96);
+  background:
+    radial-gradient(circle at 35% 35%, rgba(255,235,190,.98) 0%, rgba(246,196,83,.98) 30%, rgba(233,75,75,.96) 72%, rgba(120,8,8,.96) 100%);
+  box-shadow:
+    0 0 0 4px rgba(246,196,83,.35),
+    0 0 28px rgba(233,75,75,.5),
+    0 14px 30px rgba(0,0,0,.42);
+  color:#fff;
+  font-weight:900;
+  font-size:15px;
+  text-shadow:0 1px 0 rgba(0,0,0,.35);
 }
 
 .toast{
