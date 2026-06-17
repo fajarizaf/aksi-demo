@@ -6,9 +6,9 @@
       "name": "Data Rencana Aksi Unjuk Rasa 17 Juni 2026 - Data Rencana Aksi Unjuk Rasa 17 Juni 2026",
       "type": "csv",
       "createdAt": "2026-06-17T04:03:24.664Z",
-      "updatedAt": "2026-06-17T13:49:46.379Z",
+      "updatedAt": "2026-06-17T14:00:49.674Z",
       "sheetName": "Sheet1",
-      "rowCount": 30
+      "rowCount": 31
     }
   ],
   "records": [
@@ -24,11 +24,11 @@
       "KELOMPOK AKSI": "Badan Eksekutif Mahasiswa (BEM) Universitas Nusa Putra",
       "TUNTUTAN": "Menyikapi eskalasi situasi politik nasional.",
       "RINGKASAN": "Menyikapi eskalasi situasi politik nasional secara umum.",
+      "createdAt": "2026-06-17T04:03:24.664Z",
+      "updatedAt": "2026-06-17T04:28:23.492Z",
       "GOOGLE MAPS": "https://maps.app.goo.gl/JMhzxmZVDKYDUC9q6",
       "LAT": -6.9198052,
-      "LNG": 106.927568,
-      "createdAt": "2026-06-17T04:03:24.664Z",
-      "updatedAt": "2026-06-17T04:28:23.492Z"
+      "LNG": 106.927568
     },
     {
       "id": "5c28efec-a6c8-49ac-b466-eb8d83cdf73a",
@@ -42,11 +42,11 @@
       "KELOMPOK AKSI": "Gerakan Mahasiswa Tasikmalaya (GEMATA)",
       "TUNTUTAN": "Mendorong keterbukaan informasi kepada publik masyarakat.",
       "RINGKASAN": "Tuntutan keterbukaan informasi publik bagi masyarakat.",
+      "createdAt": "2026-06-17T04:03:24.664Z",
+      "updatedAt": "2026-06-17T04:28:49.527Z",
       "GOOGLE MAPS": "https://maps.app.goo.gl/MSP7q3HYseMQcDNs9",
       "LAT": -7.3612795,
-      "LNG": 108.1129632,
-      "createdAt": "2026-06-17T04:03:24.664Z",
-      "updatedAt": "2026-06-17T04:28:49.527Z"
+      "LNG": 108.1129632
     },
     {
       "id": "1dd34c29-cbc5-462c-9d0f-cf2526551bfc",
@@ -60,11 +60,11 @@
       "KELOMPOK AKSI": "Pimpinan Cabang Ikatan Mahasiswa Muhammasiswa (IMM) Sukabumi",
       "TUNTUTAN": "Evaluasi kinerja pemerintahan pusat beserta dampak kebijakan ekonomi dan program-program strategis nasional terhadap masyarakat.",
       "RINGKASAN": "Evaluasi kinerja pemerintahan pusat serta dampak kebijakan ekonomi nasional.",
+      "createdAt": "2026-06-17T04:03:24.664Z",
+      "updatedAt": "2026-06-17T04:29:15.360Z",
       "GOOGLE MAPS": "https://maps.app.goo.gl/u9qnTtoyjrZfmkc19",
       "LAT": -6.9192497,
-      "LNG": 106.9314891,
-      "createdAt": "2026-06-17T04:03:24.664Z",
-      "updatedAt": "2026-06-17T04:29:15.360Z"
+      "LNG": 106.9314891
     },
     {
       "id": "994bebfe-d531-4422-8c29-b1bfd4c5483e",
@@ -125,8 +125,8 @@
       "datasetId": "84bd6c3d-847e-4682-b214-08e5d83536af",
       "NO": "7",
       "TANGGAL": "6/17/26",
-      "WAKTU": "",
       "WILAYAH": "DKI JAKARTA",
+      "WAKTU": "",
       "JUMLAH MASSA": 700,
       "LOKASI": "Silang Selatan Monas/Seberang Gedung Danareksa, Jakarta Pusat",
       "KELOMPOK AKSI": "Aliansi Masyarakat Jakarta Timur.",
@@ -163,16 +163,16 @@
       "TANGGAL": "6/17/26",
       "WAKTU": "",
       "WILAYAH": "DKI JAKARTA",
-      "JUMLAH MASSA": 25,
-      "LOKASI": "BGN RI/DPP PKB/Kemenko Pangan RI, Jakarta Pusat",
-      "KELOMPOK AKSI": "Front Rakyat dan Mahasiswa Madani Seluruh Indonesia",
+      "JUMLAH MASSA": 22,
+      "LOKASI": "BGN RI Jakarta Pusat",
+      "KELOMPOK AKSI": "Front Rakyat dan Mahasiswa Madani Seluruh Indonesia,Gerakan Pemuda Mahasiswa Indonesia",
       "TUNTUTAN": "Menolak pengangkatan Nanik S. Deyang sebagai Kepala BGN, menghentikan Program MBG, serta mengalihkan anggaran Program MBG ke subsidi energi dan pendidikan.",
-      "RINGKASAN": "-",
-      "GOOGLE MAPS": "https://maps.app.goo.gl/DKeLPVDRwrCP87AB9",
-      "LAT": -6.1974907,
-      "LNG": 106.824892,
+      "RINGKASAN": "Pada 17 Juni 2026, pukul 13.55 WIB, di depan Kantor BGN RI, terjadi aksi unjuk rasa dari Front Rakyat dan Mahasiswa Madani Seluruh Indonesia yang dipimpin Sapriyansyah, disusul pukul 14.15 WIB oleh Gerakan Pemuda Mahasiswa Indonesia yang dipimpin Diran Teuku Rizal. Total massa sekitar ±22 orang, terdiri dari ±12 orang Front Rakyat dan Mahasiswa Madani Seluruh Indonesia serta ±10 orang Gerakan Pemuda Mahasiswa Indonesia. Massa menuntut penolakan pengangkatan Nanik S Deyang sebagai Kepala BGN, penghentian Program MBG, serta pengalihan anggaran ke subsidi energi dan pendidikan. Aksi berakhir pada pukul 14.44 WIB dan 14.47 WIB serta berlangsung tertib dan kondusif tanpa kejadian menonjol. (Nihil).",
+      "GOOGLE MAPS": "https://maps.app.goo.gl/6SnDsUDDMJcWMzf87",
+      "LAT": -6.182851,
+      "LNG": 106.8332479,
       "createdAt": "2026-06-17T04:14:34.453Z",
-      "updatedAt": "2026-06-17T04:15:10.453Z"
+      "updatedAt": "2026-06-17T13:56:43.258Z"
     },
     {
       "id": "91e55be8-bc3a-4ea1-a11c-c46acc3c0070",
@@ -551,6 +551,24 @@
       "LNG": 101.4477793,
       "createdAt": "2026-06-17T13:35:36.999Z",
       "updatedAt": "2026-06-17T13:35:36.999Z"
+    },
+    {
+      "id": "dd9053e0-749d-4e5a-a95d-7ed506e0be08",
+      "datasetId": "84bd6c3d-847e-4682-b214-08e5d83536af",
+      "NO": "31",
+      "TANGGAL": "6/17/26",
+      "WAKTU": "",
+      "WILAYAH": "DKI JAKARTA",
+      "JUMLAH MASSA": 50,
+      "LOKASI": "Depan Kampus UKI Cawang",
+      "KELOMPOK AKSI": "Mahasiswa UKI.",
+      "TUNTUTAN": "Meminta Presiden dan Wakil Presiden mundur dari jabatannya.",
+      "RINGKASAN": "Pada 17 Juni 2026, di depan Kampus UKI Cawang, sekitar ±50 orang mahasiswa Universitas Kristen Indonesia (UKI) yang dipimpin Sdr. Bina Kasih Laila menggelar aksi unjuk rasa. Massa menuntut Presiden dan Wakil Presiden untuk mundur dari jabatannya. Dalam aksi tersebut terjadi pembakaran ban oleh massa.",
+      "GOOGLE MAPS": "https://maps.app.goo.gl/HsxWCc5HzzDnF7idA",
+      "LAT": -6.2507105,
+      "LNG": 106.872064,
+      "createdAt": "2026-06-17T14:00:49.674Z",
+      "updatedAt": "2026-06-17T14:00:49.674Z"
     }
   ]
 }
