@@ -11,9 +11,9 @@ const els = {
   sumKota: document.getElementById("sumKota"),
   sumMassa: document.getElementById("sumMassa"),
   sumWilayahDominan: document.getElementById("sumWilayahDominan"),
-  sumIsuDominan: document.getElementById("sumIsuDominan"),
+  sumPuncakHarian: document.getElementById("sumPuncakHarian"),
   rekapWilayahBody: document.getElementById("rekapWilayahBody"),
-  isuList: document.getElementById("isuList"),
+  massChart: document.getElementById("massChart"),
   analisaList: document.getElementById("analisaList"),
   rincianBody: document.getElementById("rincianBody"),
   toast: document.getElementById("toast"),
@@ -293,6 +293,13 @@ function getMonthLabel(month) {
   return labels[month] || month;
 }
 
+function looksLikeTimeValue(value) {
+  const s = toStr(value);
+  if (!s) return false;
+  if (parseDateParts(s)) return false;
+  return /(?:\b\d{1,2}[:.]\d{2}\b|\b\d{1,2}\.\d{2}\b|\bWIB\b|\bWITA\b|\bWIT\b|\bAM\b|\bPM\b)/i.test(s);
+}
+
 function getTodayDateInputValue() {
   const now = new Date();
   const year = now.getFullYear();
@@ -356,7 +363,8 @@ function inferMappingFromHeaders(headers) {
     lokasi: findHeader(headers, ["lokasi", "tempat", "lokasi kegiatan", "lokasi (kegiatan)", "lokasi kegiatan/aksi"]),
     kegiatan: findHeader(headers, ["kegiatan", "aksi", "kegiatan / aliansi", "kegiatan/aliansi", "kelompok aksi"]),
     aliansi: findHeader(headers, ["aliansi", "organisasi", "kelompok", "aliansi/organisasi", "kelompok aksi"]),
-    waktu: findHeader(headers, ["waktu", "jam", "tanggal", "hari", "time", "tgl"]),
+    tanggal: findHeader(headers, ["tanggal aksi", "tanggal", "tgl", "date", "hari", "waktu"]),
+    waktu: findHeader(headers, ["waktu aksi", "waktu", "jam", "pukul", "time"]),
     lokasiAksi: findHeader(headers, ["lokasi aksi", "lokasi_aksi", "lokasi aksi (alamat)", "alamat lokasi aksi"]),
     tuntutan: findHeader(headers, ["tuntutan", "demand", "tuntutan/isu", "isu/tuntutan"]),
     ringkasan: findHeader(headers, ["ringkasan", "summary", "ringkasan tuntutan", "deskripsi singkat", "uraian singkat"]),
@@ -385,7 +393,12 @@ function buildRowsFromRecords(json) {
       const lokasi = toStr(r[mapping.lokasi] ?? r["Lokasi"] ?? r["Lokasi Kegiatan"] ?? r["Tempat"]);
       const kegiatan = toStr(r[mapping.kegiatan] ?? r["Kegiatan"] ?? r["Aksi"]);
       const aliansi = toStr(r[mapping.aliansi] ?? r["Aliansi"] ?? r["Organisasi"]);
-      const waktu = toStr(r[mapping.waktu] ?? r["Waktu"]);
+      const tanggalSource = toStr(
+        r["TANGGAL AKSI"] ?? r["Tanggal Aksi"] ?? r["TANGGAL"] ?? r["Tanggal"] ?? r[mapping.tanggal]
+      );
+      const tanggal = parseDateParts(tanggalSource) ? tanggalSource : "";
+      const waktuSource = toStr(r["WAKTU"] ?? r["Waktu"] ?? r["Jam"] ?? r[mapping.waktu]);
+      const waktu = looksLikeTimeValue(waktuSource) ? waktuSource : "";
       const lokasiAksi = toStr(r[mapping.lokasiAksi] ?? r["Lokasi Aksi"]);
       const tuntutan = toStr(r[mapping.tuntutan] ?? r["Tuntutan"]);
       const ringkasan = toStr(r[mapping.ringkasan] ?? r["RINGKASAN"] ?? r["Ringkasan"] ?? r["Summary"]);
@@ -428,6 +441,7 @@ function buildRowsFromRecords(json) {
         lokasi,
         kegiatan,
         aliansi,
+        tanggal,
         waktu,
         lokasiAksi,
         tuntutan,
@@ -479,21 +493,38 @@ function computeStats(rows) {
   });
   wilayahAgg.sort((a, b) => b.titik - a.titik || b.mass - a.mass);
 
-  const byIsu = groupBy(rows, (r) => (r.isu || r.tuntutan || "").trim().toUpperCase() || "LAINNYA");
-  const isuAgg = Array.from(byIsu.entries()).map(([isu, items]) => ({ isu, count: items.length }));
-  isuAgg.sort((a, b) => b.count - a.count);
-
   const wilayahDominan = wilayahAgg[0]?.wilayah ?? "—";
-  const isuDominan = isuAgg[0]?.isu ?? "—";
+  const byWilayahDay = groupBy(rows, (r) => {
+    const tanggal = toDateInputValue(r.tanggal);
+    const wilayah = r.wilayah || "TIDAK DIKETAHUI";
+    return `${tanggal}__${wilayah}`;
+  });
+  const wilayahDayAgg = Array.from(byWilayahDay.entries())
+    .map(([key, items]) => {
+      const [tanggalIso, wilayah] = key.split("__");
+      const mass = items.reduce((a, r) => a + (Number.isFinite(r.estimasiMassa) ? r.estimasiMassa : 0), 0);
+      return {
+        tanggalIso,
+        tanggalLabel: formatDisplayDate(tanggalIso),
+        wilayah: wilayah || "TIDAK DIKETAHUI",
+        mass,
+        count: items.length,
+      };
+    })
+    .filter((item) => item.tanggalIso || item.wilayah)
+    .sort((a, b) => b.mass - a.mass || b.count - a.count || a.wilayah.localeCompare(b.wilayah));
+  const puncakHarian = wilayahDayAgg[0]
+    ? `${wilayahDayAgg[0].wilayah} • ${wilayahDayAgg[0].tanggalLabel}`
+    : "—";
 
   return {
     titik,
     kota,
     massaSum,
     wilayahAgg,
-    isuAgg,
     wilayahDominan,
-    isuDominan,
+    wilayahDayAgg,
+    puncakHarian,
   };
 }
 
@@ -611,7 +642,8 @@ function buildPopupHtml(row) {
     ["Wilayah", row.wilayah],
     ["Lokasi", row.lokasi],
     ["Kegiatan", row.kegiatan || row.aliansi],
-    ["Waktu", formatDisplayDate(row.waktu)],
+    ["Tanggal", formatDisplayDate(row.tanggal)],
+    ["Waktu", row.waktu],
     ["Lokasi Aksi", row.lokasiAksi],
     ["Tuntutan", row.tuntutan],
     ["Isu", row.isu],
@@ -798,7 +830,7 @@ function renderSummary(stats) {
   els.sumKota.textContent = formatNumberId(stats.kota);
   els.sumMassa.textContent = stats.massaSum ? `${formatMassa(stats.massaSum)} ORANG` : "—";
   els.sumWilayahDominan.textContent = stats.wilayahDominan || "—";
-  els.sumIsuDominan.textContent = stats.isuDominan || "—";
+  els.sumPuncakHarian.textContent = stats.puncakHarian || "—";
 
   els.rekapWilayahBody.innerHTML = "";
   for (const r of stats.wilayahAgg.slice(0, 12)) {
@@ -815,15 +847,7 @@ function renderSummary(stats) {
     els.rekapWilayahBody.appendChild(tr);
   }
 
-  els.isuList.innerHTML = "";
-  for (const r of stats.isuAgg.slice(0, 6)) {
-    const div = document.createElement("div");
-    div.className = "issueItem";
-    div.innerHTML = `<div class="issueItem__name" style="font-size:10px;">${escapeHtml(r.isu)}</div><div class="issueItem__count">${formatNumberId(
-      r.count
-    )}</div>`;
-    els.isuList.appendChild(div);
-  }
+  renderMassChart(stats.wilayahDayAgg);
 
   const analisa = buildAnalisa(stats);
   els.analisaList.innerHTML = "";
@@ -841,9 +865,9 @@ function buildAnalisa(stats) {
     const p = stats.titik ? Math.round((top.titik / stats.titik) * 100) : 0;
     lines.push(`Wilayah dominan ${top.wilayah} dengan ${top.titik} titik (${p}%).`);
   }
-  if (stats.isuAgg.length) {
-    const topIsu = stats.isuAgg[0];
-    lines.push(`Isu dominan ${topIsu.isu} muncul pada ${topIsu.count} titik aksi.`);
+  if (stats.wilayahDayAgg.length) {
+    const topDay = stats.wilayahDayAgg[0];
+    lines.push(`Puncak massa harian berada di ${topDay.wilayah} pada ${topDay.tanggalLabel} dengan total ${formatMassa(topDay.mass)}.`);
   }
   if (stats.massaSum) {
     lines.push(`Total estimasi massa nasional sekitar ${formatMassa(stats.massaSum)} orang.`);
@@ -857,6 +881,27 @@ function buildAnalisa(stats) {
   return lines.slice(0, 5);
 }
 
+function renderMassChart(items) {
+  els.massChart.innerHTML = "";
+  if (!Array.isArray(items) || !items.length) {
+    els.massChart.innerHTML = `<div class="massChart__empty">Belum ada data massa untuk ditampilkan.</div>`;
+    return;
+  }
+  const topItems = items.slice(0, 8);
+  const maxMass = Math.max(...topItems.map((item) => item.mass), 1);
+  topItems.forEach((item) => {
+    const row = document.createElement("div");
+    row.className = "massChart__row";
+    const width = Math.max(8, Math.round((item.mass / maxMass) * 100));
+    row.innerHTML = `<div class="massChart__head"><div class="massChart__title">${escapeHtml(
+      item.wilayah
+    )}</div><div class="massChart__meta">${escapeHtml(item.tanggalLabel)}</div></div><div class="massChart__barTrack"><div class="massChart__bar" style="width:${width}%"></div></div><div class="massChart__value">${escapeHtml(
+      `${formatNumberId(item.mass)} orang`
+    )}</div>`;
+    els.massChart.appendChild(row);
+  });
+}
+
 function renderTable(rows) {
   els.rincianBody.innerHTML = "";
   rows.forEach((r, idx) => {
@@ -864,7 +909,8 @@ function renderTable(rows) {
     tr.dataset.rowId = r.id;
     if (state.activeId === r.id) tr.classList.add("is-active");
     const noCell = toStr(r.no) || String(idx + 1);
-    const tanggalCell = formatDisplayDate(r.waktu);
+    const tanggalCell = formatDisplayDate(r.tanggal);
+    const waktuCell = r.waktu || "—";
     const wilayahCell = r.wilayah || "—";
     const massaCell = formatMassa(r.estimasiMassa);
     const lokasiCell = r.lokasi || "—";
@@ -873,7 +919,7 @@ function renderTable(rows) {
     const ringkasanCell = r.ringkasan || "—";
     tr.innerHTML = `<td class="num">${escapeHtml(noCell)}</td><td>${escapeHtml(
       tanggalCell
-    )}</td><td>${escapeHtml(wilayahCell)}</td><td class="num">${escapeHtml(
+    )}</td><td>${escapeHtml(waktuCell)}</td><td>${escapeHtml(wilayahCell)}</td><td class="num">${escapeHtml(
       massaCell
     )}</td><td>${escapeHtml(lokasiCell)}</td><td>${escapeHtml(
       kelompokCell
@@ -897,16 +943,16 @@ function applyFiltersAndRender() {
   state.filteredRows = state.allRows.filter((r) => {
     const okWilayah = !wilayah || r.wilayah === wilayah;
     if (!okWilayah) return false;
-    const rowDate = toDateInputValue(r.waktu);
-    const rowMonth = getMonthValue(r.waktu);
-    const rowYear = getYearValue(r.waktu);
+    const rowDate = toDateInputValue(r.tanggal);
+    const rowMonth = getMonthValue(r.tanggal);
+    const rowYear = getYearValue(r.tanggal);
     const okTanggal = !tanggal || rowDate === tanggal;
     const okBulan = !bulan || rowMonth === bulan;
     const okTahun = !tahun || rowYear === tahun;
     if (!okTanggal || !okBulan || !okTahun) return false;
     if (!q) return true;
     const hay = normalizeKey(
-      [r.no, r.wilayah, r.kotaKab, r.lokasi, r.kegiatan, r.aliansi, r.waktu, r.lokasiAksi, r.tuntutan, r.ringkasan, r.isu].join(" ")
+      [r.no, r.tanggal, r.waktu, r.wilayah, r.kotaKab, r.lokasi, r.kegiatan, r.aliansi, r.lokasiAksi, r.tuntutan, r.ringkasan, r.isu].join(" ")
     );
     return hay.includes(q);
   });
@@ -928,7 +974,7 @@ function populateFilters(rows) {
   const selectedTahun = toStr(els.tahunFilter.value);
   const wilayahs = uniq(rows.map((r) => r.wilayah).filter(Boolean)).sort((a, b) => a.localeCompare(b));
   const months = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"];
-  const years = uniq(rows.map((r) => getYearValue(r.waktu)).filter(Boolean)).sort((a, b) => b.localeCompare(a));
+  const years = uniq(rows.map((r) => getYearValue(r.tanggal)).filter(Boolean)).sort((a, b) => b.localeCompare(a));
 
   els.wilayahFilter.innerHTML = "";
   const base = document.createElement("option");

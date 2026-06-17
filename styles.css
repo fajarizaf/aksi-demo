@@ -131,7 +131,7 @@ body{
   text-transform:uppercase;
   letter-spacing:.5px;
 }
-.chip__value{font-weight:700; font-size:13px; color:var(--gold)}
+.chip__value{font-weight:700; font-size:10px; color:var(--gold)}
 
 .layout{
   display:grid;
@@ -273,19 +273,62 @@ body{
 .dot--red{background:var(--red)}
 .dot--gold{background:var(--gold)}
 
-.issueList{display:flex; flex-direction:column; gap:8px}
-.issueItem{
+.massChart{
   display:flex;
-  justify-content:space-between;
-  align-items:center;
+  flex-direction:column;
   gap:10px;
+}
+.massChart__row{
   padding:9px 10px;
   border-radius:12px;
   border:1px solid rgba(255,255,255,.12);
   background:rgba(0,0,0,.15);
 }
-.issueItem__name{font-weight:800; font-size:13px; color:rgba(255,255,255,.88)}
-.issueItem__count{font-weight:900; color:var(--gold)}
+.massChart__head{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:10px;
+  margin-bottom:8px;
+}
+.massChart__title{
+  font-weight:800;
+  font-size:12px;
+  color:rgba(255,255,255,.92);
+}
+.massChart__meta{
+  font-weight:700;
+  font-size:10px;
+  color:rgba(255,255,255,.68);
+  white-space:nowrap;
+}
+.massChart__barTrack{
+  width:100%;
+  height:10px;
+  border-radius:999px;
+  overflow:hidden;
+  background:rgba(255,255,255,.08);
+}
+.massChart__bar{
+  height:100%;
+  border-radius:999px;
+  background:linear-gradient(90deg, rgba(246,196,83,.92), rgba(233,75,75,.92));
+  box-shadow:0 0 14px rgba(246,196,83,.25);
+}
+.massChart__value{
+  margin-top:8px;
+  font-weight:900;
+  color:var(--gold);
+  font-size:12px;
+}
+.massChart__empty{
+  padding:12px;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(0,0,0,.15);
+  color:rgba(255,255,255,.75);
+  font-weight:700;
+}
 
 .analysis{
   margin:0;

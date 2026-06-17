@@ -38,7 +38,7 @@
             <span class="chip__label">Dataset</span>
             <span class="chip__value" id="datasetName">Belum dimuat</span>
           </div>
-          <div class="chip">
+          <div class="chip" style="display: none;">
             <span class="chip__label">Sheet</span>
             <select id="sheetSelect" class="select" disabled></select>
           </div>
@@ -65,7 +65,7 @@
     </header>
     <main class="layout">
       <section class="mapPanel">
-        <div id="map" class="map"></div>
+        <div id="map" class="map" style="z-index: 1;"></div>
         <div class="legend">
           <div class="legend__title">Keterangan</div>
           <div class="legend__row"><span class="dot dot--red"></span> Titik aksi</div>
@@ -82,6 +82,7 @@
               <tr>
                 <th class="num">NO</th>
                 <th>TANGGAL</th>
+                <th>WAKTU</th>
                 <th>WILAYAH</th>
                 <th class="num">JUMLAH MASSA</th>
                 <th>LOKASI</th>
@@ -115,8 +116,8 @@
               <div class="summaryItem__value" id="sumWilayahDominan" style="font-size:14px;">—</div>
             </div>
             <div class="summaryItem">
-              <div class="summaryItem__label">Isu Dominan</div>
-              <div class="summaryItem__value" id="sumIsuDominan" style="font-size:10px;">—</div>
+              <div class="summaryItem__label">Puncak Harian</div>
+              <div class="summaryItem__value" id="sumPuncakHarian" style="font-size:10px;">—</div>
             </div>
           </div>
         </div>
@@ -136,8 +137,8 @@
           </div>
         </div>
         <div class="card">
-          <div class="card__title">Isu Dominan</div>
-          <div class="issueList" id="isuList"></div>
+          <div class="card__title">Grafik Massa Per Wilayah / Hari</div>
+          <div class="massChart" id="massChart"></div>
         </div>
         <div class="card">
           <div class="card__title">Analisa Singkat</div>
@@ -152,6 +153,6 @@
       crossorigin=""
     ></script>
     <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
-    <script src="./app.js?v=20260616-4"></script>
+    <script src="./app.js?v=20260617-2"></script>
   </body>
 </html>

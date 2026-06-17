@@ -26,6 +26,7 @@ const els = {
   mSubmit: document.getElementById("mSubmit"),
   mCancelEdit: document.getElementById("mCancelEdit"),
   mTanggal: document.getElementById("mTanggal"),
+  mWaktu: document.getElementById("mWaktu"),
   mWilayah: document.getElementById("mWilayah"),
   mLokasi: document.getElementById("mLokasi"),
   mKelompokAksi: document.getElementById("mKelompokAksi"),
@@ -258,6 +259,7 @@ async function runWithButtonLoading(button, task, loadingText = "Loading...") {
 function resetManualForm() {
   state.editingRecordId = "";
   els.mTanggal.value = "";
+  els.mWaktu.value = "";
   els.mWilayah.value = "";
   els.mJumlahMassa.value = "";
   els.mLokasi.value = "";
@@ -481,6 +483,7 @@ function getFilteredRecords() {
         row.NO,
         row["TANGGAL AKSI"],
         row.TANGGAL,
+        row.WAKTU,
         row.WILAYAH,
         row.LOKASI,
         row["KELOMPOK AKSI"],
@@ -593,6 +596,7 @@ async function deleteDataset(id) {
 
 async function submitManual() {
   const tanggal = toStr(els.mTanggal.value);
+  const waktu = toStr(els.mWaktu.value);
   const wilayah = toStr(els.mWilayah.value);
   const lokasi = toStr(els.mLokasi.value);
   const kelompokAksi = toStr(els.mKelompokAksi.value);
@@ -602,6 +606,7 @@ async function submitManual() {
   const googleMaps = normalizeGoogleMapsUrl(els.mGoogleMaps.value);
 
   if (!tanggal) throw new Error("TANGGAL wajib diisi.");
+  if (!waktu) throw new Error("WAKTU wajib diisi.");
   if (!wilayah) throw new Error("WILAYAH wajib dipilih.");
   if (!isLikelyMass(estimasiMassa)) throw new Error("JUMLAH MASSA wajib diisi angka.");
   if (!lokasi) throw new Error("LOKASI wajib diisi.");
@@ -610,7 +615,7 @@ async function submitManual() {
   if (!ringkasan) throw new Error("RINGKASAN wajib diisi.");
   if (!googleMaps) throw new Error("GOOGLE MAPS wajib diisi dengan link Google Maps yang valid.");
 
-  const payload = { tanggal, wilayah, lokasi, kelompokAksi, tuntutan, ringkasan, estimasiMassa, googleMaps };
+  const payload = { tanggal, waktu, wilayah, lokasi, kelompokAksi, tuntutan, ringkasan, estimasiMassa, googleMaps };
   const isEdit = Boolean(state.editingRecordId);
   const url = isEdit ? `/api/records/${encodeURIComponent(state.editingRecordId)}` : "/api/records";
   const res = await apiFetch(url, {
@@ -637,6 +642,7 @@ async function startEditRecord(id) {
   if (!row) throw new Error("Record tidak ditemukan");
   state.editingRecordId = id;
   els.mTanggal.value = toDateInputValue(row["TANGGAL AKSI"] || row.TANGGAL);
+  els.mWaktu.value = row.WAKTU || row["Waktu"] || "";
   els.mWilayah.value = row.WILAYAH || "";
   els.mJumlahMassa.value = row["JUMLAH MASSA"] == null ? "" : String(row["JUMLAH MASSA"]);
   els.mLokasi.value = row.LOKASI || "";

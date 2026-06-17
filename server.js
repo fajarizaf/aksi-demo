@@ -195,7 +195,8 @@ function inferMappingFromHeaders(headers) {
     lokasi: findHeader(headers, ["lokasi", "tempat", "lokasi kegiatan", "lokasi (kegiatan)", "lokasi kegiatan/aksi"]),
     kegiatan: findHeader(headers, ["kegiatan", "aksi", "kegiatan / aliansi", "kegiatan/aliansi", "kelompok aksi"]),
     aliansi: findHeader(headers, ["aliansi", "organisasi", "kelompok", "aliansi/organisasi", "kelompok aksi"]),
-    waktu: findHeader(headers, ["waktu", "jam", "tanggal aksi", "tanggal", "hari", "time", "tgl"]),
+    tanggal: findHeader(headers, ["tanggal aksi", "tanggal", "tgl", "date", "hari", "waktu"]),
+    waktu: findHeader(headers, ["waktu aksi", "waktu", "jam", "pukul", "time"]),
     lokasiAksi: findHeader(headers, ["lokasi aksi", "lokasi_aksi", "lokasi aksi (alamat)", "alamat lokasi aksi"]),
     tuntutan: findHeader(headers, ["tuntutan", "demand", "tuntutan/isu", "isu/tuntutan"]),
     ringkasan: findHeader(headers, ["ringkasan", "summary", "ringkasan tuntutan", "deskripsi singkat", "uraian singkat"]),
@@ -332,6 +333,13 @@ function normalizeStoredDate(value) {
   const parsed = parseDateParts(value);
   if (!parsed) return toStr(value);
   return `${Number(parsed.month)}/${Number(parsed.day)}/${parsed.year.slice(-2)}`;
+}
+
+function looksLikeTimeValue(value) {
+  const s = toStr(value);
+  if (!s) return false;
+  if (parseDateParts(s)) return false;
+  return /(?:\b\d{1,2}[:.]\d{2}\b|\b\d{1,2}\.\d{2}\b|\bWIB\b|\bWITA\b|\bWIT\b|\bAM\b|\bPM\b)/i.test(s);
 }
 
 function buildImportMatchKey(record) {
@@ -523,9 +531,10 @@ function normalizeRecord(input, mapping) {
   const wilayah = canonicalProvince(input[mapping.wilayah] ?? input["Wilayah"] ?? input["Provinsi"]);
   const lokasi = toStr(input[mapping.lokasi] ?? input["Lokasi"] ?? input["Lokasi Kegiatan"] ?? input["Tempat"]);
   const no = toStr(input["NO"] ?? input["No"] ?? input.no);
-  const tanggal = toStr(
-    input["TANGGAL AKSI"] ?? input["Tanggal Aksi"] ?? input["TANGGAL"] ?? input["Tanggal"] ?? input[mapping.waktu] ?? input["Waktu"]
+  const tanggalSource = toStr(
+    input["TANGGAL AKSI"] ?? input["Tanggal Aksi"] ?? input["TANGGAL"] ?? input["Tanggal"] ?? input[mapping.tanggal]
   );
+  const tanggal = parseDateParts(tanggalSource) ? tanggalSource : "";
   const kelompokAksi = toStr(
     input["KELOMPOK AKSI"] ??
       input["Kelompok Aksi"] ??
@@ -536,7 +545,8 @@ function normalizeRecord(input, mapping) {
       input["Aliansi"] ??
       input["Organisasi"]
   );
-  const waktu = toStr(input[mapping.waktu] ?? input["Waktu"]);
+  const waktuSource = toStr(input["WAKTU"] ?? input["Waktu"] ?? input["Jam"] ?? input[mapping.waktu]);
+  const waktu = looksLikeTimeValue(waktuSource) ? waktuSource : "";
   const tuntutan = toStr(input[mapping.tuntutan] ?? input["Tuntutan"]);
   const ringkasan = toStr(input[mapping.ringkasan] ?? input["RINGKASAN"] ?? input["Ringkasan"] ?? input["Summary"]);
   const estimasiMassa = parseMass(
@@ -596,7 +606,8 @@ function normalizeRecord(input, mapping) {
 
   const record = {
     NO: no,
-    TANGGAL: normalizeStoredDate(tanggal || waktu),
+    TANGGAL: normalizeStoredDate(tanggal),
+    WAKTU: waktu,
     WILAYAH: wilayah,
     "JUMLAH MASSA": estimasiMassa,
     LOKASI: lokasi,
@@ -776,6 +787,7 @@ app.post("/api/datasets/import", requireAdminAuth, upload.single("file"), async 
     const existing = bucket.length ? bucket.shift() : null;
     if (existing) {
       existing.TANGGAL = r.TANGGAL;
+      existing.WAKTU = r.WAKTU;
       existing.WILAYAH = r.WILAYAH;
       existing["JUMLAH MASSA"] = r["JUMLAH MASSA"];
       existing.LOKASI = r.LOKASI;
@@ -900,6 +912,7 @@ app.post("/api/records", requireAdminAuth, async (req, res) => {
   if (!ds) return res.status(404).json({ error: "dataset tidak ditemukan" });
 
   const tanggalValue = toStr(body.tanggal);
+  const waktuValue = toStr(body.waktu);
   const wilayahValue = canonicalProvince(body.wilayah);
   const massaValue = parseMass(body.estimasiMassa);
   const lokasiValue = toStr(body.lokasi);
@@ -909,6 +922,7 @@ app.post("/api/records", requireAdminAuth, async (req, res) => {
   const mapsUrlValue = normalizeGoogleMapsLink(body.googleMaps);
 
   if (!tanggalValue) return res.status(400).json({ error: "TANGGAL wajib diisi." });
+  if (!waktuValue) return res.status(400).json({ error: "WAKTU wajib diisi." });
   if (!wilayahValue) return res.status(400).json({ error: "WILAYAH wajib diisi." });
   if (!VALID_PROVINCES.has(wilayahValue)) return res.status(400).json({ error: "WILAYAH harus berupa nama provinsi yang valid." });
   if (massaValue == null) return res.status(400).json({ error: "JUMLAH MASSA wajib diisi angka." });
@@ -927,6 +941,7 @@ app.post("/api/records", requireAdminAuth, async (req, res) => {
 
   const recordPayload = {
     TANGGAL: normalizeStoredDate(tanggalValue),
+    WAKTU: waktuValue,
     WILAYAH: wilayahValue,
     "JUMLAH MASSA": massaValue,
     LOKASI: lokasiValue,
@@ -947,6 +962,7 @@ app.post("/api/records", requireAdminAuth, async (req, res) => {
   let mode = "created";
   if (existing) {
     existing.TANGGAL = recordPayload.TANGGAL;
+    existing.WAKTU = recordPayload.WAKTU;
     existing.WILAYAH = recordPayload.WILAYAH;
     existing["JUMLAH MASSA"] = recordPayload["JUMLAH MASSA"];
     existing.LOKASI = recordPayload.LOKASI;
@@ -989,6 +1005,7 @@ app.put("/api/records/:id", requireAdminAuth, async (req, res) => {
   if (!rec) return res.status(404).json({ error: "record tidak ditemukan" });
 
   const tanggalValue = toStr(body.tanggal);
+  const waktuValue = toStr(body.waktu);
   const wilayahValue = canonicalProvince(body.wilayah);
   const massaValue = parseMass(body.estimasiMassa);
   const lokasiValue = toStr(body.lokasi);
@@ -998,6 +1015,7 @@ app.put("/api/records/:id", requireAdminAuth, async (req, res) => {
   const mapsUrlValue = normalizeGoogleMapsLink(body.googleMaps);
 
   if (!tanggalValue) return res.status(400).json({ error: "TANGGAL wajib diisi." });
+  if (!waktuValue) return res.status(400).json({ error: "WAKTU wajib diisi." });
   if (!wilayahValue) return res.status(400).json({ error: "WILAYAH wajib diisi." });
   if (!VALID_PROVINCES.has(wilayahValue)) return res.status(400).json({ error: "WILAYAH harus berupa nama provinsi yang valid." });
   if (massaValue == null) return res.status(400).json({ error: "JUMLAH MASSA wajib diisi angka." });
@@ -1015,6 +1033,7 @@ app.put("/api/records/:id", requireAdminAuth, async (req, res) => {
   }
 
   rec.TANGGAL = normalizeStoredDate(tanggalValue);
+  rec.WAKTU = waktuValue;
   rec.WILAYAH = wilayahValue;
   rec["JUMLAH MASSA"] = massaValue;
   rec.LOKASI = lokasiValue;
