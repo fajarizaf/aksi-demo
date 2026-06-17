@@ -30,6 +30,7 @@ const els = {
   mLokasi: document.getElementById("mLokasi"),
   mKelompokAksi: document.getElementById("mKelompokAksi"),
   mTuntutan: document.getElementById("mTuntutan"),
+  mRingkasan: document.getElementById("mRingkasan"),
   mJumlahMassa: document.getElementById("mJumlahMassa"),
   mGoogleMaps: document.getElementById("mGoogleMaps"),
 };
@@ -191,6 +192,12 @@ function toDateInputValue(value) {
   return parseDateParts(value)?.iso || "";
 }
 
+function formatDisplayDate(value) {
+  const parsed = parseDateParts(value);
+  if (!parsed) return toStr(value) || "—";
+  return `${Number(parsed.month)}/${Number(parsed.day)}/${parsed.year.slice(-2)}`;
+}
+
 function getYearValue(value) {
   return parseDateParts(value)?.year || "";
 }
@@ -217,6 +224,37 @@ function getMonthLabel(month) {
   return labels[month] || month;
 }
 
+function setButtonLoading(button, isLoading, loadingText = "Loading...") {
+  if (!button) return;
+  if (isLoading) {
+    if (!button.dataset.originalText) button.dataset.originalText = button.textContent || "";
+    button.disabled = true;
+    button.classList.add("is-loading");
+    button.textContent = loadingText;
+    return;
+  }
+  button.disabled = false;
+  button.classList.remove("is-loading");
+  if (button.dataset.originalText) {
+    button.textContent = button.dataset.originalText;
+    delete button.dataset.originalText;
+  }
+}
+
+async function runWithButtonLoading(button, task, loadingText = "Loading...") {
+  const start = Date.now();
+  setButtonLoading(button, true, loadingText);
+  try {
+    return await task();
+  } finally {
+    const elapsed = Date.now() - start;
+    if (elapsed < 180) {
+      await new Promise((resolve) => window.setTimeout(resolve, 180 - elapsed));
+    }
+    setButtonLoading(button, false);
+  }
+}
+
 function resetManualForm() {
   state.editingRecordId = "";
   els.mTanggal.value = "";
@@ -225,6 +263,7 @@ function resetManualForm() {
   els.mLokasi.value = "";
   els.mKelompokAksi.value = "";
   els.mTuntutan.value = "";
+  els.mRingkasan.value = "";
   els.mGoogleMaps.value = "";
   els.mSubmit.textContent = "Tambah";
   els.mCancelEdit.hidden = true;
@@ -446,6 +485,7 @@ function getFilteredRecords() {
         row.LOKASI,
         row["KELOMPOK AKSI"],
         row.TUNTUTAN,
+        row.RINGKASAN,
         row["GOOGLE MAPS"],
       ].join(" ")
     );
@@ -467,7 +507,7 @@ function renderRecordRows(rows) {
       ? `<a class="btn btn--ghost" href="${escapeHtml(mapsUrl)}" target="_blank" rel="noreferrer">Buka</a>`
       : "—";
     const tr = document.createElement("tr");
-    tr.innerHTML = `<td>${escapeHtml(row["TANGGAL AKSI"] || row.TANGGAL || "—")}</td><td>${escapeHtml(
+    tr.innerHTML = `<td>${escapeHtml(formatDisplayDate(row["TANGGAL AKSI"] || row.TANGGAL))}</td><td>${escapeHtml(
       row.WILAYAH || "—"
     )}</td><td class="num">${escapeHtml(
       formatMassDisplay(row["JUMLAH MASSA"])
@@ -526,8 +566,7 @@ async function activateDataset(id) {
   toast("Dataset aktif diperbarui.");
 }
 
-async function renameDataset(id, currentName) {
-  const nextName = toStr(window.prompt("Nama dataset baru:", currentName || "Dataset"));
+async function renameDataset(id, nextName) {
   if (!nextName) return;
   const res = await apiFetch(`/api/datasets/${encodeURIComponent(id)}`, {
     method: "PUT",
@@ -543,8 +582,6 @@ async function renameDataset(id, currentName) {
 }
 
 async function deleteDataset(id) {
-  const ok = window.confirm("Hapus dataset ini?");
-  if (!ok) return;
   const res = await apiFetch(`/api/datasets/${encodeURIComponent(id)}`, { method: "DELETE" });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
@@ -560,6 +597,7 @@ async function submitManual() {
   const lokasi = toStr(els.mLokasi.value);
   const kelompokAksi = toStr(els.mKelompokAksi.value);
   const tuntutan = toStr(els.mTuntutan.value);
+  const ringkasan = toStr(els.mRingkasan.value);
   const estimasiMassa = toStr(els.mJumlahMassa.value);
   const googleMaps = normalizeGoogleMapsUrl(els.mGoogleMaps.value);
 
@@ -569,9 +607,10 @@ async function submitManual() {
   if (!lokasi) throw new Error("LOKASI wajib diisi.");
   if (!kelompokAksi) throw new Error("KELOMPOK AKSI wajib diisi.");
   if (!tuntutan) throw new Error("TUNTUTAN wajib diisi.");
+  if (!ringkasan) throw new Error("RINGKASAN wajib diisi.");
   if (!googleMaps) throw new Error("GOOGLE MAPS wajib diisi dengan link Google Maps yang valid.");
 
-  const payload = { tanggal, wilayah, lokasi, kelompokAksi, tuntutan, estimasiMassa, googleMaps };
+  const payload = { tanggal, wilayah, lokasi, kelompokAksi, tuntutan, ringkasan, estimasiMassa, googleMaps };
   const isEdit = Boolean(state.editingRecordId);
   const url = isEdit ? `/api/records/${encodeURIComponent(state.editingRecordId)}` : "/api/records";
   const res = await apiFetch(url, {
@@ -603,16 +642,16 @@ async function startEditRecord(id) {
   els.mLokasi.value = row.LOKASI || "";
   els.mKelompokAksi.value = row["KELOMPOK AKSI"] || "";
   els.mTuntutan.value = row.TUNTUTAN || "";
+  els.mRingkasan.value = row.RINGKASAN || "";
   els.mGoogleMaps.value = row["GOOGLE MAPS"] || "";
   els.mSubmit.textContent = "Simpan Perubahan";
   els.mCancelEdit.hidden = false;
   els.manualHint.textContent = `Mode edit data NO ${row.NO || "—"}.`;
-  els.manualForm.scrollIntoView({ behavior: "smooth", block: "start" });
+  window.scrollTo({ top: 0, behavior: "smooth" });
+  window.setTimeout(() => els.mTanggal.focus(), 250);
 }
 
 async function deleteRecord(id) {
-  const ok = window.confirm("Hapus data ini?");
-  if (!ok) return;
   const res = await apiFetch(`/api/records/${encodeURIComponent(id)}`, { method: "DELETE" });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
@@ -636,7 +675,7 @@ function wireEvents() {
 
   els.loadSampleBtn.addEventListener("click", async () => {
     try {
-      await prepareSample();
+      await runWithButtonLoading(els.loadSampleBtn, () => prepareSample(), "Memuat...");
     } catch (err) {
       toast(toStr(err?.message || err));
     }
@@ -656,7 +695,7 @@ function wireEvents() {
 
   els.saveBtn.addEventListener("click", async () => {
     try {
-      await savePending();
+      await runWithButtonLoading(els.saveBtn, () => savePending(), "Menyimpan...");
     } catch (err) {
       toast(toStr(err?.message || err));
     }
@@ -664,14 +703,14 @@ function wireEvents() {
 
   els.refreshBtn.addEventListener("click", async () => {
     try {
-      await renderAll();
+      await runWithButtonLoading(els.refreshBtn, () => renderAll(), "Memuat...");
       toast("Data admin diperbarui.");
     } catch (err) {
       toast(toStr(err?.message || err));
     }
   });
   els.logoutBtn.addEventListener("click", async () => {
-    await logout();
+    await runWithButtonLoading(els.logoutBtn, () => logout(), "Keluar...");
   });
 
   els.datasetBody.addEventListener("click", async (e) => {
@@ -681,9 +720,19 @@ function wireEvents() {
     const id = btn.getAttribute("data-id");
     if (!id) return;
     try {
-      if (action === "activate") await activateDataset(id);
-      if (action === "rename") await renameDataset(id, btn.getAttribute("data-name"));
-      if (action === "delete") await deleteDataset(id);
+      if (action === "activate") {
+        await runWithButtonLoading(btn, () => activateDataset(id), "Memuat...");
+      }
+      if (action === "rename") {
+        const nextName = toStr(window.prompt("Nama dataset baru:", btn.getAttribute("data-name") || "Dataset"));
+        if (!nextName) return;
+        await runWithButtonLoading(btn, () => renameDataset(id, nextName), "Menyimpan...");
+      }
+      if (action === "delete") {
+        const ok = window.confirm("Hapus dataset ini?");
+        if (!ok) return;
+        await runWithButtonLoading(btn, () => deleteDataset(id), "Menghapus...");
+      }
     } catch (err) {
       toast(toStr(err?.message || err));
     }
@@ -696,8 +745,14 @@ function wireEvents() {
     const id = btn.getAttribute("data-id");
     if (!id) return;
     try {
-      if (action === "edit") await startEditRecord(id);
-      if (action === "delete") await deleteRecord(id);
+      if (action === "edit") {
+        await runWithButtonLoading(btn, () => startEditRecord(id), "Memuat...");
+      }
+      if (action === "delete") {
+        const ok = window.confirm("Hapus data ini?");
+        if (!ok) return;
+        await runWithButtonLoading(btn, () => deleteRecord(id), "Menghapus...");
+      }
     } catch (err) {
       toast(toStr(err?.message || err));
     }
@@ -706,13 +761,17 @@ function wireEvents() {
   els.manualForm.addEventListener("submit", async (e) => {
     e.preventDefault();
     try {
-      await submitManual();
+      await runWithButtonLoading(els.mSubmit, () => submitManual(), state.editingRecordId ? "Menyimpan..." : "Menambah...");
     } catch (err) {
       toast(toStr(err?.message || err));
     }
   });
 
-  els.mCancelEdit.addEventListener("click", () => resetManualForm());
+  els.mCancelEdit.addEventListener("click", async () => {
+    await runWithButtonLoading(els.mCancelEdit, () => {
+      resetManualForm();
+    }, "Memuat...");
+  });
   const handleFilterChange = () => {
     state.currentPage = 1;
     applyRecordFilters();
@@ -722,25 +781,31 @@ function wireEvents() {
   els.filterTanggal.addEventListener("change", handleFilterChange);
   els.filterBulan.addEventListener("change", handleFilterChange);
   els.filterTahun.addEventListener("change", handleFilterChange);
-  els.clearFilterBtn.addEventListener("click", () => {
-    els.filterKeyword.value = "";
-    els.filterWilayah.value = "";
-    els.filterTanggal.value = "";
-    els.filterBulan.value = "";
-    els.filterTahun.value = "";
-    state.currentPage = 1;
-    applyRecordFilters();
+  els.clearFilterBtn.addEventListener("click", async () => {
+    await runWithButtonLoading(els.clearFilterBtn, () => {
+      els.filterKeyword.value = "";
+      els.filterWilayah.value = "";
+      els.filterTanggal.value = "";
+      els.filterBulan.value = "";
+      els.filterTahun.value = "";
+      state.currentPage = 1;
+      applyRecordFilters();
+    }, "Memuat...");
   });
-  els.prevPageBtn.addEventListener("click", () => {
+  els.prevPageBtn.addEventListener("click", async () => {
     if (state.currentPage <= 1) return;
-    state.currentPage -= 1;
-    applyRecordFilters();
+    await runWithButtonLoading(els.prevPageBtn, () => {
+      state.currentPage -= 1;
+      applyRecordFilters();
+    }, "Memuat...");
   });
-  els.nextPageBtn.addEventListener("click", () => {
+  els.nextPageBtn.addEventListener("click", async () => {
     const totalPages = Math.max(1, Math.ceil(getFilteredRecords().length / state.pageSize));
     if (state.currentPage >= totalPages) return;
-    state.currentPage += 1;
-    applyRecordFilters();
+    await runWithButtonLoading(els.nextPageBtn, () => {
+      state.currentPage += 1;
+      applyRecordFilters();
+    }, "Memuat...");
   });
 }
 

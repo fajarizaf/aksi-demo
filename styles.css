@@ -90,8 +90,15 @@ body{
   font-weight:700;
   cursor:pointer;
   box-shadow:0 8px 18px rgba(0,0,0,.22);
+  transition:opacity .18s ease, transform .18s ease, filter .18s ease;
 }
 .btn:hover{filter:brightness(1.06)}
+.btn.is-loading,
+.btn:disabled{
+  opacity:.72;
+  cursor:wait;
+  filter:none;
+}
 .btn--ghost{
   border:1px solid rgba(255,255,255,.16);
   background:rgba(255,255,255,.06);
@@ -375,6 +382,63 @@ body{
   color:#ffe08a;
   text-shadow:0 1px 0 rgba(0,0,0,.4);
   white-space:nowrap;
+}
+
+.leaflet-popup-content-wrapper{
+  background:linear-gradient(180deg, rgba(8,15,28,.96), rgba(12,21,40,.94));
+  color:#f5f8ff;
+  border:1px solid rgba(246,196,83,.28);
+  box-shadow:0 14px 34px rgba(0,0,0,.45);
+}
+
+.leaflet-popup-tip{
+  background:rgba(12,21,40,.94);
+}
+
+.leaflet-popup-content{
+  margin:12px 14px;
+}
+
+.mapPopup{
+  min-width:240px;
+  max-width:320px;
+}
+
+.mapPopup__title{
+  font-weight:900;
+  margin-bottom:8px;
+  color:#f6c453;
+}
+
+.mapPopup__lines{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+.popupRingkasan{
+  margin-bottom:10px;
+  padding:10px 12px;
+  border-radius:14px;
+  background:linear-gradient(180deg, rgba(255,251,236,.98), rgba(255,242,199,.95));
+  border:1px solid rgba(246,196,83,.55);
+  box-shadow:0 10px 20px rgba(0,0,0,.22);
+}
+
+.popupRingkasan__title{
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.5px;
+  text-transform:uppercase;
+  color:#8c5a00;
+  margin-bottom:4px;
+}
+
+.popupRingkasan__text{
+  font-size:12px;
+  line-height:1.45;
+  font-weight:800;
+  color:#2f2200;
 }
 
 .pointMarkerIcon{

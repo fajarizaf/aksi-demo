@@ -1,20 +1,20 @@
 {
-  "activeDatasetId": "4684f6cb-e209-4fcb-906d-38ed532177a0",
+  "activeDatasetId": "e6af5615-1069-45b3-bb66-fff7b08a4386",
   "datasets": [
     {
-      "id": "4684f6cb-e209-4fcb-906d-38ed532177a0",
+      "id": "e6af5615-1069-45b3-bb66-fff7b08a4386",
       "name": "Data Aksi dan Tuntutan Wilayah",
       "type": "csv",
-      "createdAt": "2026-06-16T06:24:09.744Z",
-      "updatedAt": "2026-06-16T06:24:09.744Z",
+      "createdAt": "2026-06-16T14:36:20.582Z",
+      "updatedAt": "2026-06-16T15:02:22.762Z",
       "sheetName": "Sheet1",
-      "rowCount": 14
+      "rowCount": 15
     }
   ],
   "records": [
     {
-      "id": "a9e411e3-ec20-449c-9c1b-eed8f0903d84",
-      "datasetId": "4684f6cb-e209-4fcb-906d-38ed532177a0",
+      "id": "b572ab3f-71a7-4bee-bdee-fd936dda65ee",
+      "datasetId": "e6af5615-1069-45b3-bb66-fff7b08a4386",
       "NO": "1",
       "TANGGAL": "6/15/26",
       "WILAYAH": "DKI JAKARTA",
@@ -22,15 +22,16 @@
       "LOKASI": "Gedung DPR RI",
       "KELOMPOK AKSI": "Koalisi Masyarakat Peduli Makan Bergizi Gratis",
       "TUNTUTAN": "- Copot Kepala BGN Nanik S. Deyang\\n- Evaluasi pengangkatan Kepala BGN",
+      "RINGKASAN": "ini data ringkasan",
       "GOOGLE MAPS": "https://maps.app.goo.gl/wbbVSZRrECSsMmCL7",
       "LAT": -6.212482,
       "LNG": 106.7975734,
-      "createdAt": "2026-06-16T06:24:09.744Z",
-      "updatedAt": "2026-06-16T06:24:09.744Z"
+      "createdAt": "2026-06-16T14:36:20.583Z",
+      "updatedAt": "2026-06-16T15:02:22.762Z"
     },
     {
-      "id": "8651a6b4-dd4d-4134-8a6a-5cc05b3b1e2f",
-      "datasetId": "4684f6cb-e209-4fcb-906d-38ed532177a0",
+      "id": "4dd22268-cd88-424e-9d98-287b9ba0e959",
+      "datasetId": "e6af5615-1069-45b3-bb66-fff7b08a4386",
       "NO": "2",
       "TANGGAL": "6/15/26",
       "WILAYAH": "DKI JAKARTA",
@@ -38,15 +39,16 @@
       "LOKASI": "kementerian esdm",
       "KELOMPOK AKSI": "Front Anti Militerisme dan Investasi",
       "TUNTUTAN": "- Tolak DOB Papua\\n- Tolak investasi di Papua\\n- Tolak penambahan militer di Papua",
+      "RINGKASAN": "ini data ringkasan",
       "GOOGLE MAPS": "https://maps.app.goo.gl/jwwFR7Tnhu2a8K6aA",
       "LAT": -6.1817552,
       "LNG": 106.8233901,
-      "createdAt": "2026-06-16T06:24:09.744Z",
-      "updatedAt": "2026-06-16T06:24:09.744Z"
+      "createdAt": "2026-06-16T14:36:20.584Z",
+      "updatedAt": "2026-06-16T14:36:20.584Z"
     },
     {
-      "id": "d8ac260f-18de-4eaa-a171-c72cd5f92b25",
-      "datasetId": "4684f6cb-e209-4fcb-906d-38ed532177a0",
+      "id": "24a4aa7b-4e7b-4c33-b322-9fada88feef2",
+      "datasetId": "e6af5615-1069-45b3-bb66-fff7b08a4386",
       "NO": "3",
       "TANGGAL": "6/15/26",
       "WILAYAH": "DKI JAKARTA",
@@ -54,15 +56,16 @@
       "LOKASI": "Gedung DPR RI",
       "KELOMPOK AKSI": "BEM UHAMKA, SEMA Paramadina, UMJ dan IMM Cirendeu",
       "TUNTUTAN": "- Tolak RUU Polri\\n- Sahkan RUU Perampasan Aset\\n- Evaluasi MBG dan Koperasi Merah Putih\\n- Turunkan BBM dan bahan pokok\\n- Tolak dwifungsi TNI-Polri",
+      "RINGKASAN": "ini data ringkasan",
       "GOOGLE MAPS": "https://maps.app.goo.gl/wbbVSZRrECSsMmCL7",
       "LAT": -6.212482,
       "LNG": 106.7975734,
-      "createdAt": "2026-06-16T06:24:09.744Z",
-      "updatedAt": "2026-06-16T06:24:09.744Z"
+      "createdAt": "2026-06-16T14:36:20.584Z",
+      "updatedAt": "2026-06-16T14:36:20.584Z"
     },
     {
-      "id": "cdcc08cc-2f8c-40cf-a533-426e6c93765d",
-      "datasetId": "4684f6cb-e209-4fcb-906d-38ed532177a0",
+      "id": "996e843a-f882-48d6-868c-86e9244be87e",
+      "datasetId": "e6af5615-1069-45b3-bb66-fff7b08a4386",
       "NO": "4",
       "TANGGAL": "6/15/26",
       "WILAYAH": "JAWA TENGAH",
@@ -70,15 +73,16 @@
       "LOKASI": "Semarang",
       "KELOMPOK AKSI": "HMI Cabang Semarang dan Koalisi GERAM Jateng",
       "TUNTUTAN": "- Tolak UU Polri\\n- TNI kembali ke barak\\n- Evaluasi MBG\\n- Tolak kenaikan BBM\\n- Konflik agraria",
+      "RINGKASAN": "ini data ringkasan",
       "GOOGLE MAPS": "https://maps.app.goo.gl/21i7XoV9kSmLVden6",
       "LAT": -6.9838093,
       "LNG": 110.4099893,
-      "createdAt": "2026-06-16T06:24:09.744Z",
-      "updatedAt": "2026-06-16T06:24:09.744Z"
+      "createdAt": "2026-06-16T14:36:20.584Z",
+      "updatedAt": "2026-06-16T14:36:20.584Z"
     },
     {
-      "id": "2fe9bee3-b1e8-4689-b232-f3b57e017d70",
-      "datasetId": "4684f6cb-e209-4fcb-906d-38ed532177a0",
+      "id": "20bc9b11-2e7b-4f4e-a035-b9e4a0eba64f",
+      "datasetId": "e6af5615-1069-45b3-bb66-fff7b08a4386",
       "NO": "5",
       "TANGGAL": "6/15/26",
       "WILAYAH": "JAWA TENGAH",
@@ -86,15 +90,16 @@
       "LOKASI": "Kebumen",
       "KELOMPOK AKSI": "Aliansi Mahasiswa dan Masyarakat Sipil Kebumen",
       "TUNTUTAN": "- Evaluasi MBG dan KDMP\\n- Supremasi sipil\\n- Pemerataan pembangunan\\n- Lingkungan hidup",
+      "RINGKASAN": "ini data ringkasan",
       "GOOGLE MAPS": "https://maps.app.goo.gl/qp5iug4rTXxiW6nq7",
       "LAT": -7.6709292,
       "LNG": 109.6608012,
-      "createdAt": "2026-06-16T06:24:09.744Z",
-      "updatedAt": "2026-06-16T06:24:09.744Z"
+      "createdAt": "2026-06-16T14:36:20.584Z",
+      "updatedAt": "2026-06-16T14:36:20.584Z"
     },
     {
-      "id": "b05c2a90-0f52-4dcf-b5a1-099a129b07a0",
-      "datasetId": "4684f6cb-e209-4fcb-906d-38ed532177a0",
+      "id": "c7ed0e24-67eb-40aa-83e5-11c7459c070d",
+      "datasetId": "e6af5615-1069-45b3-bb66-fff7b08a4386",
       "NO": "6",
       "TANGGAL": "6/15/26",
       "WILAYAH": "DI YOGYAKARTA",
@@ -102,15 +107,16 @@
       "LOKASI": "Titik Nol Kilometer Yogyakarta",
       "KELOMPOK AKSI": "Aliansi Poros Keadilan Mahasiswa UII",
       "TUNTUTAN": "- Tolak MBG\\n- Tolak Kopdes Merah Putih\\n- Cabut UU TNI, UU Polri dan UU Kejaksaan\\n- Pendidikan dan kesehatan gratis\\n- Perlindungan kebebasan sipil",
+      "RINGKASAN": "ini data ringkasan",
       "GOOGLE MAPS": "https://maps.app.goo.gl/SwfUnjTWNvn7iY7j7",
       "LAT": -7.8013966,
       "LNG": 110.3647641,
-      "createdAt": "2026-06-16T06:24:09.744Z",
-      "updatedAt": "2026-06-16T06:24:09.744Z"
+      "createdAt": "2026-06-16T14:36:20.584Z",
+      "updatedAt": "2026-06-16T14:36:20.584Z"
     },
     {
-      "id": "0baf1c0d-1165-4182-8f57-bb450328f0d9",
-      "datasetId": "4684f6cb-e209-4fcb-906d-38ed532177a0",
+      "id": "0aa955b0-828a-4383-b4e7-95cf8d0b7e7b",
+      "datasetId": "e6af5615-1069-45b3-bb66-fff7b08a4386",
       "NO": "7",
       "TANGGAL": "6/15/26",
       "WILAYAH": "DI YOGYAKARTA",
@@ -118,15 +124,16 @@
       "LOKASI": "Bantul",
       "KELOMPOK AKSI": "Cipayung Bantul Memanggil",
       "TUNTUTAN": "- Turunkan harga BBM dan bahan pokok\\n- Evaluasi MBG\\n- Hentikan KDMP\\n- Tolak UU Polri\\n- Perbaikan kualitas pendidikan",
+      "RINGKASAN": "ini data ringkasan",
       "GOOGLE MAPS": "https://maps.app.goo.gl/pn2tGs9KkbU2Y89CA",
       "LAT": -7.8795869,
       "LNG": 110.3335694,
-      "createdAt": "2026-06-16T06:24:09.744Z",
-      "updatedAt": "2026-06-16T06:24:09.744Z"
+      "createdAt": "2026-06-16T14:36:20.584Z",
+      "updatedAt": "2026-06-16T14:36:20.584Z"
     },
     {
-      "id": "6b3560d8-4fb5-489f-9c01-cd5ab52ce33f",
-      "datasetId": "4684f6cb-e209-4fcb-906d-38ed532177a0",
+      "id": "adf793a6-3409-4632-8f84-1aee924fd5d7",
+      "datasetId": "e6af5615-1069-45b3-bb66-fff7b08a4386",
       "NO": "8",
       "TANGGAL": "6/15/26",
       "WILAYAH": "LAMPUNG",
@@ -134,15 +141,16 @@
       "LOKASI": "Lampung Governor Office",
       "KELOMPOK AKSI": "Aliansi Lampung Tarik Mandat dan KM ITERA",
       "TUNTUTAN": "- Revisi UU Polri\\n- Hentikan militerisasi sipil\\n- Evaluasi MBG\\n- Relokasi anggaran pendidikan dan kesehatan\\n- Optimalisasi integritas data NIK",
+      "RINGKASAN": "ini data ringkasan",
       "GOOGLE MAPS": "https://maps.app.goo.gl/St3gnD4g4HCydEXy9",
       "LAT": -5.4414445,
       "LNG": 105.2585884,
-      "createdAt": "2026-06-16T06:24:09.744Z",
-      "updatedAt": "2026-06-16T06:24:09.744Z"
+      "createdAt": "2026-06-16T14:36:20.584Z",
+      "updatedAt": "2026-06-16T14:36:20.584Z"
     },
     {
-      "id": "0cdfa4a9-8b32-4bce-9018-12e70374f56d",
-      "datasetId": "4684f6cb-e209-4fcb-906d-38ed532177a0",
+      "id": "e599cbc8-ded5-4a55-b3ea-066a5e86d7ed",
+      "datasetId": "e6af5615-1069-45b3-bb66-fff7b08a4386",
       "NO": "9",
       "TANGGAL": "6/15/26",
       "WILAYAH": "MALUKU",
@@ -150,15 +158,16 @@
       "LOKASI": "University of Pattimura",
       "KELOMPOK AKSI": "Gabungan Mahasiswa Unpatti Bersatu",
       "TUNTUTAN": "- Reformasi Jilid II\\n- Tolak kenaikan BBM\\n- Evaluasi MBG\\n- Tolak militerisme",
+      "RINGKASAN": "ini data ringkasan",
       "GOOGLE MAPS": "https://maps.app.goo.gl/Ua22qRsVZ9gyRzxr6",
       "LAT": -3.6546187,
       "LNG": 128.1956754,
-      "createdAt": "2026-06-16T06:24:09.744Z",
-      "updatedAt": "2026-06-16T06:24:09.744Z"
+      "createdAt": "2026-06-16T14:36:20.584Z",
+      "updatedAt": "2026-06-16T14:36:20.584Z"
     },
     {
-      "id": "da42d8a1-91d3-4049-b6d0-129952ee01a5",
-      "datasetId": "4684f6cb-e209-4fcb-906d-38ed532177a0",
+      "id": "243018a1-cd8a-49d0-a2da-79b94605add5",
+      "datasetId": "e6af5615-1069-45b3-bb66-fff7b08a4386",
       "NO": "10",
       "TANGGAL": "6/15/26",
       "WILAYAH": "MALUKU",
@@ -166,15 +175,16 @@
       "LOKASI": "Kantor Bupati Buru Selatan",
       "KELOMPOK AKSI": "Forum KNPI dan OKP",
       "TUNTUTAN": "- Tolak kenaikan BBM\\n- Evaluasi MBG\\n- Tolak perluasan peran militer dalam urusan sipil",
+      "RINGKASAN": "ini data ringkasan",
       "GOOGLE MAPS": "https://maps.app.goo.gl/h8duoX2uv1yJQkjF9",
       "LAT": -3.8378052,
       "LNG": 126.7342622,
-      "createdAt": "2026-06-16T06:24:09.744Z",
-      "updatedAt": "2026-06-16T06:24:09.744Z"
+      "createdAt": "2026-06-16T14:36:20.584Z",
+      "updatedAt": "2026-06-16T14:36:20.584Z"
     },
     {
-      "id": "0f348a58-dad9-4252-9709-fb57d8e6c5e4",
-      "datasetId": "4684f6cb-e209-4fcb-906d-38ed532177a0",
+      "id": "0f007009-ed97-4458-a4e5-cd7d4e8c86b9",
+      "datasetId": "e6af5615-1069-45b3-bb66-fff7b08a4386",
       "NO": "11",
       "TANGGAL": "6/15/26",
       "WILAYAH": "MALUKU UTARA",
@@ -182,15 +192,16 @@
       "LOKASI": "Kediaman Dinas Wakil Gubernur Maluku",
       "KELOMPOK AKSI": "Front Mahasiswa Nasional",
       "TUNTUTAN": "- Turunkan BBM\\n- Tolak UU Polri\\n- Hentikan MBG\\n- Hentikan MBG\\n- Referendum Maluku Utara",
+      "RINGKASAN": "ini data ringkasan",
       "GOOGLE MAPS": "https://maps.app.goo.gl/CvbbPF9M9t9GKmkC6",
       "LAT": -3.6878307,
       "LNG": 128.1928828,
-      "createdAt": "2026-06-16T06:24:09.744Z",
-      "updatedAt": "2026-06-16T06:24:09.744Z"
+      "createdAt": "2026-06-16T14:36:20.584Z",
+      "updatedAt": "2026-06-16T14:36:20.584Z"
     },
     {
-      "id": "6e51fd88-67e5-4d7f-87d4-7820b2816f29",
-      "datasetId": "4684f6cb-e209-4fcb-906d-38ed532177a0",
+      "id": "1181dc91-6a67-4114-bc48-412c489ec678",
+      "datasetId": "e6af5615-1069-45b3-bb66-fff7b08a4386",
       "NO": "12",
       "TANGGAL": "6/15/26",
       "WILAYAH": "MALUKU UTARA",
@@ -198,15 +209,16 @@
       "LOKASI": "Universitas Khairun",
       "KELOMPOK AKSI": "Aliansi HMI Ternate",
       "TUNTUTAN": "- Turunkan BBM\\n- Tolak UU Polri\\n- Hentikan MBG\\n- Lanjutan MBG\\n- Tuntutan keadilan kasus HAM Andri Yunus",
+      "RINGKASAN": "ini data ringkasan",
       "GOOGLE MAPS": "https://maps.app.goo.gl/B4DLbioUqRpiv79P8",
       "LAT": 0.7625732,
       "LNG": 127.336302,
-      "createdAt": "2026-06-16T06:24:09.744Z",
-      "updatedAt": "2026-06-16T06:24:09.744Z"
+      "createdAt": "2026-06-16T14:36:20.584Z",
+      "updatedAt": "2026-06-16T14:36:20.584Z"
     },
     {
-      "id": "49bbbc7f-23e9-44a6-8bb6-db669dbd00fd",
-      "datasetId": "4684f6cb-e209-4fcb-906d-38ed532177a0",
+      "id": "15bdbd32-ec5c-4779-8831-e4682f3ecc57",
+      "datasetId": "e6af5615-1069-45b3-bb66-fff7b08a4386",
       "NO": "13",
       "TANGGAL": "6/15/26",
       "WILAYAH": "MALUKU UTARA",
@@ -214,15 +226,16 @@
       "LOKASI": "Polres Halmahera Selatan",
       "KELOMPOK AKSI": "OKP Cipayung",
       "TUNTUTAN": "- Tolak kenaikan BBM\\n- Hentikan pemborosan APBN\\n- Tolak militerisme sipil",
+      "RINGKASAN": "ini data ringkasan",
       "GOOGLE MAPS": "https://maps.app.goo.gl/n4bTjFhTsVgbgA1h9",
       "LAT": -0.6446543,
       "LNG": 127.498773,
-      "createdAt": "2026-06-16T06:24:09.744Z",
-      "updatedAt": "2026-06-16T06:24:09.744Z"
+      "createdAt": "2026-06-16T14:36:20.584Z",
+      "updatedAt": "2026-06-16T14:36:20.584Z"
     },
     {
-      "id": "47dd0541-972b-4af2-85b8-5e40240768c3",
-      "datasetId": "4684f6cb-e209-4fcb-906d-38ed532177a0",
+      "id": "1e147b50-38f0-4d28-bf09-d390fac8d6fc",
+      "datasetId": "e6af5615-1069-45b3-bb66-fff7b08a4386",
       "NO": "14",
       "TANGGAL": "6/15/26",
       "WILAYAH": "KALIMANTAN SELATAN",
@@ -230,11 +243,29 @@
       "LOKASI": "South Kalimantan Provincial Parliament",
       "KELOMPOK AKSI": "BEM Se-Kalsel",
       "TUNTUTAN": "- Evaluasi izin tambang\\n- Berantas tambang ilegal\\n- Kesejahteraan guru\\n- Pemerataan pendidikan\\n- Transparansi pengelolaan APBD",
+      "RINGKASAN": "ini data ringkasan",
       "GOOGLE MAPS": "https://maps.app.goo.gl/hWNo8ndnkfSJsio89",
       "LAT": -3.3223143,
       "LNG": 114.5915581,
-      "createdAt": "2026-06-16T06:24:09.744Z",
-      "updatedAt": "2026-06-16T06:24:09.744Z"
+      "createdAt": "2026-06-16T14:36:20.584Z",
+      "updatedAt": "2026-06-16T14:36:20.584Z"
+    },
+    {
+      "id": "cb84951f-c574-4e48-8886-157bb4d09253",
+      "datasetId": "e6af5615-1069-45b3-bb66-fff7b08a4386",
+      "NO": "15",
+      "TANGGAL": "6/16/26",
+      "WILAYAH": "DKI JAKARTA",
+      "JUMLAH MASSA": 1500,
+      "LOKASI": "Gedung DPR RI",
+      "KELOMPOK AKSI": "HMI Cabang Semarang dan Koalisi GERAM Jateng",
+      "TUNTUTAN": "- Tolak UU Polri\\n- TNI kembali ke barak\\n- Evaluasi MBG\\n- Tolak kenaikan BBM\\n- Konflik agraria",
+      "RINGKASAN": "ini ringkasan",
+      "GOOGLE MAPS": "https://maps.app.goo.gl/wbbVSZRrECSsMmCL7",
+      "LAT": -6.212482,
+      "LNG": 106.7975734,
+      "createdAt": "2026-06-16T14:36:57.505Z",
+      "updatedAt": "2026-06-16T14:57:16.056Z"
     }
   ]
 }

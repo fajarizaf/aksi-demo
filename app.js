@@ -2,6 +2,7 @@ const els = {
   datasetName: document.getElementById("datasetName"),
   sheetSelect: document.getElementById("sheetSelect"),
   wilayahFilter: document.getElementById("wilayahFilter"),
+  tanggalFilter: document.getElementById("tanggalFilter"),
   bulanFilter: document.getElementById("bulanFilter"),
   tahunFilter: document.getElementById("tahunFilter"),
   searchInput: document.getElementById("searchInput"),
@@ -68,6 +69,7 @@ const state = {
   filteredRows: [],
   activeId: null,
   datasetLabel: "Belum dimuat",
+  hasInitializedDateDefault: false,
 };
 
 const XLSX_CDN_URLS = [
@@ -132,6 +134,12 @@ function formatIndoDate(d) {
     "DESEMBER",
   ];
   return `${String(d.getDate()).padStart(2, "0")} ${months[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+function formatIndoDateFromIso(value) {
+  const parsed = parseDateParts(value);
+  if (!parsed) return "SEMUA TANGGAL";
+  return formatIndoDate(new Date(Number(parsed.year), Number(parsed.month) - 1, Number(parsed.day)));
 }
 
 function toast(msg) {
@@ -253,6 +261,16 @@ function getYearValue(value) {
   return parseDateParts(value)?.year || "";
 }
 
+function toDateInputValue(value) {
+  return parseDateParts(value)?.iso || "";
+}
+
+function formatDisplayDate(value) {
+  const parsed = parseDateParts(value);
+  if (!parsed) return toStr(value) || "—";
+  return `${Number(parsed.month)}/${Number(parsed.day)}/${parsed.year.slice(-2)}`;
+}
+
 function getMonthValue(value) {
   return parseDateParts(value)?.month || "";
 }
@@ -273,6 +291,36 @@ function getMonthLabel(month) {
     "12": "Desember",
   };
   return labels[month] || month;
+}
+
+function getTodayDateInputValue() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function buildTitleDateText() {
+  const tanggal = toStr(els.tanggalFilter?.value);
+  const bulan = toStr(els.bulanFilter?.value);
+  const tahun = toStr(els.tahunFilter?.value);
+  if (tanggal) return formatIndoDateFromIso(tanggal);
+  if (bulan && tahun) return `${getMonthLabel(bulan).toUpperCase()} ${tahun}`;
+  if (bulan) return `BULAN ${getMonthLabel(bulan).toUpperCase()}`;
+  if (tahun) return `TAHUN ${tahun}`;
+  return "SEMUA TANGGAL";
+}
+
+function syncTemporalFilters(source) {
+  if (source === "tanggal" && toStr(els.tanggalFilter.value)) {
+    els.bulanFilter.value = "";
+    els.tahunFilter.value = "";
+    return;
+  }
+  if ((source === "bulan" || source === "tahun") && (toStr(els.bulanFilter.value) || toStr(els.tahunFilter.value))) {
+    els.tanggalFilter.value = "";
+  }
 }
 
 function canonicalProvince(v) {
@@ -311,6 +359,7 @@ function inferMappingFromHeaders(headers) {
     waktu: findHeader(headers, ["waktu", "jam", "tanggal", "hari", "time", "tgl"]),
     lokasiAksi: findHeader(headers, ["lokasi aksi", "lokasi_aksi", "lokasi aksi (alamat)", "alamat lokasi aksi"]),
     tuntutan: findHeader(headers, ["tuntutan", "demand", "tuntutan/isu", "isu/tuntutan"]),
+    ringkasan: findHeader(headers, ["ringkasan", "summary", "ringkasan tuntutan", "deskripsi singkat", "uraian singkat"]),
     isu: findHeader(headers, ["isu dominan", "isu", "kategori", "tema", "issue"]),
     massa: findHeader(headers, ["estimasi massa", "massa", "estimasi", "jumlah massa", "jumlah peserta", "estimasi peserta"]),
     lat: findHeader(headers, ["lat", "latitude", "lintang"]),
@@ -339,6 +388,7 @@ function buildRowsFromRecords(json) {
       const waktu = toStr(r[mapping.waktu] ?? r["Waktu"]);
       const lokasiAksi = toStr(r[mapping.lokasiAksi] ?? r["Lokasi Aksi"]);
       const tuntutan = toStr(r[mapping.tuntutan] ?? r["Tuntutan"]);
+      const ringkasan = toStr(r[mapping.ringkasan] ?? r["RINGKASAN"] ?? r["Ringkasan"] ?? r["Summary"]);
       const isu = toStr(r[mapping.isu] ?? r["Isu"]);
       const estimasiMassa = parseMass(r[mapping.massa] ?? r["Estimasi Massa"] ?? r["Massa"]);
 
@@ -381,6 +431,7 @@ function buildRowsFromRecords(json) {
         waktu,
         lokasiAksi,
         tuntutan,
+        ringkasan,
         isu,
         estimasiMassa,
         lat,
@@ -389,7 +440,7 @@ function buildRowsFromRecords(json) {
         _raw: r,
       };
     })
-    .filter((r) => r.wilayah || r.kotaKab || r.lokasi || r.kegiatan || r.tuntutan || r.isu);
+    .filter((r) => r.wilayah || r.kotaKab || r.lokasi || r.kegiatan || r.tuntutan || r.ringkasan || r.isu);
   return { rows, mapping };
 }
 
@@ -555,11 +606,12 @@ function initMap() {
 
 function buildPopupHtml(row) {
   const title = row.kotaKab || row.lokasi || "Titik Aksi";
+  const ringkasan = toStr(row.ringkasan);
   const lines = [
     ["Wilayah", row.wilayah],
     ["Lokasi", row.lokasi],
     ["Kegiatan", row.kegiatan || row.aliansi],
-    ["Waktu", row.waktu],
+    ["Waktu", formatDisplayDate(row.waktu)],
     ["Lokasi Aksi", row.lokasiAksi],
     ["Tuntutan", row.tuntutan],
     ["Isu", row.isu],
@@ -573,9 +625,14 @@ function buildPopupHtml(row) {
         )}</div><div style="text-align:right;font-weight:800;">${escapeHtml(String(v))}</div></div>`
     )
     .join("");
-  return `<div style="min-width:240px;max-width:320px;"><div style="font-weight:900;margin-bottom:8px;color:#f6c453;">${escapeHtml(
+  const ringkasanHtml = ringkasan
+    ? `<div class="popupRingkasan"><div class="popupRingkasan__title">Ringkasan</div><div class="popupRingkasan__text">${escapeHtml(
+        ringkasan
+      )}</div></div>`
+    : "";
+  return `<div class="mapPopup"><div class="mapPopup__title">${escapeHtml(
     title
-  )}</div>${lines}</div>`;
+  )}</div>${ringkasanHtml}<div class="mapPopup__lines">${lines}</div></div>`;
 }
 
 function escapeHtml(s) {
@@ -807,19 +864,20 @@ function renderTable(rows) {
     tr.dataset.rowId = r.id;
     if (state.activeId === r.id) tr.classList.add("is-active");
     const noCell = toStr(r.no) || String(idx + 1);
-    const tanggalCell = r.waktu || "—";
+    const tanggalCell = formatDisplayDate(r.waktu);
     const wilayahCell = r.wilayah || "—";
     const massaCell = formatMassa(r.estimasiMassa);
     const lokasiCell = r.lokasi || "—";
     const kelompokCell = r.aliansi || r.kegiatan || "—";
     const tuntutanCell = r.tuntutan || r.isu || "—";
+    const ringkasanCell = r.ringkasan || "—";
     tr.innerHTML = `<td class="num">${escapeHtml(noCell)}</td><td>${escapeHtml(
       tanggalCell
     )}</td><td>${escapeHtml(wilayahCell)}</td><td class="num">${escapeHtml(
       massaCell
     )}</td><td>${escapeHtml(lokasiCell)}</td><td>${escapeHtml(
       kelompokCell
-    )}</td><td>${escapeHtml(tuntutanCell)}</td>`;
+    )}</td><td>${escapeHtml(tuntutanCell)}</td><td>${escapeHtml(ringkasanCell)}</td>`;
     tr.addEventListener("click", () => {
       setActiveRow(r.id);
       focusMapToLabels([r], { preferredZoom: 11 });
@@ -832,24 +890,28 @@ function renderTable(rows) {
 
 function applyFiltersAndRender() {
   const wilayah = toStr(els.wilayahFilter.value);
+  const tanggal = toStr(els.tanggalFilter.value);
   const bulan = toStr(els.bulanFilter.value);
   const tahun = toStr(els.tahunFilter.value);
   const q = normalizeKey(els.searchInput.value);
   state.filteredRows = state.allRows.filter((r) => {
     const okWilayah = !wilayah || r.wilayah === wilayah;
     if (!okWilayah) return false;
+    const rowDate = toDateInputValue(r.waktu);
     const rowMonth = getMonthValue(r.waktu);
     const rowYear = getYearValue(r.waktu);
+    const okTanggal = !tanggal || rowDate === tanggal;
     const okBulan = !bulan || rowMonth === bulan;
     const okTahun = !tahun || rowYear === tahun;
-    if (!okBulan || !okTahun) return false;
+    if (!okTanggal || !okBulan || !okTahun) return false;
     if (!q) return true;
     const hay = normalizeKey(
-      [r.no, r.wilayah, r.kotaKab, r.lokasi, r.kegiatan, r.aliansi, r.waktu, r.lokasiAksi, r.tuntutan, r.isu].join(" ")
+      [r.no, r.wilayah, r.kotaKab, r.lokasi, r.kegiatan, r.aliansi, r.waktu, r.lokasiAksi, r.tuntutan, r.ringkasan, r.isu].join(" ")
     );
     return hay.includes(q);
   });
 
+  setTitleDate(buildTitleDateText());
   const stats = computeStats(state.filteredRows);
   renderSummary(stats);
   renderTable(state.filteredRows);
@@ -861,6 +923,7 @@ function applyFiltersAndRender() {
 
 function populateFilters(rows) {
   const selectedWilayah = toStr(els.wilayahFilter.value);
+  const selectedTanggal = toStr(els.tanggalFilter.value);
   const selectedBulan = toStr(els.bulanFilter.value);
   const selectedTahun = toStr(els.tahunFilter.value);
   const wilayahs = uniq(rows.map((r) => r.wilayah).filter(Boolean)).sort((a, b) => a.localeCompare(b));
@@ -906,7 +969,16 @@ function populateFilters(rows) {
   els.wilayahFilter.value = wilayahs.includes(selectedWilayah) ? selectedWilayah : "";
   els.bulanFilter.value = months.includes(selectedBulan) ? selectedBulan : "";
   els.tahunFilter.value = years.includes(selectedTahun) ? selectedTahun : "";
+  if (selectedTanggal) {
+    els.tanggalFilter.value = selectedTanggal;
+  } else if (!state.hasInitializedDateDefault && !els.bulanFilter.value && !els.tahunFilter.value) {
+    els.tanggalFilter.value = getTodayDateInputValue();
+    state.hasInitializedDateDefault = true;
+  } else {
+    els.tanggalFilter.value = "";
+  }
   els.wilayahFilter.disabled = false;
+  els.tanggalFilter.disabled = false;
   els.bulanFilter.disabled = false;
   els.tahunFilter.disabled = years.length === 0;
   els.searchInput.disabled = false;
@@ -1017,7 +1089,7 @@ async function loadSample() {
   return;
 }
 
-function handleFile(file) {
+function handleFile(_file) {
   return;
 }
 
@@ -1028,8 +1100,18 @@ function wireEvents() {
     loadWorkbook(state.workbook, state.datasetLabel);
   });
   els.wilayahFilter.addEventListener("change", () => applyFiltersAndRender());
-  els.bulanFilter.addEventListener("change", () => applyFiltersAndRender());
-  els.tahunFilter.addEventListener("change", () => applyFiltersAndRender());
+  els.tanggalFilter.addEventListener("change", () => {
+    syncTemporalFilters("tanggal");
+    applyFiltersAndRender();
+  });
+  els.bulanFilter.addEventListener("change", () => {
+    syncTemporalFilters("bulan");
+    applyFiltersAndRender();
+  });
+  els.tahunFilter.addEventListener("change", () => {
+    syncTemporalFilters("tahun");
+    applyFiltersAndRender();
+  });
   els.searchInput.addEventListener("input", () => applyFiltersAndRender());
 }
 

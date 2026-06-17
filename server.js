@@ -198,6 +198,7 @@ function inferMappingFromHeaders(headers) {
     waktu: findHeader(headers, ["waktu", "jam", "tanggal aksi", "tanggal", "hari", "time", "tgl"]),
     lokasiAksi: findHeader(headers, ["lokasi aksi", "lokasi_aksi", "lokasi aksi (alamat)", "alamat lokasi aksi"]),
     tuntutan: findHeader(headers, ["tuntutan", "demand", "tuntutan/isu", "isu/tuntutan"]),
+    ringkasan: findHeader(headers, ["ringkasan", "summary", "ringkasan tuntutan", "deskripsi singkat", "uraian singkat"]),
     isu: findHeader(headers, ["isu dominan", "isu", "kategori", "tema", "issue"]),
     massa: findHeader(headers, ["estimasi massa", "massa", "estimasi", "jumlah massa", "jumlah peserta", "estimasi peserta"]),
     lat: findHeader(headers, ["lat", "latitude", "lintang"]),
@@ -271,20 +272,66 @@ function parseMass(value) {
   return Number.isFinite(n) ? n : null;
 }
 
-function normalizeDateKey(value) {
+function parseDateParts(value) {
   const s = toStr(value);
-  if (!s) return "";
+  if (!s) return null;
   const iso = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
-  if (iso) return `${iso[1]}-${String(iso[2]).padStart(2, "0")}-${String(iso[3]).padStart(2, "0")}`;
+  if (iso) {
+    return {
+      year: iso[1],
+      month: String(iso[2]).padStart(2, "0"),
+      day: String(iso[3]).padStart(2, "0"),
+      iso: `${iso[1]}-${String(iso[2]).padStart(2, "0")}-${String(iso[3]).padStart(2, "0")}`,
+    };
+  }
   const slash = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-  if (slash) return `${slash[3]}-${String(slash[1]).padStart(2, "0")}-${String(slash[2]).padStart(2, "0")}`;
+  if (slash) {
+    const a = Number(slash[1]);
+    const b = Number(slash[2]);
+    const year = slash[3];
+    let month = a;
+    let day = b;
+    if (a > 12 && b <= 12) {
+      day = a;
+      month = b;
+    }
+    return {
+      year,
+      month: String(month).padStart(2, "0"),
+      day: String(day).padStart(2, "0"),
+      iso: `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`,
+    };
+  }
   const slashShortYear = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2})$/);
   if (slashShortYear) {
     const year = Number(slashShortYear[3]);
     const fullYear = year >= 70 ? 1900 + year : 2000 + year;
-    return `${fullYear}-${String(slashShortYear[1]).padStart(2, "0")}-${String(slashShortYear[2]).padStart(2, "0")}`;
+    const a = Number(slashShortYear[1]);
+    const b = Number(slashShortYear[2]);
+    let month = a;
+    let day = b;
+    if (a > 12 && b <= 12) {
+      day = a;
+      month = b;
+    }
+    return {
+      year: String(fullYear),
+      month: String(month).padStart(2, "0"),
+      day: String(day).padStart(2, "0"),
+      iso: `${fullYear}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`,
+    };
   }
-  return s;
+  return null;
+}
+
+function normalizeDateKey(value) {
+  return parseDateParts(value)?.iso || toStr(value);
+}
+
+function normalizeStoredDate(value) {
+  const parsed = parseDateParts(value);
+  if (!parsed) return toStr(value);
+  return `${Number(parsed.month)}/${Number(parsed.day)}/${parsed.year.slice(-2)}`;
 }
 
 function buildImportMatchKey(record) {
@@ -491,6 +538,7 @@ function normalizeRecord(input, mapping) {
   );
   const waktu = toStr(input[mapping.waktu] ?? input["Waktu"]);
   const tuntutan = toStr(input[mapping.tuntutan] ?? input["Tuntutan"]);
+  const ringkasan = toStr(input[mapping.ringkasan] ?? input["RINGKASAN"] ?? input["Ringkasan"] ?? input["Summary"]);
   const estimasiMassa = parseMass(
     input["JUMLAH MASSA"] ?? input["Jumlah Massa"] ?? input[mapping.massa] ?? input["Estimasi Massa"] ?? input["Massa"]
   );
@@ -548,12 +596,13 @@ function normalizeRecord(input, mapping) {
 
   const record = {
     NO: no,
-    TANGGAL: tanggal || waktu,
+    TANGGAL: normalizeStoredDate(tanggal || waktu),
     WILAYAH: wilayah,
     "JUMLAH MASSA": estimasiMassa,
     LOKASI: lokasi,
     "KELOMPOK AKSI": kelompokAksi,
     TUNTUTAN: tuntutan,
+    RINGKASAN: ringkasan,
   };
   if (mapsUrl) record["GOOGLE MAPS"] = mapsUrl;
   if (Number.isFinite(lat) && Number.isFinite(lng)) {
@@ -578,7 +627,7 @@ function parseWorkbook(buffer, ext, sheetName) {
   const mapping = inferMappingFromHeaders(headers);
   const normalizedRows = records
     .map((r, idx) => ({ rowNumber: idx + 2, record: normalizeRecord(r, mapping) }))
-    .filter(({ record }) => record.WILAYAH || record.LOKASI || record["KELOMPOK AKSI"] || record.TUNTUTAN);
+    .filter(({ record }) => record.WILAYAH || record.LOKASI || record["KELOMPOK AKSI"] || record.TUNTUTAN || record.RINGKASAN);
   return {
     sheetName: sn || null,
     rows: normalizedRows,
@@ -732,6 +781,7 @@ app.post("/api/datasets/import", requireAdminAuth, upload.single("file"), async 
       existing.LOKASI = r.LOKASI;
       existing["KELOMPOK AKSI"] = r["KELOMPOK AKSI"];
       existing.TUNTUTAN = r.TUNTUTAN;
+      existing.RINGKASAN = r.RINGKASAN;
       const mapsUrl = toStr(r["GOOGLE MAPS"]);
       if (mapsUrl) existing["GOOGLE MAPS"] = mapsUrl;
       const lat = Number(r.LAT);
@@ -855,6 +905,7 @@ app.post("/api/records", requireAdminAuth, async (req, res) => {
   const lokasiValue = toStr(body.lokasi);
   const kelompokValue = toStr(body.kelompokAksi);
   const tuntutanValue = toStr(body.tuntutan);
+  const ringkasanValue = toStr(body.ringkasan);
   const mapsUrlValue = normalizeGoogleMapsLink(body.googleMaps);
 
   if (!tanggalValue) return res.status(400).json({ error: "TANGGAL wajib diisi." });
@@ -864,6 +915,7 @@ app.post("/api/records", requireAdminAuth, async (req, res) => {
   if (!lokasiValue) return res.status(400).json({ error: "LOKASI wajib diisi." });
   if (!kelompokValue) return res.status(400).json({ error: "KELOMPOK AKSI wajib diisi." });
   if (!tuntutanValue) return res.status(400).json({ error: "TUNTUTAN wajib diisi." });
+  if (!ringkasanValue) return res.status(400).json({ error: "RINGKASAN wajib diisi." });
   if (!mapsUrlValue) return res.status(400).json({ error: "GOOGLE MAPS wajib diisi dengan link Google Maps yang valid." });
 
   const mapsPair = await resolveLatLngFromGoogleMapsLink(mapsUrlValue);
@@ -874,12 +926,13 @@ app.post("/api/records", requireAdminAuth, async (req, res) => {
   }
 
   const recordPayload = {
-    TANGGAL: tanggalValue,
+    TANGGAL: normalizeStoredDate(tanggalValue),
     WILAYAH: wilayahValue,
     "JUMLAH MASSA": massaValue,
     LOKASI: lokasiValue,
     "KELOMPOK AKSI": kelompokValue,
     TUNTUTAN: tuntutanValue,
+    RINGKASAN: ringkasanValue,
     "GOOGLE MAPS": mapsUrlValue,
     LAT: mapsPair[0],
     LNG: mapsPair[1],
@@ -899,6 +952,7 @@ app.post("/api/records", requireAdminAuth, async (req, res) => {
     existing.LOKASI = recordPayload.LOKASI;
     existing["KELOMPOK AKSI"] = recordPayload["KELOMPOK AKSI"];
     existing.TUNTUTAN = recordPayload.TUNTUTAN;
+    existing.RINGKASAN = recordPayload.RINGKASAN;
     if (recordPayload["GOOGLE MAPS"]) existing["GOOGLE MAPS"] = recordPayload["GOOGLE MAPS"];
     if (Number.isFinite(recordPayload.LAT) && Number.isFinite(recordPayload.LNG)) {
       existing.LAT = recordPayload.LAT;
@@ -940,6 +994,7 @@ app.put("/api/records/:id", requireAdminAuth, async (req, res) => {
   const lokasiValue = toStr(body.lokasi);
   const kelompokValue = toStr(body.kelompokAksi);
   const tuntutanValue = toStr(body.tuntutan);
+  const ringkasanValue = toStr(body.ringkasan);
   const mapsUrlValue = normalizeGoogleMapsLink(body.googleMaps);
 
   if (!tanggalValue) return res.status(400).json({ error: "TANGGAL wajib diisi." });
@@ -949,6 +1004,7 @@ app.put("/api/records/:id", requireAdminAuth, async (req, res) => {
   if (!lokasiValue) return res.status(400).json({ error: "LOKASI wajib diisi." });
   if (!kelompokValue) return res.status(400).json({ error: "KELOMPOK AKSI wajib diisi." });
   if (!tuntutanValue) return res.status(400).json({ error: "TUNTUTAN wajib diisi." });
+  if (!ringkasanValue) return res.status(400).json({ error: "RINGKASAN wajib diisi." });
   if (!mapsUrlValue) return res.status(400).json({ error: "GOOGLE MAPS wajib diisi dengan link Google Maps yang valid." });
 
   const mapsPair = await resolveLatLngFromGoogleMapsLink(mapsUrlValue);
@@ -958,12 +1014,13 @@ app.put("/api/records/:id", requireAdminAuth, async (req, res) => {
       .json({ error: "Tidak bisa mengambil koordinat dari link Google Maps. Pastikan link valid dan internet aktif." });
   }
 
-  rec.TANGGAL = tanggalValue;
+  rec.TANGGAL = normalizeStoredDate(tanggalValue);
   rec.WILAYAH = wilayahValue;
   rec["JUMLAH MASSA"] = massaValue;
   rec.LOKASI = lokasiValue;
   rec["KELOMPOK AKSI"] = kelompokValue;
   rec.TUNTUTAN = tuntutanValue;
+  rec.RINGKASAN = ringkasanValue;
   rec["GOOGLE MAPS"] = mapsUrlValue;
   rec.LAT = mapsPair[0];
   rec.LNG = mapsPair[1];
