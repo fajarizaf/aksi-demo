@@ -6,7 +6,7 @@
       "name": "Data Rencana Aksi Unjuk Rasa 17 Juni 2026 - Data Rencana Aksi Unjuk Rasa 17 Juni 2026",
       "type": "csv",
       "createdAt": "2026-06-17T04:03:24.664Z",
-      "updatedAt": "2026-06-18T09:40:08.116Z",
+      "updatedAt": "2026-06-18T09:41:30.283Z",
       "sheetName": "Sheet1",
       "rowCount": 71
     }
@@ -911,7 +911,7 @@
       "NO": "48",
       "TANGGAL": "6/18/26",
       "WAKTU": "09:00",
-      "STATUS": "Rencana",
+      "STATUS": "Realisasi",
       "WILAYAH": "JAWA TIMUR",
       "JUMLAH MASSA": 500,
       "LOKASI": "Kantor Bupati Kab. Nganjuk",
@@ -922,7 +922,7 @@
       "LAT": -7.60227,
       "LNG": 111.901874,
       "createdAt": "2026-06-17T18:17:04.954Z",
-      "updatedAt": "2026-06-18T09:40:08.116Z"
+      "updatedAt": "2026-06-18T09:41:30.283Z"
     },
     {
       "id": "51152664-f84b-434d-9093-571e5b22e01f",
