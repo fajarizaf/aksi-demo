@@ -83,6 +83,7 @@
                 <th class="num">NO</th>
                 <th>TANGGAL</th>
                 <th>WAKTU</th>
+                <th>STATUS</th>
                 <th>WILAYAH</th>
                 <th class="num">JUMLAH MASSA</th>
                 <th>LOKASI</th>
@@ -119,6 +120,10 @@
               <div class="summaryItem__label">Puncak Harian</div>
               <div class="summaryItem__value" id="sumPuncakHarian" style="font-size:10px;">—</div>
             </div>
+            <div class="summaryItem">
+              <div class="summaryItem__label">Tuntutan Dominan</div>
+              <div class="summaryItem__value" id="sumIsuDominan" style="font-size:10px;">—</div>
+            </div>
           </div>
         </div>
         <div class="card">
@@ -141,6 +146,10 @@
           <div class="massChart" id="massChart"></div>
         </div>
         <div class="card">
+          <div class="card__title">Top 5 Tuntutan Dominan</div>
+          <div class="issueRank" id="issueRank"></div>
+        </div>
+        <div class="card">
           <div class="card__title">Analisa Singkat</div>
           <ol class="analysis" id="analisaList"></ol>
         </div>
@@ -153,6 +162,6 @@
       crossorigin=""
     ></script>
     <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
-    <script src="./app.js?v=20260617-2"></script>
+    <script src="./app.js?v=20260618-1"></script>
   </body>
 </html>

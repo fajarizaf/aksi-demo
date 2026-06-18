@@ -190,6 +190,7 @@ function findHeader(headers, synonyms) {
 function inferMappingFromHeaders(headers) {
   return {
     no: findHeader(headers, ["no", "nomor"]),
+    status: findHeader(headers, ["status", "rencana", "realisasi", "plan", "actual"]),
     wilayah: findHeader(headers, ["wilayah", "provinsi", "province", "region"]),
     kotaKab: findHeader(headers, ["kota/kabupaten", "kota kabupaten", "kota", "kabupaten", "city"]),
     lokasi: findHeader(headers, ["lokasi", "tempat", "lokasi kegiatan", "lokasi (kegiatan)", "lokasi kegiatan/aksi"]),
@@ -230,6 +231,16 @@ function canonicalProvince(v) {
   if (!s) return "";
   const normalized = s.replace(/\s+/g, " ").trim().toUpperCase();
   return PROVINCE_ALIASES.get(normalizeKey(normalized)) || normalized;
+}
+
+function canonicalStatus(v) {
+  const s = toStr(v);
+  if (!s) return "";
+  const nk = normalizeKey(s);
+  if (!nk) return "";
+  if (nk.includes("rencana") || nk === "plan" || nk === "planning") return "Rencana";
+  if (nk.includes("realisasi") || nk === "actual" || nk === "realisasiaksi") return "Realisasi";
+  return "";
 }
 
 function findInvalidImportProvinceRows(rows) {
@@ -528,6 +539,8 @@ async function enrichRowsWithGeoFromMaps(rows) {
 }
 
 function normalizeRecord(input, mapping) {
+  const statusSource = toStr(input[mapping.status] ?? input["STATUS"] ?? input["Status"]);
+  const status = canonicalStatus(statusSource) || "Realisasi";
   const wilayah = canonicalProvince(input[mapping.wilayah] ?? input["Wilayah"] ?? input["Provinsi"]);
   const lokasi = toStr(input[mapping.lokasi] ?? input["Lokasi"] ?? input["Lokasi Kegiatan"] ?? input["Tempat"]);
   const no = toStr(input["NO"] ?? input["No"] ?? input.no);
@@ -608,6 +621,7 @@ function normalizeRecord(input, mapping) {
     NO: no,
     TANGGAL: normalizeStoredDate(tanggal),
     WAKTU: waktu,
+    STATUS: status,
     WILAYAH: wilayah,
     "JUMLAH MASSA": estimasiMassa,
     LOKASI: lokasi,
@@ -788,6 +802,7 @@ app.post("/api/datasets/import", requireAdminAuth, upload.single("file"), async 
     if (existing) {
       existing.TANGGAL = r.TANGGAL;
       existing.WAKTU = r.WAKTU;
+      existing.STATUS = r.STATUS || "Realisasi";
       existing.WILAYAH = r.WILAYAH;
       existing["JUMLAH MASSA"] = r["JUMLAH MASSA"];
       existing.LOKASI = r.LOKASI;
@@ -913,6 +928,7 @@ app.post("/api/records", requireAdminAuth, async (req, res) => {
 
   const tanggalValue = toStr(body.tanggal);
   const waktuValue = toStr(body.waktu);
+  const statusValue = canonicalStatus(body.status ?? body.STATUS ?? body.Status);
   const wilayahValue = canonicalProvince(body.wilayah);
   const massaValue = parseMass(body.estimasiMassa);
   const lokasiValue = toStr(body.lokasi);
@@ -923,6 +939,7 @@ app.post("/api/records", requireAdminAuth, async (req, res) => {
 
   if (!tanggalValue) return res.status(400).json({ error: "TANGGAL wajib diisi." });
   if (!waktuValue) return res.status(400).json({ error: "WAKTU wajib diisi." });
+  if (!statusValue) return res.status(400).json({ error: "STATUS wajib dipilih (Rencana / Realisasi)." });
   if (!wilayahValue) return res.status(400).json({ error: "WILAYAH wajib diisi." });
   if (!VALID_PROVINCES.has(wilayahValue)) return res.status(400).json({ error: "WILAYAH harus berupa nama provinsi yang valid." });
   if (massaValue == null) return res.status(400).json({ error: "JUMLAH MASSA wajib diisi angka." });
@@ -942,6 +959,7 @@ app.post("/api/records", requireAdminAuth, async (req, res) => {
   const recordPayload = {
     TANGGAL: normalizeStoredDate(tanggalValue),
     WAKTU: waktuValue,
+    STATUS: statusValue,
     WILAYAH: wilayahValue,
     "JUMLAH MASSA": massaValue,
     LOKASI: lokasiValue,
@@ -963,6 +981,7 @@ app.post("/api/records", requireAdminAuth, async (req, res) => {
   if (existing) {
     existing.TANGGAL = recordPayload.TANGGAL;
     existing.WAKTU = recordPayload.WAKTU;
+    existing.STATUS = recordPayload.STATUS;
     existing.WILAYAH = recordPayload.WILAYAH;
     existing["JUMLAH MASSA"] = recordPayload["JUMLAH MASSA"];
     existing.LOKASI = recordPayload.LOKASI;
@@ -1006,6 +1025,7 @@ app.put("/api/records/:id", requireAdminAuth, async (req, res) => {
 
   const tanggalValue = toStr(body.tanggal);
   const waktuValue = toStr(body.waktu);
+  const statusValue = canonicalStatus(body.status ?? body.STATUS ?? body.Status);
   const wilayahValue = canonicalProvince(body.wilayah);
   const massaValue = parseMass(body.estimasiMassa);
   const lokasiValue = toStr(body.lokasi);
@@ -1016,6 +1036,7 @@ app.put("/api/records/:id", requireAdminAuth, async (req, res) => {
 
   if (!tanggalValue) return res.status(400).json({ error: "TANGGAL wajib diisi." });
   if (!waktuValue) return res.status(400).json({ error: "WAKTU wajib diisi." });
+  if (!statusValue) return res.status(400).json({ error: "STATUS wajib dipilih (Rencana / Realisasi)." });
   if (!wilayahValue) return res.status(400).json({ error: "WILAYAH wajib diisi." });
   if (!VALID_PROVINCES.has(wilayahValue)) return res.status(400).json({ error: "WILAYAH harus berupa nama provinsi yang valid." });
   if (massaValue == null) return res.status(400).json({ error: "JUMLAH MASSA wajib diisi angka." });
@@ -1034,6 +1055,7 @@ app.put("/api/records/:id", requireAdminAuth, async (req, res) => {
 
   rec.TANGGAL = normalizeStoredDate(tanggalValue);
   rec.WAKTU = waktuValue;
+  rec.STATUS = statusValue;
   rec.WILAYAH = wilayahValue;
   rec["JUMLAH MASSA"] = massaValue;
   rec.LOKASI = lokasiValue;

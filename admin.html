@@ -52,6 +52,10 @@
         <form id="manualForm" class="adminForm adminForm--grid">
           <input id="mTanggal" class="input" type="date" required />
           <input id="mWaktu" class="input" type="time" step="60" required />
+          <select id="mStatus" class="select" required>
+            <option value="Realisasi">Realisasi</option>
+            <option value="Rencana">Rencana</option>
+          </select>
           <select id="mWilayah" class="select" required>
             <option value="">Pilih WILAYAH</option>
             <option value="ACEH">ACEH</option>
@@ -139,6 +143,11 @@
           <select id="filterWilayah" class="select adminFilter__item">
             <option value="">Semua Wilayah</option>
           </select>
+          <select id="filterStatus" class="select adminFilter__item">
+            <option value="">Semua Status</option>
+            <option value="Rencana">Rencana</option>
+            <option value="Realisasi">Realisasi</option>
+          </select>
           <input id="filterTanggal" class="input adminFilter__item" type="date" />
           <select id="filterBulan" class="select adminFilter__item">
             <option value="">Semua Bulan</option>
@@ -153,6 +162,7 @@
             <thead>
               <tr>
                 <th>TANGGAL</th>
+                <th>STATUS</th>
                 <th>WILAYAH</th>
                 <th class="num">JUMLAH MASSA</th>
                 <th>LOKASI</th>
@@ -177,6 +187,6 @@
     </main>
 
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
-    <script src="./admin.js?v=20260617-2"></script>
+    <script src="./admin.js?v=20260618-3"></script>
   </body>
 </html>

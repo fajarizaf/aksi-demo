@@ -8,6 +8,7 @@ const els = {
   recordBody: document.getElementById("recordBody"),
   filterKeyword: document.getElementById("filterKeyword"),
   filterWilayah: document.getElementById("filterWilayah"),
+  filterStatus: document.getElementById("filterStatus"),
   filterTanggal: document.getElementById("filterTanggal"),
   filterBulan: document.getElementById("filterBulan"),
   filterTahun: document.getElementById("filterTahun"),
@@ -27,6 +28,7 @@ const els = {
   mCancelEdit: document.getElementById("mCancelEdit"),
   mTanggal: document.getElementById("mTanggal"),
   mWaktu: document.getElementById("mWaktu"),
+  mStatus: document.getElementById("mStatus"),
   mWilayah: document.getElementById("mWilayah"),
   mLokasi: document.getElementById("mLokasi"),
   mKelompokAksi: document.getElementById("mKelompokAksi"),
@@ -260,6 +262,7 @@ function resetManualForm() {
   state.editingRecordId = "";
   els.mTanggal.value = "";
   els.mWaktu.value = "";
+  if (els.mStatus) els.mStatus.value = "Realisasi";
   els.mWilayah.value = "";
   els.mJumlahMassa.value = "";
   els.mLokasi.value = "";
@@ -466,11 +469,13 @@ function populateRecordFilter(rows) {
 function getFilteredRecords() {
   const keyword = normalizeSearch(els.filterKeyword.value);
   const wilayah = toStr(els.filterWilayah.value);
+  const status = toStr(els.filterStatus?.value);
   const tanggal = toStr(els.filterTanggal.value);
   const bulan = toStr(els.filterBulan.value);
   const tahun = toStr(els.filterTahun.value);
   return state.activeRecords.filter((row) => {
     if (wilayah && toStr(row.WILAYAH) !== wilayah) return false;
+    if (status && toStr(row.STATUS || "Realisasi") !== status) return false;
     const rowDate = toDateInputValue(row["TANGGAL AKSI"] || row.TANGGAL);
     const rowMonth = getMonthValue(row["TANGGAL AKSI"] || row.TANGGAL);
     const rowYear = getYearValue(row["TANGGAL AKSI"] || row.TANGGAL);
@@ -484,6 +489,7 @@ function getFilteredRecords() {
         row["TANGGAL AKSI"],
         row.TANGGAL,
         row.WAKTU,
+        row.STATUS,
         row.WILAYAH,
         row.LOKASI,
         row["KELOMPOK AKSI"],
@@ -500,7 +506,7 @@ function renderRecordRows(rows) {
   els.recordBody.innerHTML = "";
   if (!rows.length) {
     const tr = document.createElement("tr");
-    tr.innerHTML = `<td colspan="8" style="text-align:center;">Tidak ada data yang sesuai.</td>`;
+    tr.innerHTML = `<td colspan="9" style="text-align:center;">Tidak ada data yang sesuai.</td>`;
     els.recordBody.appendChild(tr);
     return;
   }
@@ -511,8 +517,8 @@ function renderRecordRows(rows) {
       : "—";
     const tr = document.createElement("tr");
     tr.innerHTML = `<td>${escapeHtml(formatDisplayDate(row["TANGGAL AKSI"] || row.TANGGAL))}</td><td>${escapeHtml(
-      row.WILAYAH || "—"
-    )}</td><td class="num">${escapeHtml(
+      row.STATUS || "Realisasi"
+    )}</td><td>${escapeHtml(row.WILAYAH || "—")}</td><td class="num">${escapeHtml(
       formatMassDisplay(row["JUMLAH MASSA"])
     )}</td><td>${escapeHtml(row.LOKASI || "—")}</td><td>${escapeHtml(
       row["KELOMPOK AKSI"] || "—"
@@ -597,6 +603,7 @@ async function deleteDataset(id) {
 async function submitManual() {
   const tanggal = toStr(els.mTanggal.value);
   const waktu = toStr(els.mWaktu.value);
+  const status = toStr(els.mStatus?.value);
   const wilayah = toStr(els.mWilayah.value);
   const lokasi = toStr(els.mLokasi.value);
   const kelompokAksi = toStr(els.mKelompokAksi.value);
@@ -607,6 +614,7 @@ async function submitManual() {
 
   if (!tanggal) throw new Error("TANGGAL wajib diisi.");
   if (!waktu) throw new Error("WAKTU wajib diisi.");
+  if (!status) throw new Error("STATUS wajib dipilih.");
   if (!wilayah) throw new Error("WILAYAH wajib dipilih.");
   if (!isLikelyMass(estimasiMassa)) throw new Error("JUMLAH MASSA wajib diisi angka.");
   if (!lokasi) throw new Error("LOKASI wajib diisi.");
@@ -615,7 +623,7 @@ async function submitManual() {
   if (!ringkasan) throw new Error("RINGKASAN wajib diisi.");
   if (!googleMaps) throw new Error("GOOGLE MAPS wajib diisi dengan link Google Maps yang valid.");
 
-  const payload = { tanggal, waktu, wilayah, lokasi, kelompokAksi, tuntutan, ringkasan, estimasiMassa, googleMaps };
+  const payload = { tanggal, waktu, status, STATUS: status, wilayah, lokasi, kelompokAksi, tuntutan, ringkasan, estimasiMassa, googleMaps };
   const isEdit = Boolean(state.editingRecordId);
   const url = isEdit ? `/api/records/${encodeURIComponent(state.editingRecordId)}` : "/api/records";
   const res = await apiFetch(url, {
@@ -643,6 +651,7 @@ async function startEditRecord(id) {
   state.editingRecordId = id;
   els.mTanggal.value = toDateInputValue(row["TANGGAL AKSI"] || row.TANGGAL);
   els.mWaktu.value = row.WAKTU || row["Waktu"] || "";
+  if (els.mStatus) els.mStatus.value = row.STATUS || "Realisasi";
   els.mWilayah.value = row.WILAYAH || "";
   els.mJumlahMassa.value = row["JUMLAH MASSA"] == null ? "" : String(row["JUMLAH MASSA"]);
   els.mLokasi.value = row.LOKASI || "";
@@ -784,6 +793,7 @@ function wireEvents() {
   };
   els.filterKeyword.addEventListener("input", handleFilterChange);
   els.filterWilayah.addEventListener("change", handleFilterChange);
+  if (els.filterStatus) els.filterStatus.addEventListener("change", handleFilterChange);
   els.filterTanggal.addEventListener("change", handleFilterChange);
   els.filterBulan.addEventListener("change", handleFilterChange);
   els.filterTahun.addEventListener("change", handleFilterChange);
@@ -791,6 +801,7 @@ function wireEvents() {
     await runWithButtonLoading(els.clearFilterBtn, () => {
       els.filterKeyword.value = "";
       els.filterWilayah.value = "";
+      if (els.filterStatus) els.filterStatus.value = "";
       els.filterTanggal.value = "";
       els.filterBulan.value = "";
       els.filterTahun.value = "";

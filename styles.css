@@ -218,7 +218,7 @@ body{
   border-bottom:1px solid rgba(255,255,255,.10);
 }
 
-.tableWrap{overflow:auto; max-height:360px}
+.tableWrap{overflow:auto; max-height:100%}
 .tableWrap--compact{max-height:220px}
 .table{
   width:100%;
@@ -329,11 +329,74 @@ body{
   color:rgba(255,255,255,.75);
   font-weight:700;
 }
+.issueRank{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.issueRank__row{
+  display:flex;
+  gap:10px;
+  align-items:flex-start;
+  padding:10px 12px;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(0,0,0,.15);
+}
+.issueRank__count{
+  flex:0 0 58px;
+  width:58px;
+  min-height:58px;
+  border-radius:18px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:6px 4px;
+  color:#101010;
+  background:linear-gradient(135deg, rgba(255,230,160,.98), rgba(246,196,83,.98));
+  box-shadow:0 10px 24px rgba(246,196,83,.18);
+}
+.issueRank__countValue{
+  font-weight:900;
+  font-size:20px;
+  line-height:1;
+}
+.issueRank__countLabel{
+  margin-top:3px;
+  font-weight:800;
+  font-size:10px;
+  line-height:1;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+}
+.issueRank__body{
+  min-width:0;
+  flex:1;
+}
+.issueRank__title{
+  font-weight:800;
+  font-size:12px;
+  color:rgba(255,255,255,.92);
+}
+.issueRank__meta{
+  margin-top:4px;
+  font-size:11px;
+  font-weight:700;
+  color:rgba(255,255,255,.72);
+}
+.issueRank__empty{
+  padding:12px;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(0,0,0,.15);
+  color:rgba(255,255,255,.75);
+  font-weight:700;
+}
 
 .analysis{
   margin:0;
   padding-left:18px;
-  color:rgba(255,255,255,.85);
   font-size:13px;
 }
 .analysis li{margin:6px 0}
@@ -363,6 +426,35 @@ body{
   transform-origin:center bottom;
   transition:transform .16s ease-out;
   will-change:transform;
+}
+.labelMarker--rencana{
+  border:2px solid rgba(95,205,255,.98);
+  background:
+    radial-gradient(circle at 28% 18%, rgba(160,235,255,.58), rgba(160,235,255,0) 46%),
+    radial-gradient(circle at 75% 90%, rgba(0,120,255,.30), rgba(0,120,255,0) 54%),
+    linear-gradient(180deg, rgba(10,52,120,.96), rgba(6,26,70,.94));
+  box-shadow:
+    0 16px 38px rgba(0,0,0,.50),
+    0 0 0 4px rgba(95,205,255,.18),
+    0 0 46px rgba(70,170,255,.40),
+    0 18px 42px rgba(20,90,255,.18);
+}
+.labelMarker--rencana .labelMarker__title{
+  color:rgba(220,250,255,.99);
+  text-shadow:0 2px 0 rgba(0,0,0,.38), 0 0 18px rgba(120,220,255,.25);
+}
+.labelMarker--rencana .labelMarker__statValue{
+  color:rgba(240,252,255,.99);
+}
+.labelMarker--rencana .labelMarker__stat{
+  background:rgba(255,255,255,.085);
+  border:1px solid rgba(160,235,255,.22);
+}
+.labelMarker--rencana .labelMarker__row{
+  border-top:1px solid rgba(160,235,255,.18);
+}
+.labelMarker--rencana .labelMarker__label{
+  color:rgba(220,250,255,.78);
 }
 .labelMarker__title{
   font-weight:900;

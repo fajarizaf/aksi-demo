@@ -12,8 +12,10 @@ const els = {
   sumMassa: document.getElementById("sumMassa"),
   sumWilayahDominan: document.getElementById("sumWilayahDominan"),
   sumPuncakHarian: document.getElementById("sumPuncakHarian"),
+  sumIsuDominan: document.getElementById("sumIsuDominan"),
   rekapWilayahBody: document.getElementById("rekapWilayahBody"),
   massChart: document.getElementById("massChart"),
+  issueRank: document.getElementById("issueRank"),
   analisaList: document.getElementById("analisaList"),
   rincianBody: document.getElementById("rincianBody"),
   toast: document.getElementById("toast"),
@@ -358,6 +360,7 @@ function jitterLatLng([lat, lng], seed) {
 function inferMappingFromHeaders(headers) {
   const mapping = {
     no: findHeader(headers, ["no", "nomor"]),
+    status: findHeader(headers, ["status", "rencana", "realisasi", "plan", "actual"]),
     wilayah: findHeader(headers, ["wilayah", "provinsi", "province", "region"]),
     kotaKab: findHeader(headers, ["kota/kabupaten", "kota kabupaten", "kota", "kabupaten", "city"]),
     lokasi: findHeader(headers, ["lokasi", "tempat", "lokasi kegiatan", "lokasi (kegiatan)", "lokasi kegiatan/aksi"]),
@@ -377,6 +380,16 @@ function inferMappingFromHeaders(headers) {
   return mapping;
 }
 
+function canonicalStatus(v) {
+  const s = toStr(v);
+  if (!s) return "";
+  const nk = normalizeKey(s);
+  if (!nk) return "";
+  if (nk.includes("rencana") || nk === "plan" || nk === "planning") return "Rencana";
+  if (nk.includes("realisasi") || nk === "actual") return "Realisasi";
+  return "";
+}
+
 function buildRowsFromRecords(json) {
   if (!json.length) return { rows: [], mapping: null };
   const headerSet = new Set();
@@ -388,6 +401,8 @@ function buildRowsFromRecords(json) {
   const rows = json
     .map((r, idx) => {
       const no = toStr(r[mapping.no] ?? r["NO"] ?? r["No"]);
+      const statusSource = toStr(r[mapping.status] ?? r["STATUS"] ?? r["Status"]);
+      const status = canonicalStatus(statusSource) || "Realisasi";
       const wilayah = canonicalProvince(r[mapping.wilayah] ?? r["Wilayah"] ?? r["Provinsi"]);
       const kotaKab = toStr(r[mapping.kotaKab] ?? r["Kota"] ?? r["Kabupaten"] ?? r["Kota/Kabupaten"]);
       const lokasi = toStr(r[mapping.lokasi] ?? r["Lokasi"] ?? r["Lokasi Kegiatan"] ?? r["Tempat"]);
@@ -436,6 +451,7 @@ function buildRowsFromRecords(json) {
       return {
         id,
         no,
+        status,
         wilayah,
         kotaKab,
         lokasi,
@@ -516,6 +532,23 @@ function computeStats(rows) {
   const puncakHarian = wilayahDayAgg[0]
     ? `${wilayahDayAgg[0].wilayah} • ${wilayahDayAgg[0].tanggalLabel}`
     : "—";
+  const byTuntutan = groupBy(rows, (r) => normalizeKey(r.tuntutan) || "__tanpa_tuntutan__");
+  const issueAgg = Array.from(byTuntutan.entries())
+    .map(([groupKey, items]) => {
+      const mass = items.reduce((a, r) => a + (Number.isFinite(r.estimasiMassa) ? r.estimasiMassa : 0), 0);
+      const primary = items.find((r) => toStr(r.tuntutan)) || items[0];
+      const label = toStr(primary?.tuntutan) || "Tanpa Tuntutan";
+      return {
+        key: groupKey,
+        label,
+        count: items.length,
+        mass,
+      };
+    })
+    .sort((a, b) => b.count - a.count || b.mass - a.mass || a.label.localeCompare(b.label));
+  const isuDominan = issueAgg[0]
+    ? `${issueAgg[0].label} • ${formatNumberId(issueAgg[0].count)} data`
+    : "—";
 
   return {
     titik,
@@ -525,6 +558,8 @@ function computeStats(rows) {
     wilayahDominan,
     wilayahDayAgg,
     puncakHarian,
+    issueAgg,
+    isuDominan,
   };
 }
 
@@ -639,6 +674,7 @@ function buildPopupHtml(row) {
   const title = row.kotaKab || row.lokasi || "Titik Aksi";
   const ringkasan = toStr(row.ringkasan);
   const lines = [
+    ["Status", row.status],
     ["Wilayah", row.wilayah],
     ["Lokasi", row.lokasi],
     ["Kegiatan", row.kegiatan || row.aliansi],
@@ -725,6 +761,12 @@ function renderLabelMarkers(rows) {
     .slice(0, labelLimit);
 
   for (const loc of locationAgg) {
+    const statusMode = loc.items.some((r) => r.status === "Realisasi")
+      ? "Realisasi"
+      : loc.items.some((r) => r.status === "Rencana")
+        ? "Rencana"
+        : "Realisasi";
+    const statusClass = statusMode === "Rencana" ? " labelMarker--rencana" : "";
     const byActionGroup = groupBy(loc.items, (r) => normalizeKey(r.kegiatan || r.aliansi || r.tuntutan || "lainnya"));
     const topGroups = Array.from(byActionGroup.entries())
       .map(([, groupItems]) => {
@@ -745,7 +787,7 @@ function renderLabelMarkers(rows) {
           )}</span><span class="labelMarker__value">${escapeHtml(`${group.count} aksi`)}</span></div>`
       ),
     ].join("");
-    const html = `<div class="labelMarkerWrap"><div class="labelMarker"><div class="labelMarker__title">${escapeHtml(
+    const html = `<div class="labelMarkerWrap"><div class="labelMarker${statusClass}"><div class="labelMarker__title">${escapeHtml(
       loc.lokasi
     )}</div><div class="labelMarker__summary"><div class="labelMarker__stat"><span class="labelMarker__statLabel">Titik Aksi</span><span class="labelMarker__statValue">${escapeHtml(
       String(loc.items.length)
@@ -831,6 +873,7 @@ function renderSummary(stats) {
   els.sumMassa.textContent = stats.massaSum ? `${formatMassa(stats.massaSum)} ORANG` : "—";
   els.sumWilayahDominan.textContent = stats.wilayahDominan || "—";
   els.sumPuncakHarian.textContent = stats.puncakHarian || "—";
+  els.sumIsuDominan.textContent = stats.isuDominan || "—";
 
   els.rekapWilayahBody.innerHTML = "";
   for (const r of stats.wilayahAgg.slice(0, 12)) {
@@ -848,6 +891,7 @@ function renderSummary(stats) {
   }
 
   renderMassChart(stats.wilayahDayAgg);
+  renderIssueRank(stats.issueAgg);
 
   const analisa = buildAnalisa(stats);
   els.analisaList.innerHTML = "";
@@ -868,6 +912,10 @@ function buildAnalisa(stats) {
   if (stats.wilayahDayAgg.length) {
     const topDay = stats.wilayahDayAgg[0];
     lines.push(`Puncak massa harian berada di ${topDay.wilayah} pada ${topDay.tanggalLabel} dengan total ${formatMassa(topDay.mass)}.`);
+  }
+  if (stats.issueAgg.length) {
+    const topIssue = stats.issueAgg[0];
+    lines.push(`Tuntutan dominan "${topIssue.label}" muncul pada ${formatNumberId(topIssue.count)} data dengan estimasi massa ${formatMassa(topIssue.mass)}.`);
   }
   if (stats.massaSum) {
     lines.push(`Total estimasi massa nasional sekitar ${formatMassa(stats.massaSum)} orang.`);
@@ -902,6 +950,26 @@ function renderMassChart(items) {
   });
 }
 
+function renderIssueRank(items) {
+  els.issueRank.innerHTML = "";
+  if (!Array.isArray(items) || !items.length) {
+    els.issueRank.innerHTML = `<div class="issueRank__empty">Belum ada tuntutan yang dapat diidentifikasi.</div>`;
+    return;
+  }
+  items.slice(0, 5).forEach((item) => {
+    const row = document.createElement("div");
+    row.className = "issueRank__row";
+    row.innerHTML = `<div class="issueRank__count"><span class="issueRank__countValue">${escapeHtml(
+      formatNumberId(item.count)
+    )}</span><span class="issueRank__countLabel">data</span></div><div class="issueRank__body"><div class="issueRank__title">${escapeHtml(
+      item.label
+    )}</div><div class="issueRank__meta">${escapeHtml(
+      `${formatNumberId(item.count)} data dengan tuntutan yang sama • ${formatMassa(item.mass)}`
+    )}</div></div>`;
+    els.issueRank.appendChild(row);
+  });
+}
+
 function renderTable(rows) {
   els.rincianBody.innerHTML = "";
   rows.forEach((r, idx) => {
@@ -911,6 +979,7 @@ function renderTable(rows) {
     const noCell = toStr(r.no) || String(idx + 1);
     const tanggalCell = formatDisplayDate(r.tanggal);
     const waktuCell = r.waktu || "—";
+    const statusCell = r.status || "Realisasi";
     const wilayahCell = r.wilayah || "—";
     const massaCell = formatMassa(r.estimasiMassa);
     const lokasiCell = r.lokasi || "—";
@@ -919,7 +988,9 @@ function renderTable(rows) {
     const ringkasanCell = r.ringkasan || "—";
     tr.innerHTML = `<td class="num">${escapeHtml(noCell)}</td><td>${escapeHtml(
       tanggalCell
-    )}</td><td>${escapeHtml(waktuCell)}</td><td>${escapeHtml(wilayahCell)}</td><td class="num">${escapeHtml(
+    )}</td><td>${escapeHtml(waktuCell)}</td><td>${escapeHtml(statusCell)}</td><td>${escapeHtml(
+      wilayahCell
+    )}</td><td class="num">${escapeHtml(
       massaCell
     )}</td><td>${escapeHtml(lokasiCell)}</td><td>${escapeHtml(
       kelompokCell
