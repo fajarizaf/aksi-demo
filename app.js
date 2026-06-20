@@ -8,7 +8,7 @@ const els = {
   searchInput: document.getElementById("searchInput"),
   titleDate: document.getElementById("titleDate"),
   sumTitik: document.getElementById("sumTitik"),
-  sumKota: document.getElementById("sumKota"),
+  sumWilayahCount: document.getElementById("sumWilayahCount"),
   sumMassa: document.getElementById("sumMassa"),
   sumWilayahDominan: document.getElementById("sumWilayahDominan"),
   sumPuncakHarian: document.getElementById("sumPuncakHarian"),
@@ -72,6 +72,8 @@ const state = {
   activeId: null,
   datasetLabel: "Belum dimuat",
   hasInitializedDateDefault: false,
+  clusterPreviewRows: null,
+  locationPreviewRows: null,
 };
 
 const XLSX_CDN_URLS = [
@@ -360,7 +362,7 @@ function jitterLatLng([lat, lng], seed) {
 function inferMappingFromHeaders(headers) {
   const mapping = {
     no: findHeader(headers, ["no", "nomor"]),
-    status: findHeader(headers, ["status", "rencana", "realisasi", "plan", "actual"]),
+    status: findHeader(headers, ["status", "rencana", "yang berlangsung", "selesai", "realisasi", "plan", "actual"]),
     wilayah: findHeader(headers, ["wilayah", "provinsi", "province", "region"]),
     kotaKab: findHeader(headers, ["kota/kabupaten", "kota kabupaten", "kota", "kabupaten", "city"]),
     lokasi: findHeader(headers, ["lokasi", "tempat", "lokasi kegiatan", "lokasi (kegiatan)", "lokasi kegiatan/aksi"]),
@@ -368,9 +370,13 @@ function inferMappingFromHeaders(headers) {
     aliansi: findHeader(headers, ["aliansi", "organisasi", "kelompok", "aliansi/organisasi", "kelompok aksi"]),
     tanggal: findHeader(headers, ["tanggal aksi", "tanggal", "tgl", "date", "hari", "waktu"]),
     waktu: findHeader(headers, ["waktu aksi", "waktu", "jam", "pukul", "time"]),
+    waktuMulai: findHeader(headers, ["waktu mulai", "jam mulai", "mulai", "start time"]),
+    waktuSelesai: findHeader(headers, ["waktu selesai", "jam selesai", "selesai", "end time"]),
     lokasiAksi: findHeader(headers, ["lokasi aksi", "lokasi_aksi", "lokasi aksi (alamat)", "alamat lokasi aksi"]),
     tuntutan: findHeader(headers, ["tuntutan", "demand", "tuntutan/isu", "isu/tuntutan"]),
     ringkasan: findHeader(headers, ["ringkasan", "summary", "ringkasan tuntutan", "deskripsi singkat", "uraian singkat"]),
+    kategoriDemo: findHeader(headers, ["kategori demo", "kategori", "pro kontra", "pro/kontra"]),
+    halMenonjol: findHeader(headers, ["hal menonjol", "catatan menonjol", "highlight", "hal yang menonjol"]),
     isu: findHeader(headers, ["isu dominan", "isu", "kategori", "tema", "issue"]),
     massa: findHeader(headers, ["estimasi massa", "massa", "estimasi", "jumlah massa", "jumlah peserta", "estimasi peserta"]),
     lat: findHeader(headers, ["lat", "latitude", "lintang"]),
@@ -386,8 +392,56 @@ function canonicalStatus(v) {
   const nk = normalizeKey(s);
   if (!nk) return "";
   if (nk.includes("rencana") || nk === "plan" || nk === "planning") return "Rencana";
-  if (nk.includes("realisasi") || nk === "actual") return "Realisasi";
+  if (
+    nk.includes("yangberlangsung") ||
+    nk.includes("sedangberlangsung") ||
+    nk.includes("berlangsung") ||
+    nk === "ongoing" ||
+    nk === "inprogress" ||
+    nk === "progress"
+  ) {
+    return "Yang Berlangsung";
+  }
+  if (nk.includes("selesai") || nk.includes("realisasi") || nk === "actual" || nk === "done") return "Selesai";
   return "";
+}
+
+function canonicalDemoCategory(v) {
+  const s = toStr(v);
+  if (!s) return "";
+  const nk = normalizeKey(s);
+  if (!nk) return "";
+  if (nk === "pro" || nk.includes("dukung") || nk.includes("setuju")) return "Pro";
+  if (nk === "kontra" || nk.includes("tolak") || nk.includes("lawan")) return "Kontra";
+  return s;
+}
+
+function getStatusPriority(status) {
+  if (status === "Yang Berlangsung") return 3;
+  if (status === "Selesai") return 2;
+  if (status === "Rencana") return 1;
+  return 0;
+}
+
+function getDominantStatus(rows) {
+  return rows.reduce((best, row) => {
+    const current = canonicalStatus(row?.status || row?.STATUS);
+    return getStatusPriority(current) > getStatusPriority(best) ? current : best;
+  }, "") || "Selesai";
+}
+
+function getStatusToneClass(status) {
+  if (status === "Rencana") return " labelMarker--rencana";
+  if (status === "Yang Berlangsung") return " labelMarker--berlangsung";
+  if (status === "Selesai") return " labelMarker--selesai";
+  return " labelMarker--selesai";
+}
+
+function getPointMarkerClass(status) {
+  if (status === "Rencana") return " pointMarker--rencana";
+  if (status === "Yang Berlangsung") return " pointMarker--berlangsung";
+  if (status === "Selesai") return " pointMarker--selesai";
+  return " pointMarker--selesai";
 }
 
 function buildRowsFromRecords(json) {
@@ -402,7 +456,7 @@ function buildRowsFromRecords(json) {
     .map((r, idx) => {
       const no = toStr(r[mapping.no] ?? r["NO"] ?? r["No"]);
       const statusSource = toStr(r[mapping.status] ?? r["STATUS"] ?? r["Status"]);
-      const status = canonicalStatus(statusSource) || "Realisasi";
+      const status = canonicalStatus(statusSource) || "Selesai";
       const wilayah = canonicalProvince(r[mapping.wilayah] ?? r["Wilayah"] ?? r["Provinsi"]);
       const kotaKab = toStr(r[mapping.kotaKab] ?? r["Kota"] ?? r["Kabupaten"] ?? r["Kota/Kabupaten"]);
       const lokasi = toStr(r[mapping.lokasi] ?? r["Lokasi"] ?? r["Lokasi Kegiatan"] ?? r["Tempat"]);
@@ -412,11 +466,23 @@ function buildRowsFromRecords(json) {
         r["TANGGAL AKSI"] ?? r["Tanggal Aksi"] ?? r["TANGGAL"] ?? r["Tanggal"] ?? r[mapping.tanggal]
       );
       const tanggal = parseDateParts(tanggalSource) ? tanggalSource : "";
-      const waktuSource = toStr(r["WAKTU"] ?? r["Waktu"] ?? r["Jam"] ?? r[mapping.waktu]);
-      const waktu = looksLikeTimeValue(waktuSource) ? waktuSource : "";
+      const waktuMulaiSource = toStr(
+        r["WAKTU MULAI"] ?? r["Waktu Mulai"] ?? r["Jam Mulai"] ?? r["WAKTU"] ?? r["Waktu"] ?? r["Jam"] ?? r[mapping.waktuMulai] ?? r[mapping.waktu]
+      );
+      const waktuMulai = looksLikeTimeValue(waktuMulaiSource) ? waktuMulaiSource : "";
+      const waktuSelesaiSource = toStr(
+        r["WAKTU SELESAI"] ?? r["Waktu Selesai"] ?? r["Jam Selesai"] ?? r[mapping.waktuSelesai]
+      );
+      const waktuSelesai = looksLikeTimeValue(waktuSelesaiSource) ? waktuSelesaiSource : "";
       const lokasiAksi = toStr(r[mapping.lokasiAksi] ?? r["Lokasi Aksi"]);
       const tuntutan = toStr(r[mapping.tuntutan] ?? r["Tuntutan"]);
       const ringkasan = toStr(r[mapping.ringkasan] ?? r["RINGKASAN"] ?? r["Ringkasan"] ?? r["Summary"]);
+      const kategoriDemo = canonicalDemoCategory(
+        r[mapping.kategoriDemo] ?? r["KATEGORI DEMO"] ?? r["Kategori Demo"] ?? r["Kategori"]
+      );
+      const halMenonjol = toStr(
+        r[mapping.halMenonjol] ?? r["HAL MENONJOL"] ?? r["Hal Menonjol"] ?? r["Highlight"]
+      );
       const isu = toStr(r[mapping.isu] ?? r["Isu"]);
       const estimasiMassa = parseMass(r[mapping.massa] ?? r["Estimasi Massa"] ?? r["Massa"]);
 
@@ -458,10 +524,13 @@ function buildRowsFromRecords(json) {
         kegiatan,
         aliansi,
         tanggal,
-        waktu,
+        waktuMulai,
+        waktuSelesai,
         lokasiAksi,
+        kategoriDemo,
         tuntutan,
         ringkasan,
+        halMenonjol,
         isu,
         estimasiMassa,
         lat,
@@ -499,7 +568,7 @@ function groupBy(arr, keyFn) {
 
 function computeStats(rows) {
   const titik = rows.length;
-  const kota = uniq(rows.map((r) => (r.kotaKab || "").trim().toUpperCase())).length;
+  const wilayahCount = uniq(rows.map((r) => (r.wilayah || "").trim().toUpperCase())).length;
   const massaSum = rows.reduce((a, r) => a + (Number.isFinite(r.estimasiMassa) ? r.estimasiMassa : 0), 0);
 
   const byWilayah = groupBy(rows, (r) => r.wilayah || "TIDAK DIKETAHUI");
@@ -546,19 +615,48 @@ function computeStats(rows) {
       };
     })
     .sort((a, b) => b.count - a.count || b.mass - a.mass || a.label.localeCompare(b.label));
+  const issueAggByCategory = {
+    Pro: Array.from(
+      groupBy(
+        rows.filter((r) => canonicalDemoCategory(r.kategoriDemo) === "Pro"),
+        (r) => normalizeKey(r.tuntutan) || "__tanpa_tuntutan__"
+      ).entries()
+    )
+      .map(([groupKey, items]) => {
+        const mass = items.reduce((a, r) => a + (Number.isFinite(r.estimasiMassa) ? r.estimasiMassa : 0), 0);
+        const primary = items.find((r) => toStr(r.tuntutan)) || items[0];
+        const label = toStr(primary?.tuntutan) || "Tanpa Tuntutan";
+        return { key: groupKey, label, count: items.length, mass, kategori: "Pro" };
+      })
+      .sort((a, b) => b.count - a.count || b.mass - a.mass || a.label.localeCompare(b.label)),
+    Kontra: Array.from(
+      groupBy(
+        rows.filter((r) => canonicalDemoCategory(r.kategoriDemo) === "Kontra"),
+        (r) => normalizeKey(r.tuntutan) || "__tanpa_tuntutan__"
+      ).entries()
+    )
+      .map(([groupKey, items]) => {
+        const mass = items.reduce((a, r) => a + (Number.isFinite(r.estimasiMassa) ? r.estimasiMassa : 0), 0);
+        const primary = items.find((r) => toStr(r.tuntutan)) || items[0];
+        const label = toStr(primary?.tuntutan) || "Tanpa Tuntutan";
+        return { key: groupKey, label, count: items.length, mass, kategori: "Kontra" };
+      })
+      .sort((a, b) => b.count - a.count || b.mass - a.mass || a.label.localeCompare(b.label)),
+  };
   const isuDominan = issueAgg[0]
     ? `${issueAgg[0].label} • ${formatNumberId(issueAgg[0].count)} data`
     : "—";
 
   return {
     titik,
-    kota,
+    wilayahCount,
     massaSum,
     wilayahAgg,
     wilayahDominan,
     wilayahDayAgg,
     puncakHarian,
     issueAgg,
+    issueAggByCategory,
     isuDominan,
   };
 }
@@ -568,6 +666,31 @@ let markerCluster;
 let labelLayer;
 const markerIndex = new Map();
 const labelIndex = new Map();
+
+function refreshVisibleLabels() {
+  if (Array.isArray(state.clusterPreviewRows) && state.clusterPreviewRows.length) {
+    renderLabelMarkers(state.clusterPreviewRows, { mode: "province" });
+    return;
+  }
+  if (Array.isArray(state.locationPreviewRows) && state.locationPreviewRows.length) {
+    renderLabelMarkers(state.locationPreviewRows, { mode: "location" });
+    return;
+  }
+  labelLayer.clearLayers();
+  labelIndex.clear();
+}
+
+function clearClusterPreview() {
+  if (!state.clusterPreviewRows) return;
+  state.clusterPreviewRows = null;
+  refreshVisibleLabels();
+}
+
+function clearLocationPreview() {
+  if (!state.locationPreviewRows) return;
+  state.locationPreviewRows = null;
+  refreshVisibleLabels();
+}
 
 function getLabelLimitByZoom() {
   return 10;
@@ -635,6 +758,21 @@ function updatePointMarkerScale() {
   root.setProperty("--point-marker-glow", `${glow.toFixed(1)}px`);
 }
 
+function revealClusterPoints(cluster) {
+  if (!map || !cluster) return;
+  const bounds = cluster.getBounds?.();
+  const reveal = () => {
+    if (!cluster._map) return;
+    cluster.spiderfy?.();
+  };
+  if (bounds?.isValid?.()) {
+    map.once("moveend", reveal);
+    map.fitBounds(bounds, { padding: [50, 50], maxZoom: Math.max(map.getZoom(), 12) });
+    return;
+  }
+  reveal();
+}
+
 function initMap() {
   map = L.map("map", { zoomControl: true }).setView([-2.3, 118.2], 5);
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -643,6 +781,7 @@ function initMap() {
   markerCluster = L.markerClusterGroup({
     showCoverageOnHover: false,
     maxClusterRadius: 52,
+    zoomToBoundsOnClick: false,
     iconCreateFunction(cluster) {
       const count = cluster.getChildCount();
       const size = count >= 50 ? 58 : count >= 10 ? 50 : 42;
@@ -666,7 +805,20 @@ function initMap() {
     updatePointMarkerScale();
   });
   map.on("zoomend", () => {
-    if (Array.isArray(state.filteredRows)) renderLabelMarkers(state.filteredRows);
+    refreshVisibleLabels();
+  });
+  map.on("click", () => {
+    clearClusterPreview();
+    clearLocationPreview();
+  });
+  markerCluster.on("clusterclick", (e) => {
+    const childMarkers = e.layer?.getAllChildMarkers?.() || [];
+    const childRows = childMarkers.map((marker) => marker.__rowData).filter(Boolean);
+    if (!childRows.length) return;
+    state.clusterPreviewRows = childRows;
+    state.locationPreviewRows = null;
+    refreshVisibleLabels();
+    revealClusterPoints(e.layer);
   });
 }
 
@@ -679,9 +831,12 @@ function buildPopupHtml(row) {
     ["Lokasi", row.lokasi],
     ["Kegiatan", row.kegiatan || row.aliansi],
     ["Tanggal", formatDisplayDate(row.tanggal)],
-    ["Waktu", row.waktu],
+    ["Waktu Mulai", row.waktuMulai],
+    ["Waktu Selesai", row.waktuSelesai],
     ["Lokasi Aksi", row.lokasiAksi],
+    ["Kategori Demo", row.kategoriDemo],
     ["Tuntutan", row.tuntutan],
+    ["Hal Menonjol", row.halMenonjol],
     ["Isu", row.isu],
     ["Estimasi Massa", formatMassa(row.estimasiMassa)],
   ]
@@ -712,26 +867,118 @@ function escapeHtml(s) {
     .replace(/'/g, "&#039;");
 }
 
+function renderKategoriDemoBadge(value) {
+  const text = toStr(value);
+  if (!text) return "—";
+  const normalized = text.toLowerCase();
+  const tone = normalized === "pro" ? "demoBadge--pro" : normalized === "kontra" ? "demoBadge--kontra" : "";
+  return `<span class="demoBadge ${tone}">${escapeHtml(text)}</span>`;
+}
+
+function renderStatusBadge(value) {
+  const text = toStr(value);
+  if (!text) return "—";
+  const normalized = text.toLowerCase();
+  const tone =
+    normalized === "rencana"
+      ? "demoBadge--status-rencana"
+      : normalized === "yang berlangsung"
+        ? "demoBadge--status-berlangsung"
+        : normalized === "selesai"
+          ? "demoBadge--status-selesai"
+          : "";
+  return `<span class="demoBadge ${tone}">${escapeHtml(text)}</span>`;
+}
+
 function getLocationGroupKey(row) {
   const lokasi = toStr(row?.lokasi || row?.kotaKab || row?.locationLabel || "Titik Aksi");
   const wilayah = toStr(row?.wilayah || "TIDAK DIKETAHUI");
   return `${normalizeKey(wilayah)}__${normalizeKey(lokasi)}`;
 }
 
-function makeRedIcon() {
+function makePointIcon(status) {
   return L.divIcon({
     className: "pointMarkerIcon",
-    html: `<div class="pointMarkerWrap"><div class="pointMarker"></div></div>`,
+    html: `<div class="pointMarkerWrap"><div class="pointMarker${getPointMarkerClass(status)}"></div></div>`,
     iconSize: [0, 0],
     iconAnchor: [0, 0],
   });
 }
 
-function renderLabelMarkers(rows) {
+function renderLabelMarkers(rows, options = {}) {
   labelLayer.clearLayers();
   labelIndex.clear();
   const labelLimit = getLabelLimitByZoom();
   if (labelLimit <= 0) return;
+  const mode = options.mode === "province" ? "province" : "location";
+  if (mode === "province") {
+    const byProvince = groupBy(rows, (r) => toStr(r.wilayah || "TIDAK DIKETAHUI"));
+    const provinceAgg = Array.from(byProvince.entries())
+      .map(([wilayah, items]) => {
+        const coordItems = items.filter((r) => Number.isFinite(r.lat) && Number.isFinite(r.lng));
+        if (!coordItems.length) return null;
+        const totalMass = items.reduce((a, r) => a + (Number.isFinite(r.estimasiMassa) ? r.estimasiMassa : 0), 0);
+        const center = [
+          coordItems.reduce((a, r) => a + r.lat, 0) / coordItems.length,
+          coordItems.reduce((a, r) => a + r.lng, 0) / coordItems.length,
+        ];
+        const byActionGroup = groupBy(items, (r) => normalizeKey(r.kegiatan || r.aliansi || r.tuntutan || "lainnya"));
+        const aksiList = Array.from(byActionGroup.entries())
+          .map(([, groupItems]) => ({
+            name: toStr(groupItems[0]?.kegiatan || groupItems[0]?.aliansi || groupItems[0]?.tuntutan || "Lainnya"),
+            count: groupItems.length,
+          }))
+          .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name))
+          .slice(0, 4);
+        const statusMode = getDominantStatus(items);
+        return {
+          key: normalizeKey(wilayah),
+          wilayah: wilayah || "TIDAK DIKETAHUI",
+          items,
+          totalMass,
+          center,
+          aksiList,
+          statusMode,
+        };
+      })
+      .filter(Boolean)
+      .sort((a, b) => b.items.length - a.items.length || b.totalMass - a.totalMass || a.wilayah.localeCompare(b.wilayah))
+      .slice(0, Math.max(6, labelLimit));
+
+    for (const province of provinceAgg) {
+      const statusClass = getStatusToneClass(province.statusMode);
+      const aksiHtml = province.aksiList.length
+        ? `<div class="labelMarker__block"><div class="labelMarker__blockTitle">Daftar Aksi</div>${province.aksiList
+            .map(
+              (aksi) =>
+                `<div class="labelMarker__actionItem"><span class="labelMarker__label">${escapeHtml(
+                  aksi.name
+                )}</span><span class="labelMarker__value">${escapeHtml(`${aksi.count} aksi`)}</span></div>`
+            )
+            .join("")}</div>`
+        : "";
+      const html = `<div class="labelMarkerWrap"><div class="labelMarker${statusClass}"><div class="labelMarker__title">${escapeHtml(
+        province.wilayah
+      )}</div><div class="labelMarker__summary"><div class="labelMarker__stat"><span class="labelMarker__statLabel">Titik Aksi</span><span class="labelMarker__statValue">${escapeHtml(
+        String(province.items.length)
+      )}</span></div><div class="labelMarker__stat"><span class="labelMarker__statLabel">Total Massa</span><span class="labelMarker__statValue">${escapeHtml(
+        formatMassa(province.totalMass)
+      )}</span></div></div>${aksiHtml}</div></div>`;
+      const labelMarker = L.marker(province.center, {
+        icon: L.divIcon({ className: "labelMarkerIcon", html, iconSize: [0, 0], iconAnchor: [0, 0] }),
+        interactive: true,
+      });
+      labelMarker.on("click", () => {
+        clearClusterPreview();
+        clearLocationPreview();
+        els.wilayahFilter.value = province.wilayah;
+        applyFiltersAndRender();
+      });
+      labelLayer.addLayer(labelMarker);
+      labelIndex.set(province.key, labelMarker);
+    }
+    return;
+  }
   const byLocation = groupBy(rows, (r) => {
     return getLocationGroupKey(r);
   });
@@ -761,12 +1008,8 @@ function renderLabelMarkers(rows) {
     .slice(0, labelLimit);
 
   for (const loc of locationAgg) {
-    const statusMode = loc.items.some((r) => r.status === "Realisasi")
-      ? "Realisasi"
-      : loc.items.some((r) => r.status === "Rencana")
-        ? "Rencana"
-        : "Realisasi";
-    const statusClass = statusMode === "Rencana" ? " labelMarker--rencana" : "";
+    const statusMode = getDominantStatus(loc.items);
+    const statusClass = getStatusToneClass(statusMode);
     const byActionGroup = groupBy(loc.items, (r) => normalizeKey(r.kegiatan || r.aliansi || r.tuntutan || "lainnya"));
     const topGroups = Array.from(byActionGroup.entries())
       .map(([, groupItems]) => {
@@ -799,6 +1042,7 @@ function renderLabelMarkers(rows) {
       interactive: true,
     });
     labelMarker.on("click", () => {
+      clearClusterPreview();
       const primaryMarker = markerIndex.get(loc.primary.id);
       map.setView(loc.center, Math.max(map.getZoom(), 8));
       if (primaryMarker) primaryMarker.fire("click");
@@ -835,15 +1079,20 @@ function focusMapToLabels(rows, options = {}) {
 function updateMapWithRows(rows) {
   markerCluster.clearLayers();
   markerIndex.clear();
+  state.clusterPreviewRows = null;
+  state.locationPreviewRows = null;
 
-  const redIcon = makeRedIcon();
   const bounds = [];
 
   for (const row of rows) {
     if (!Number.isFinite(row.lat) || !Number.isFinite(row.lng)) continue;
-    const marker = L.marker([row.lat, row.lng], { icon: redIcon, title: row.locationLabel });
+    const marker = L.marker([row.lat, row.lng], { icon: makePointIcon(row.status), title: row.locationLabel });
+    marker.__rowData = row;
     marker.on("click", () => {
-      setActiveRow(row.id);
+      clearClusterPreview();
+      state.locationPreviewRows = [row];
+      refreshVisibleLabels();
+      setActiveRow(row.id, { scroll: false });
       marker.bindPopup(buildPopupHtml(row), { closeButton: true, maxWidth: 360 }).openPopup();
     });
     markerCluster.addLayer(marker);
@@ -851,7 +1100,7 @@ function updateMapWithRows(rows) {
     bounds.push([row.lat, row.lng]);
   }
 
-  renderLabelMarkers(rows);
+  refreshVisibleLabels();
 
   if (bounds.length) {
     map.fitBounds(bounds, { padding: [30, 30], maxZoom: 8 });
@@ -860,16 +1109,17 @@ function updateMapWithRows(rows) {
   }
 }
 
-function setActiveRow(id) {
+function setActiveRow(id, options = {}) {
   state.activeId = id;
   renderTable(state.filteredRows);
+  if (options.scroll === false) return;
   const el = document.querySelector(`[data-row-id="${CSS.escape(id)}"]`);
   if (el) el.scrollIntoView({ behavior: "smooth", block: "nearest" });
 }
 
 function renderSummary(stats) {
   els.sumTitik.textContent = formatNumberId(stats.titik);
-  els.sumKota.textContent = formatNumberId(stats.kota);
+  els.sumWilayahCount.textContent = formatNumberId(stats.wilayahCount);
   els.sumMassa.textContent = stats.massaSum ? `${formatMassa(stats.massaSum)} ORANG` : "—";
   els.sumWilayahDominan.textContent = stats.wilayahDominan || "—";
   els.sumPuncakHarian.textContent = stats.puncakHarian || "—";
@@ -891,7 +1141,7 @@ function renderSummary(stats) {
   }
 
   renderMassChart(stats.wilayahDayAgg);
-  renderIssueRank(stats.issueAgg);
+  renderIssueRank(stats.issueAggByCategory);
 
   const analisa = buildAnalisa(stats);
   els.analisaList.innerHTML = "";
@@ -950,23 +1200,38 @@ function renderMassChart(items) {
   });
 }
 
-function renderIssueRank(items) {
+function renderIssueRank(itemsByCategory) {
   els.issueRank.innerHTML = "";
-  if (!Array.isArray(items) || !items.length) {
+  const proItems = Array.isArray(itemsByCategory?.Pro) ? itemsByCategory.Pro.slice(0, 3) : [];
+  const kontraItems = Array.isArray(itemsByCategory?.Kontra) ? itemsByCategory.Kontra.slice(0, 3) : [];
+  if (!proItems.length && !kontraItems.length) {
     els.issueRank.innerHTML = `<div class="issueRank__empty">Belum ada tuntutan yang dapat diidentifikasi.</div>`;
     return;
   }
-  items.slice(0, 5).forEach((item) => {
-    const row = document.createElement("div");
-    row.className = "issueRank__row";
-    row.innerHTML = `<div class="issueRank__count"><span class="issueRank__countValue">${escapeHtml(
-      formatNumberId(item.count)
-    )}</span><span class="issueRank__countLabel">data</span></div><div class="issueRank__body"><div class="issueRank__title">${escapeHtml(
-      item.label
-    )}</div><div class="issueRank__meta">${escapeHtml(
-      `${formatNumberId(item.count)} data dengan tuntutan yang sama • ${formatMassa(item.mass)}`
-    )}</div></div>`;
-    els.issueRank.appendChild(row);
+  [
+    { title: "Kontra", tone: "kontra", items: kontraItems },
+    { title: "Pro", tone: "pro", items: proItems },
+  ].forEach((section) => {
+    const wrapper = document.createElement("div");
+    wrapper.className = "issueRank__section";
+    const rowsHtml = section.items.length
+      ? section.items
+          .map(
+            (item) =>
+              `<div class="issueRank__row"><div class="issueRank__count"><span class="issueRank__countValue">${escapeHtml(
+                formatNumberId(item.count)
+              )}</span><span class="issueRank__countLabel">data</span></div><div class="issueRank__body"><div class="issueRank__title">${escapeHtml(
+                item.label
+              )}</div><div class="issueRank__meta">${escapeHtml(
+                `${formatNumberId(item.count)} data dengan tuntutan yang sama • ${formatMassa(item.mass)}`
+              )}</div></div></div>`
+          )
+          .join("")
+      : `<div class="issueRank__empty issueRank__empty--section">Belum ada data kategori ${escapeHtml(section.title)}.</div>`;
+    wrapper.innerHTML = `<div class="issueRank__sectionTitle"><span class="demoBadge demoBadge--${section.tone}">${escapeHtml(
+      section.title
+    )}</span></div>${rowsHtml}`;
+    els.issueRank.appendChild(wrapper);
   });
 }
 
@@ -978,23 +1243,32 @@ function renderTable(rows) {
     if (state.activeId === r.id) tr.classList.add("is-active");
     const noCell = toStr(r.no) || String(idx + 1);
     const tanggalCell = formatDisplayDate(r.tanggal);
-    const waktuCell = r.waktu || "—";
-    const statusCell = r.status || "Realisasi";
+    const waktuMulaiCell = r.waktuMulai || "—";
+    const waktuSelesaiCell = r.waktuSelesai || "—";
+    const statusCell = r.status || "Selesai";
     const wilayahCell = r.wilayah || "—";
     const massaCell = formatMassa(r.estimasiMassa);
     const lokasiCell = r.lokasi || "—";
     const kelompokCell = r.aliansi || r.kegiatan || "—";
+    const kategoriDemoCell = r.kategoriDemo || "—";
     const tuntutanCell = r.tuntutan || r.isu || "—";
     const ringkasanCell = r.ringkasan || "—";
+    const halMenonjolCell = r.halMenonjol || "—";
     tr.innerHTML = `<td class="num">${escapeHtml(noCell)}</td><td>${escapeHtml(
       tanggalCell
-    )}</td><td>${escapeHtml(waktuCell)}</td><td>${escapeHtml(statusCell)}</td><td>${escapeHtml(
+    )}</td><td>${escapeHtml(
+      waktuMulaiCell
+    )}</td><td>${escapeHtml(
+      waktuSelesaiCell
+    )}</td><td>${renderStatusBadge(statusCell)}</td><td>${escapeHtml(
       wilayahCell
     )}</td><td class="num">${escapeHtml(
       massaCell
     )}</td><td>${escapeHtml(lokasiCell)}</td><td>${escapeHtml(
       kelompokCell
-    )}</td><td>${escapeHtml(tuntutanCell)}</td><td>${escapeHtml(ringkasanCell)}</td>`;
+    )}</td><td>${renderKategoriDemoBadge(kategoriDemoCell)}</td><td>${escapeHtml(
+      tuntutanCell
+    )}</td><td>${escapeHtml(ringkasanCell)}</td><td>${escapeHtml(halMenonjolCell)}</td>`;
     tr.addEventListener("click", () => {
       setActiveRow(r.id);
       focusMapToLabels([r], { preferredZoom: 11 });
@@ -1023,7 +1297,24 @@ function applyFiltersAndRender() {
     if (!okTanggal || !okBulan || !okTahun) return false;
     if (!q) return true;
     const hay = normalizeKey(
-      [r.no, r.tanggal, r.waktu, r.wilayah, r.kotaKab, r.lokasi, r.kegiatan, r.aliansi, r.lokasiAksi, r.tuntutan, r.ringkasan, r.isu].join(" ")
+      [
+        r.no,
+        r.tanggal,
+        r.waktuMulai,
+        r.waktuSelesai,
+        r.status,
+        r.wilayah,
+        r.kotaKab,
+        r.lokasi,
+        r.kegiatan,
+        r.aliansi,
+        r.lokasiAksi,
+        r.kategoriDemo,
+        r.tuntutan,
+        r.ringkasan,
+        r.halMenonjol,
+        r.isu,
+      ].join(" ")
     );
     return hay.includes(q);
   });

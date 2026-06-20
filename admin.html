@@ -3,14 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Admin Data Aksi</title>
-    <link rel="stylesheet" href="./styles.css" />
+    <title>Admin Data Unras</title>
+    <link rel="stylesheet" href="./styles.css?v=20260620-6" />
   </head>
   <body>
     <header class="topbar">
       <div class="topbar__inner">
         <div class="topbar__title">
-          <div class="topbar__titleMain">ADMIN DATA AKSI</div>
+          <div class="topbar__titleMain">ADMIN DATA UNRAS</div>
           <div class="topbar__titleSub">Manajemen dataset impor (tersimpan)</div>
         </div>
         <div class="topbar__controls">
@@ -51,10 +51,12 @@
         <div class="card__title">Input Manual</div>
         <form id="manualForm" class="adminForm adminForm--grid">
           <input id="mTanggal" class="input" type="date" required />
-          <input id="mWaktu" class="input" type="time" step="60" required />
+          <input id="mWaktuMulai" class="input" type="time" step="60" required />
+          <input id="mWaktuSelesai" class="input" type="time" step="60" required />
           <select id="mStatus" class="select" required>
-            <option value="Realisasi">Realisasi</option>
             <option value="Rencana">Rencana</option>
+            <option value="Yang Berlangsung">Yang Berlangsung</option>
+            <option value="Selesai">Selesai</option>
           </select>
           <select id="mWilayah" class="select" required>
             <option value="">Pilih WILAYAH</option>
@@ -100,8 +102,14 @@
           <input id="mJumlahMassa" class="input" placeholder="JUMLAH MASSA" required />
           <input id="mLokasi" class="input" placeholder="LOKASI" required />
           <input id="mKelompokAksi" class="input" placeholder="KELOMPOK AKSI" required />
+          <select id="mKategoriDemo" class="select" required>
+            <option value="">Pilih KATEGORI DEMO</option>
+            <option value="Pro">Pro</option>
+            <option value="Kontra">Kontra</option>
+          </select>
           <input id="mTuntutan" class="input" placeholder="TUNTUTAN" required />
           <input id="mRingkasan" class="input" placeholder="RINGKASAN" required />
+          <input id="mHalMenonjol" class="input" placeholder="HAL MENONJOL" required />
           <input
             id="mGoogleMaps"
             class="input"
@@ -146,7 +154,8 @@
           <select id="filterStatus" class="select adminFilter__item">
             <option value="">Semua Status</option>
             <option value="Rencana">Rencana</option>
-            <option value="Realisasi">Realisasi</option>
+            <option value="Yang Berlangsung">Yang Berlangsung</option>
+            <option value="Selesai">Selesai</option>
           </select>
           <input id="filterTanggal" class="input adminFilter__item" type="date" />
           <select id="filterBulan" class="select adminFilter__item">
@@ -162,12 +171,16 @@
             <thead>
               <tr>
                 <th>TANGGAL</th>
+                <th>WAKTU MULAI</th>
+                <th>WAKTU SELESAI</th>
                 <th>STATUS</th>
                 <th>WILAYAH</th>
                 <th class="num">JUMLAH MASSA</th>
                 <th>LOKASI</th>
                 <th>KELOMPOK AKSI</th>
+                <th>KATEGORI DEMO</th>
                 <th>TUNTUTAN</th>
+                <th>HAL MENONJOL</th>
                 <th>MAPS</th>
                 <th>Aksi</th>
               </tr>
@@ -187,6 +200,6 @@
     </main>
 
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
-    <script src="./admin.js?v=20260618-3"></script>
+    <script src="./admin.js?v=20260620-6"></script>
   </body>
 </html>

@@ -190,7 +190,7 @@ function findHeader(headers, synonyms) {
 function inferMappingFromHeaders(headers) {
   return {
     no: findHeader(headers, ["no", "nomor"]),
-    status: findHeader(headers, ["status", "rencana", "realisasi", "plan", "actual"]),
+    status: findHeader(headers, ["status", "rencana", "yang berlangsung", "selesai", "realisasi", "plan", "actual"]),
     wilayah: findHeader(headers, ["wilayah", "provinsi", "province", "region"]),
     kotaKab: findHeader(headers, ["kota/kabupaten", "kota kabupaten", "kota", "kabupaten", "city"]),
     lokasi: findHeader(headers, ["lokasi", "tempat", "lokasi kegiatan", "lokasi (kegiatan)", "lokasi kegiatan/aksi"]),
@@ -198,9 +198,13 @@ function inferMappingFromHeaders(headers) {
     aliansi: findHeader(headers, ["aliansi", "organisasi", "kelompok", "aliansi/organisasi", "kelompok aksi"]),
     tanggal: findHeader(headers, ["tanggal aksi", "tanggal", "tgl", "date", "hari", "waktu"]),
     waktu: findHeader(headers, ["waktu aksi", "waktu", "jam", "pukul", "time"]),
+    waktuMulai: findHeader(headers, ["waktu mulai", "jam mulai", "mulai", "start time"]),
+    waktuSelesai: findHeader(headers, ["waktu selesai", "jam selesai", "selesai", "end time"]),
     lokasiAksi: findHeader(headers, ["lokasi aksi", "lokasi_aksi", "lokasi aksi (alamat)", "alamat lokasi aksi"]),
     tuntutan: findHeader(headers, ["tuntutan", "demand", "tuntutan/isu", "isu/tuntutan"]),
     ringkasan: findHeader(headers, ["ringkasan", "summary", "ringkasan tuntutan", "deskripsi singkat", "uraian singkat"]),
+    kategoriDemo: findHeader(headers, ["kategori demo", "kategori", "pro kontra", "pro/kontra"]),
+    halMenonjol: findHeader(headers, ["hal menonjol", "catatan menonjol", "highlight", "hal yang menonjol"]),
     isu: findHeader(headers, ["isu dominan", "isu", "kategori", "tema", "issue"]),
     massa: findHeader(headers, ["estimasi massa", "massa", "estimasi", "jumlah massa", "jumlah peserta", "estimasi peserta"]),
     lat: findHeader(headers, ["lat", "latitude", "lintang"]),
@@ -239,7 +243,29 @@ function canonicalStatus(v) {
   const nk = normalizeKey(s);
   if (!nk) return "";
   if (nk.includes("rencana") || nk === "plan" || nk === "planning") return "Rencana";
-  if (nk.includes("realisasi") || nk === "actual" || nk === "realisasiaksi") return "Realisasi";
+  if (
+    nk.includes("yangberlangsung") ||
+    nk.includes("sedangberlangsung") ||
+    nk.includes("berlangsung") ||
+    nk === "ongoing" ||
+    nk === "inprogress" ||
+    nk === "progress"
+  ) {
+    return "Yang Berlangsung";
+  }
+  if (nk.includes("selesai") || nk.includes("realisasi") || nk === "actual" || nk === "realisasiaksi" || nk === "done") {
+    return "Selesai";
+  }
+  return "";
+}
+
+function canonicalDemoCategory(v) {
+  const s = toStr(v);
+  if (!s) return "";
+  const nk = normalizeKey(s);
+  if (!nk) return "";
+  if (nk === "pro" || nk.includes("dukung") || nk.includes("setuju")) return "Pro";
+  if (nk === "kontra" || nk.includes("tolak") || nk.includes("lawan")) return "Kontra";
   return "";
 }
 
@@ -540,7 +566,7 @@ async function enrichRowsWithGeoFromMaps(rows) {
 
 function normalizeRecord(input, mapping) {
   const statusSource = toStr(input[mapping.status] ?? input["STATUS"] ?? input["Status"]);
-  const status = canonicalStatus(statusSource) || "Realisasi";
+  const status = canonicalStatus(statusSource) || "Selesai";
   const wilayah = canonicalProvince(input[mapping.wilayah] ?? input["Wilayah"] ?? input["Provinsi"]);
   const lokasi = toStr(input[mapping.lokasi] ?? input["Lokasi"] ?? input["Lokasi Kegiatan"] ?? input["Tempat"]);
   const no = toStr(input["NO"] ?? input["No"] ?? input.no);
@@ -558,10 +584,22 @@ function normalizeRecord(input, mapping) {
       input["Aliansi"] ??
       input["Organisasi"]
   );
-  const waktuSource = toStr(input["WAKTU"] ?? input["Waktu"] ?? input["Jam"] ?? input[mapping.waktu]);
-  const waktu = looksLikeTimeValue(waktuSource) ? waktuSource : "";
+  const waktuMulaiSource = toStr(
+    input["WAKTU MULAI"] ?? input["Waktu Mulai"] ?? input["Jam Mulai"] ?? input["WAKTU"] ?? input["Waktu"] ?? input["Jam"] ?? input[mapping.waktuMulai] ?? input[mapping.waktu]
+  );
+  const waktuMulai = looksLikeTimeValue(waktuMulaiSource) ? waktuMulaiSource : "";
+  const waktuSelesaiSource = toStr(
+    input["WAKTU SELESAI"] ?? input["Waktu Selesai"] ?? input["Jam Selesai"] ?? input[mapping.waktuSelesai]
+  );
+  const waktuSelesai = looksLikeTimeValue(waktuSelesaiSource) ? waktuSelesaiSource : "";
   const tuntutan = toStr(input[mapping.tuntutan] ?? input["Tuntutan"]);
   const ringkasan = toStr(input[mapping.ringkasan] ?? input["RINGKASAN"] ?? input["Ringkasan"] ?? input["Summary"]);
+  const kategoriDemo = canonicalDemoCategory(
+    input[mapping.kategoriDemo] ?? input["KATEGORI DEMO"] ?? input["Kategori Demo"] ?? input["Kategori"]
+  );
+  const halMenonjol = toStr(
+    input[mapping.halMenonjol] ?? input["HAL MENONJOL"] ?? input["Hal Menonjol"] ?? input["Highlight"]
+  );
   const estimasiMassa = parseMass(
     input["JUMLAH MASSA"] ?? input["Jumlah Massa"] ?? input[mapping.massa] ?? input["Estimasi Massa"] ?? input["Massa"]
   );
@@ -620,14 +658,17 @@ function normalizeRecord(input, mapping) {
   const record = {
     NO: no,
     TANGGAL: normalizeStoredDate(tanggal),
-    WAKTU: waktu,
+    "WAKTU MULAI": waktuMulai,
+    "WAKTU SELESAI": waktuSelesai,
     STATUS: status,
     WILAYAH: wilayah,
     "JUMLAH MASSA": estimasiMassa,
     LOKASI: lokasi,
     "KELOMPOK AKSI": kelompokAksi,
+    "KATEGORI DEMO": kategoriDemo,
     TUNTUTAN: tuntutan,
     RINGKASAN: ringkasan,
+    "HAL MENONJOL": halMenonjol,
   };
   if (mapsUrl) record["GOOGLE MAPS"] = mapsUrl;
   if (Number.isFinite(lat) && Number.isFinite(lng)) {
@@ -801,14 +842,18 @@ app.post("/api/datasets/import", requireAdminAuth, upload.single("file"), async 
     const existing = bucket.length ? bucket.shift() : null;
     if (existing) {
       existing.TANGGAL = r.TANGGAL;
-      existing.WAKTU = r.WAKTU;
-      existing.STATUS = r.STATUS || "Realisasi";
+      existing["WAKTU MULAI"] = r["WAKTU MULAI"] || r.WAKTU || "";
+      existing["WAKTU SELESAI"] = r["WAKTU SELESAI"] || "";
+      existing.STATUS = r.STATUS || "Selesai";
       existing.WILAYAH = r.WILAYAH;
       existing["JUMLAH MASSA"] = r["JUMLAH MASSA"];
       existing.LOKASI = r.LOKASI;
       existing["KELOMPOK AKSI"] = r["KELOMPOK AKSI"];
+      existing["KATEGORI DEMO"] = r["KATEGORI DEMO"] || "";
       existing.TUNTUTAN = r.TUNTUTAN;
       existing.RINGKASAN = r.RINGKASAN;
+      existing["HAL MENONJOL"] = r["HAL MENONJOL"] || "";
+      delete existing.WAKTU;
       const mapsUrl = toStr(r["GOOGLE MAPS"]);
       if (mapsUrl) existing["GOOGLE MAPS"] = mapsUrl;
       const lat = Number(r.LAT);
@@ -927,26 +972,34 @@ app.post("/api/records", requireAdminAuth, async (req, res) => {
   if (!ds) return res.status(404).json({ error: "dataset tidak ditemukan" });
 
   const tanggalValue = toStr(body.tanggal);
-  const waktuValue = toStr(body.waktu);
+  const waktuMulaiValue = toStr(body.waktuMulai ?? body.waktu);
   const statusValue = canonicalStatus(body.status ?? body.STATUS ?? body.Status);
   const wilayahValue = canonicalProvince(body.wilayah);
   const massaValue = parseMass(body.estimasiMassa);
   const lokasiValue = toStr(body.lokasi);
   const kelompokValue = toStr(body.kelompokAksi);
+  const waktuSelesaiValue = toStr(body.waktuSelesai);
+  const kategoriDemoValue = canonicalDemoCategory(body.kategoriDemo);
   const tuntutanValue = toStr(body.tuntutan);
   const ringkasanValue = toStr(body.ringkasan);
+  const halMenonjolValue = toStr(body.halMenonjol);
   const mapsUrlValue = normalizeGoogleMapsLink(body.googleMaps);
 
   if (!tanggalValue) return res.status(400).json({ error: "TANGGAL wajib diisi." });
-  if (!waktuValue) return res.status(400).json({ error: "WAKTU wajib diisi." });
-  if (!statusValue) return res.status(400).json({ error: "STATUS wajib dipilih (Rencana / Realisasi)." });
+  if (!statusValue) {
+    return res.status(400).json({ error: "STATUS wajib dipilih (Rencana / Yang Berlangsung / Selesai)." });
+  }
   if (!wilayahValue) return res.status(400).json({ error: "WILAYAH wajib diisi." });
   if (!VALID_PROVINCES.has(wilayahValue)) return res.status(400).json({ error: "WILAYAH harus berupa nama provinsi yang valid." });
   if (massaValue == null) return res.status(400).json({ error: "JUMLAH MASSA wajib diisi angka." });
   if (!lokasiValue) return res.status(400).json({ error: "LOKASI wajib diisi." });
   if (!kelompokValue) return res.status(400).json({ error: "KELOMPOK AKSI wajib diisi." });
+  if (!waktuMulaiValue) return res.status(400).json({ error: "WAKTU MULAI wajib diisi." });
+  if (!waktuSelesaiValue) return res.status(400).json({ error: "WAKTU SELESAI wajib diisi." });
+  if (!kategoriDemoValue) return res.status(400).json({ error: "KATEGORI DEMO wajib dipilih (Pro / Kontra)." });
   if (!tuntutanValue) return res.status(400).json({ error: "TUNTUTAN wajib diisi." });
   if (!ringkasanValue) return res.status(400).json({ error: "RINGKASAN wajib diisi." });
+  if (!halMenonjolValue) return res.status(400).json({ error: "HAL MENONJOL wajib diisi." });
   if (!mapsUrlValue) return res.status(400).json({ error: "GOOGLE MAPS wajib diisi dengan link Google Maps yang valid." });
 
   const mapsPair = await resolveLatLngFromGoogleMapsLink(mapsUrlValue);
@@ -958,14 +1011,17 @@ app.post("/api/records", requireAdminAuth, async (req, res) => {
 
   const recordPayload = {
     TANGGAL: normalizeStoredDate(tanggalValue),
-    WAKTU: waktuValue,
+    "WAKTU MULAI": waktuMulaiValue,
+    "WAKTU SELESAI": waktuSelesaiValue,
     STATUS: statusValue,
     WILAYAH: wilayahValue,
     "JUMLAH MASSA": massaValue,
     LOKASI: lokasiValue,
     "KELOMPOK AKSI": kelompokValue,
+    "KATEGORI DEMO": kategoriDemoValue,
     TUNTUTAN: tuntutanValue,
     RINGKASAN: ringkasanValue,
+    "HAL MENONJOL": halMenonjolValue,
     "GOOGLE MAPS": mapsUrlValue,
     LAT: mapsPair[0],
     LNG: mapsPair[1],
@@ -980,14 +1036,18 @@ app.post("/api/records", requireAdminAuth, async (req, res) => {
   let mode = "created";
   if (existing) {
     existing.TANGGAL = recordPayload.TANGGAL;
-    existing.WAKTU = recordPayload.WAKTU;
+    existing["WAKTU MULAI"] = recordPayload["WAKTU MULAI"];
+    existing["WAKTU SELESAI"] = recordPayload["WAKTU SELESAI"];
     existing.STATUS = recordPayload.STATUS;
     existing.WILAYAH = recordPayload.WILAYAH;
     existing["JUMLAH MASSA"] = recordPayload["JUMLAH MASSA"];
     existing.LOKASI = recordPayload.LOKASI;
     existing["KELOMPOK AKSI"] = recordPayload["KELOMPOK AKSI"];
+    existing["KATEGORI DEMO"] = recordPayload["KATEGORI DEMO"];
     existing.TUNTUTAN = recordPayload.TUNTUTAN;
     existing.RINGKASAN = recordPayload.RINGKASAN;
+    existing["HAL MENONJOL"] = recordPayload["HAL MENONJOL"];
+    delete existing.WAKTU;
     if (recordPayload["GOOGLE MAPS"]) existing["GOOGLE MAPS"] = recordPayload["GOOGLE MAPS"];
     if (Number.isFinite(recordPayload.LAT) && Number.isFinite(recordPayload.LNG)) {
       existing.LAT = recordPayload.LAT;
@@ -1024,26 +1084,34 @@ app.put("/api/records/:id", requireAdminAuth, async (req, res) => {
   if (!rec) return res.status(404).json({ error: "record tidak ditemukan" });
 
   const tanggalValue = toStr(body.tanggal);
-  const waktuValue = toStr(body.waktu);
+  const waktuMulaiValue = toStr(body.waktuMulai ?? body.waktu);
   const statusValue = canonicalStatus(body.status ?? body.STATUS ?? body.Status);
   const wilayahValue = canonicalProvince(body.wilayah);
   const massaValue = parseMass(body.estimasiMassa);
   const lokasiValue = toStr(body.lokasi);
   const kelompokValue = toStr(body.kelompokAksi);
+  const waktuSelesaiValue = toStr(body.waktuSelesai);
+  const kategoriDemoValue = canonicalDemoCategory(body.kategoriDemo);
   const tuntutanValue = toStr(body.tuntutan);
   const ringkasanValue = toStr(body.ringkasan);
+  const halMenonjolValue = toStr(body.halMenonjol);
   const mapsUrlValue = normalizeGoogleMapsLink(body.googleMaps);
 
   if (!tanggalValue) return res.status(400).json({ error: "TANGGAL wajib diisi." });
-  if (!waktuValue) return res.status(400).json({ error: "WAKTU wajib diisi." });
-  if (!statusValue) return res.status(400).json({ error: "STATUS wajib dipilih (Rencana / Realisasi)." });
+  if (!statusValue) {
+    return res.status(400).json({ error: "STATUS wajib dipilih (Rencana / Yang Berlangsung / Selesai)." });
+  }
   if (!wilayahValue) return res.status(400).json({ error: "WILAYAH wajib diisi." });
   if (!VALID_PROVINCES.has(wilayahValue)) return res.status(400).json({ error: "WILAYAH harus berupa nama provinsi yang valid." });
   if (massaValue == null) return res.status(400).json({ error: "JUMLAH MASSA wajib diisi angka." });
   if (!lokasiValue) return res.status(400).json({ error: "LOKASI wajib diisi." });
   if (!kelompokValue) return res.status(400).json({ error: "KELOMPOK AKSI wajib diisi." });
+  if (!waktuMulaiValue) return res.status(400).json({ error: "WAKTU MULAI wajib diisi." });
+  if (!waktuSelesaiValue) return res.status(400).json({ error: "WAKTU SELESAI wajib diisi." });
+  if (!kategoriDemoValue) return res.status(400).json({ error: "KATEGORI DEMO wajib dipilih (Pro / Kontra)." });
   if (!tuntutanValue) return res.status(400).json({ error: "TUNTUTAN wajib diisi." });
   if (!ringkasanValue) return res.status(400).json({ error: "RINGKASAN wajib diisi." });
+  if (!halMenonjolValue) return res.status(400).json({ error: "HAL MENONJOL wajib diisi." });
   if (!mapsUrlValue) return res.status(400).json({ error: "GOOGLE MAPS wajib diisi dengan link Google Maps yang valid." });
 
   const mapsPair = await resolveLatLngFromGoogleMapsLink(mapsUrlValue);
@@ -1054,15 +1122,19 @@ app.put("/api/records/:id", requireAdminAuth, async (req, res) => {
   }
 
   rec.TANGGAL = normalizeStoredDate(tanggalValue);
-  rec.WAKTU = waktuValue;
+  rec["WAKTU MULAI"] = waktuMulaiValue;
+  rec["WAKTU SELESAI"] = waktuSelesaiValue;
   rec.STATUS = statusValue;
   rec.WILAYAH = wilayahValue;
   rec["JUMLAH MASSA"] = massaValue;
   rec.LOKASI = lokasiValue;
   rec["KELOMPOK AKSI"] = kelompokValue;
+  rec["KATEGORI DEMO"] = kategoriDemoValue;
   rec.TUNTUTAN = tuntutanValue;
   rec.RINGKASAN = ringkasanValue;
+  rec["HAL MENONJOL"] = halMenonjolValue;
   rec["GOOGLE MAPS"] = mapsUrlValue;
+  delete rec.WAKTU;
   rec.LAT = mapsPair[0];
   rec.LNG = mapsPair[1];
   rec.updatedAt = nowIso();

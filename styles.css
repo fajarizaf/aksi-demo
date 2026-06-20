@@ -31,6 +31,7 @@
   --point-marker-size:14px;
   --point-marker-ring:2px;
   --point-marker-glow:14px;
+  --public-page-max-width:1820px;
 }
 
 *{box-sizing:border-box}
@@ -58,6 +59,8 @@ body{
   justify-content:space-between;
   gap:16px;
   padding:14px 18px;
+  width:min(100%, var(--public-page-max-width));
+  margin:0 auto;
 }
 .topbar__titleMain{
   font-weight:900;
@@ -78,6 +81,8 @@ body{
   gap:12px;
   padding:10px 18px 14px;
   border-top:1px solid rgba(255,255,255,.06);
+  width:min(100%, var(--public-page-max-width));
+  margin:0 auto;
 }
 .subbar__left,.subbar__right{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
 
@@ -141,6 +146,8 @@ body{
     "detail side";
   gap:14px;
   padding:14px 14px 10px;
+  width:min(100%, var(--public-page-max-width));
+  margin:0 auto;
 }
 .mapPanel{
   grid-area:map;
@@ -249,6 +256,49 @@ body{
 .table tr.is-active td{background:rgba(246,196,83,.14)}
 .num{text-align:right; font-variant-numeric:tabular-nums}
 
+.demoBadge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:72px;
+  padding:5px 10px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.16);
+  background:rgba(255,255,255,.08);
+  color:#f5f8ff;
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:.3px;
+  text-transform:uppercase;
+  white-space:nowrap;
+  box-shadow:0 6px 14px rgba(0,0,0,.18);
+}
+.demoBadge--pro{
+  border-color:rgba(95,224,149,.32);
+  background:linear-gradient(180deg, rgba(58,208,123,.26), rgba(12,79,44,.30));
+  color:#dffff0;
+}
+.demoBadge--kontra{
+  border-color:rgba(255,108,108,.34);
+  background:linear-gradient(180deg, rgba(233,75,75,.28), rgba(102,18,18,.30));
+  color:#ffe4e4;
+}
+.demoBadge--status-rencana{
+  border-color:rgba(246,196,83,.42);
+  background:linear-gradient(180deg, rgba(255,220,120,.34), rgba(122,88,10,.34));
+  color:#fff5cf;
+}
+.demoBadge--status-berlangsung{
+  border-color:rgba(255,108,108,.34);
+  background:linear-gradient(180deg, rgba(233,75,75,.30), rgba(102,18,18,.34));
+  color:#ffe4e4;
+}
+.demoBadge--status-selesai{
+  border-color:rgba(95,224,149,.34);
+  background:linear-gradient(180deg, rgba(58,208,123,.28), rgba(12,79,44,.34));
+  color:#dffff0;
+}
+
 .legend{
   position:absolute;
   left:12px;
@@ -270,8 +320,9 @@ body{
 }
 .legend__row{display:flex; align-items:center; gap:8px; font-size:12px; color:rgba(255,255,255,.85); margin-top:4px}
 .dot{width:10px; height:10px; border-radius:50%}
-.dot--red{background:var(--red)}
 .dot--gold{background:var(--gold)}
+.dot--red{background:var(--red)}
+.dot--green{background:var(--green)}
 
 .massChart{
   display:flex;
@@ -334,6 +385,15 @@ body{
   flex-direction:column;
   gap:10px;
 }
+.issueRank__section{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.issueRank__sectionTitle{
+  display:flex;
+  align-items:center;
+}
 .issueRank__row{
   display:flex;
   gap:10px;
@@ -393,6 +453,10 @@ body{
   color:rgba(255,255,255,.75);
   font-weight:700;
 }
+.issueRank__empty--section{
+  padding:10px 12px;
+  font-size:12px;
+}
 
 .analysis{
   margin:0;
@@ -428,33 +492,91 @@ body{
   will-change:transform;
 }
 .labelMarker--rencana{
-  border:2px solid rgba(95,205,255,.98);
+  border:2px solid rgba(255,221,87,.98);
   background:
-    radial-gradient(circle at 28% 18%, rgba(160,235,255,.58), rgba(160,235,255,0) 46%),
-    radial-gradient(circle at 75% 90%, rgba(0,120,255,.30), rgba(0,120,255,0) 54%),
-    linear-gradient(180deg, rgba(10,52,120,.96), rgba(6,26,70,.94));
+    radial-gradient(circle at 28% 18%, rgba(255,244,180,.65), rgba(255,244,180,0) 46%),
+    radial-gradient(circle at 75% 90%, rgba(255,186,0,.28), rgba(255,186,0,0) 54%),
+    linear-gradient(180deg, rgba(126,84,0,.96), rgba(74,47,0,.94));
   box-shadow:
     0 16px 38px rgba(0,0,0,.50),
-    0 0 0 4px rgba(95,205,255,.18),
-    0 0 46px rgba(70,170,255,.40),
-    0 18px 42px rgba(20,90,255,.18);
+    0 0 0 4px rgba(255,221,87,.18),
+    0 0 46px rgba(255,210,70,.34),
+    0 18px 42px rgba(255,186,0,.18);
 }
 .labelMarker--rencana .labelMarker__title{
-  color:rgba(220,250,255,.99);
-  text-shadow:0 2px 0 rgba(0,0,0,.38), 0 0 18px rgba(120,220,255,.25);
+  color:rgba(255,248,212,.99);
+  text-shadow:0 2px 0 rgba(0,0,0,.38), 0 0 18px rgba(255,233,120,.18);
 }
 .labelMarker--rencana .labelMarker__statValue{
-  color:rgba(240,252,255,.99);
+  color:rgba(255,251,230,.99);
 }
 .labelMarker--rencana .labelMarker__stat{
   background:rgba(255,255,255,.085);
-  border:1px solid rgba(160,235,255,.22);
+  border:1px solid rgba(255,236,160,.22);
 }
 .labelMarker--rencana .labelMarker__row{
-  border-top:1px solid rgba(160,235,255,.18);
+  border-top:1px solid rgba(255,236,160,.18);
 }
 .labelMarker--rencana .labelMarker__label{
-  color:rgba(220,250,255,.78);
+  color:rgba(255,248,212,.82);
+}
+.labelMarker--berlangsung{
+  border:2px solid rgba(255,108,108,.98);
+  background:
+    radial-gradient(circle at 28% 18%, rgba(255,182,182,.58), rgba(255,182,182,0) 46%),
+    radial-gradient(circle at 75% 90%, rgba(255,53,53,.28), rgba(255,53,53,0) 54%),
+    linear-gradient(180deg, rgba(126,18,18,.96), rgba(67,9,9,.94));
+  box-shadow:
+    0 16px 38px rgba(0,0,0,.50),
+    0 0 0 4px rgba(255,108,108,.18),
+    0 0 46px rgba(255,90,90,.36),
+    0 18px 42px rgba(200,30,30,.22);
+}
+.labelMarker--berlangsung .labelMarker__title{
+  color:rgba(255,232,232,.99);
+  text-shadow:0 2px 0 rgba(0,0,0,.38), 0 0 18px rgba(255,120,120,.22);
+}
+.labelMarker--berlangsung .labelMarker__statValue{
+  color:rgba(255,242,242,.99);
+}
+.labelMarker--berlangsung .labelMarker__stat{
+  background:rgba(255,255,255,.085);
+  border:1px solid rgba(255,190,190,.20);
+}
+.labelMarker--berlangsung .labelMarker__row{
+  border-top:1px solid rgba(255,190,190,.16);
+}
+.labelMarker--berlangsung .labelMarker__label{
+  color:rgba(255,232,232,.82);
+}
+.labelMarker--selesai{
+  border:2px solid rgba(95,224,149,.98);
+  background:
+    radial-gradient(circle at 28% 18%, rgba(182,255,212,.58), rgba(182,255,212,0) 46%),
+    radial-gradient(circle at 75% 90%, rgba(33,180,93,.26), rgba(33,180,93,0) 54%),
+    linear-gradient(180deg, rgba(10,90,48,.96), rgba(6,54,28,.94));
+  box-shadow:
+    0 16px 38px rgba(0,0,0,.50),
+    0 0 0 4px rgba(95,224,149,.16),
+    0 0 42px rgba(58,208,123,.30),
+    0 18px 42px rgba(20,120,66,.18);
+}
+.labelMarker--selesai .labelMarker__title{
+  color:rgba(229,255,239,.99);
+  text-shadow:0 2px 0 rgba(0,0,0,.38), 0 0 18px rgba(120,255,178,.18);
+}
+.labelMarker--selesai .labelMarker__statValue{
+  color:rgba(240,255,246,.99);
+}
+.labelMarker--selesai .labelMarker__stat{
+  background:rgba(255,255,255,.085);
+  border:1px solid rgba(182,255,212,.18);
+}
+.labelMarker--selesai .labelMarker__row{
+  border-top:1px solid rgba(182,255,212,.15);
+}
+.labelMarker--selesai .labelMarker__label{
+  color:rgba(229,255,239,.82);
 }
 .labelMarker__title{
   font-weight:900;
@@ -517,6 +639,35 @@ body{
   color:#ffe08a;
   text-shadow:0 1px 0 rgba(0,0,0,.4);
   white-space:nowrap;
+}
+.labelMarker__block{
+  margin-top:var(--label-marker-row-margin);
+  padding-top:var(--label-marker-row-padding);
+  border-top:1px solid rgba(255,255,255,.08);
+}
+.labelMarker__blockTitle{
+  font-size:var(--label-marker-stat-label-size);
+  font-weight:900;
+  letter-spacing:.4px;
+  text-transform:uppercase;
+  color:rgba(255,255,255,.76);
+  margin-bottom:6px;
+}
+.labelMarker__actionItem{
+  display:flex;
+  justify-content:space-between;
+  gap:var(--label-marker-row-gap);
+  align-items:flex-start;
+  font-size:var(--label-marker-row-size);
+  color:rgba(255,255,255,.94);
+  margin-top:6px;
+}
+.labelMarker__actionItem .labelMarker__label{
+  white-space:normal;
+  flex:1;
+}
+.labelMarker__actionItem .labelMarker__value{
+  flex:0 0 auto;
 }
 
 .leaflet-popup-content-wrapper{
@@ -590,10 +741,26 @@ body{
   height:var(--point-marker-size);
   border-radius:50%;
   border:var(--point-marker-ring) solid rgba(255,255,255,.96);
+}
+.pointMarker--rencana{
+  background:radial-gradient(circle at 35% 35%, #fff2aa 0%, #ffd54f 34%, #f0b400 68%, #9a6700 100%);
+  box-shadow:
+    0 0 0 calc(var(--point-marker-ring) + 1px) rgba(255,221,87,.52),
+    0 0 var(--point-marker-glow) rgba(255,206,68,.88),
+    0 10px 22px rgba(0,0,0,.4);
+}
+.pointMarker--berlangsung{
   background:radial-gradient(circle at 35% 35%, #ffb4b4 0%, #ff5a5a 30%, #e53935 65%, #9f1010 100%);
   box-shadow:
     0 0 0 calc(var(--point-marker-ring) + 1px) rgba(246,196,83,.55),
     0 0 var(--point-marker-glow) rgba(233,75,75,.9),
+    0 10px 22px rgba(0,0,0,.4);
+}
+.pointMarker--selesai{
+  background:radial-gradient(circle at 35% 35%, #bff6d1 0%, #5ade8c 34%, #27ae60 68%, #0e6b37 100%);
+  box-shadow:
+    0 0 0 calc(var(--point-marker-ring) + 1px) rgba(58,208,123,.42),
+    0 0 var(--point-marker-glow) rgba(58,208,123,.78),
     0 10px 22px rgba(0,0,0,.4);
 }
 
@@ -647,7 +814,7 @@ body{
   display:flex;
   flex-direction:column;
   gap:12px;
-  max-width:1200px;
+  max-width:1800px;
   margin:0 auto;
 }
 
@@ -804,4 +971,15 @@ body{
   .input{min-width:200px}
   .table{min-width:860px}
   .adminForm--grid{grid-template-columns:1fr}
+}
+
+@media (min-width: 2560px){
+  :root{
+    --public-page-max-width:1920px;
+  }
+
+  .layout{
+    padding-left:18px;
+    padding-right:18px;
+  }
 }

@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Peta Sebaran Aksi</title>
+    <title>Peta Sebaran Unras</title>
     <link rel="preconnect" href="https://unpkg.com" />
     <link
       rel="stylesheet"
@@ -19,13 +19,13 @@
       rel="stylesheet"
       href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css"
     />
-    <link rel="stylesheet" href="./styles.css" />
+    <link rel="stylesheet" href="./styles.css?v=20260620-6" />
   </head>
   <body>
     <header class="topbar">
       <div class="topbar__inner">
         <div class="topbar__title">
-          <div class="topbar__titleMain">PETA SEBARAN AKSI</div>
+          <div class="topbar__titleMain">PETA SEBARAN UNRAS</div>
           <div class="topbar__titleSub" id="titleDate">—</div>
         </div>
         <div class="topbar__controls">
@@ -68,10 +68,9 @@
         <div id="map" class="map" style="z-index: 1;"></div>
         <div class="legend">
           <div class="legend__title">Keterangan</div>
-          <div class="legend__row"><span class="dot dot--red"></span> Titik aksi</div>
-          <div class="legend__row">
-            <span class="dot dot--gold"></span> Label wilayah (ringkasan)
-          </div>
+          <div class="legend__row"><span class="dot dot--gold"></span> Rencana</div>
+          <div class="legend__row"><span class="dot dot--red"></span> Yang Berlangsung</div>
+          <div class="legend__row"><span class="dot dot--green"></span> Selesai</div>
         </div>
       </section>
       <section class="bottomPanel">
@@ -82,14 +81,17 @@
               <tr>
                 <th class="num">NO</th>
                 <th>TANGGAL</th>
-                <th>WAKTU</th>
+                <th>WAKTU MULAI</th>
+                <th>WAKTU SELESAI</th>
                 <th>STATUS</th>
                 <th>WILAYAH</th>
                 <th class="num">JUMLAH MASSA</th>
                 <th>LOKASI</th>
                 <th>KELOMPOK AKSI</th>
+                <th>KATEGORI DEMO</th>
                 <th>TUNTUTAN</th>
                 <th>RINGKASAN</th>
+                <th>HAL MENONJOL</th>
               </tr>
             </thead>
             <tbody id="rincianBody"></tbody>
@@ -105,8 +107,8 @@
               <div class="summaryItem__value" id="sumTitik" style="font-size:14px;">—</div>
             </div>
             <div class="summaryItem">
-              <div class="summaryItem__label">Kota / Kabupaten</div>
-              <div class="summaryItem__value" id="sumKota" style="font-size:14px;">—</div>
+              <div class="summaryItem__label">Wilayah / Provinsi</div>
+              <div class="summaryItem__value" id="sumWilayahCount" style="font-size:14px;">—</div>
             </div>
             <div class="summaryItem">
               <div class="summaryItem__label">Estimasi Massa</div>
@@ -145,12 +147,12 @@
           <div class="card__title">Grafik Massa Per Wilayah / Hari</div>
           <div class="massChart" id="massChart"></div>
         </div>
-        <div class="card">
-          <div class="card__title">Top 5 Tuntutan Dominan</div>
+          <div class="card">
+          <div class="card__title">Top 3 Tuntutan Dominan</div>
           <div class="issueRank" id="issueRank"></div>
         </div>
         <div class="card">
-          <div class="card__title">Analisa Singkat</div>
+          <div class="card__title">Highlight</div>
           <ol class="analysis" id="analisaList"></ol>
         </div>
       </aside>
@@ -162,6 +164,6 @@
       crossorigin=""
     ></script>
     <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
-    <script src="./app.js?v=20260618-1"></script>
+    <script src="./app.js?v=20260620-6"></script>
   </body>
 </html>

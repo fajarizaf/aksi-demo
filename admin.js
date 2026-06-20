@@ -27,13 +27,16 @@ const els = {
   mSubmit: document.getElementById("mSubmit"),
   mCancelEdit: document.getElementById("mCancelEdit"),
   mTanggal: document.getElementById("mTanggal"),
-  mWaktu: document.getElementById("mWaktu"),
+  mWaktuMulai: document.getElementById("mWaktuMulai"),
+  mWaktuSelesai: document.getElementById("mWaktuSelesai"),
   mStatus: document.getElementById("mStatus"),
   mWilayah: document.getElementById("mWilayah"),
   mLokasi: document.getElementById("mLokasi"),
   mKelompokAksi: document.getElementById("mKelompokAksi"),
+  mKategoriDemo: document.getElementById("mKategoriDemo"),
   mTuntutan: document.getElementById("mTuntutan"),
   mRingkasan: document.getElementById("mRingkasan"),
+  mHalMenonjol: document.getElementById("mHalMenonjol"),
   mJumlahMassa: document.getElementById("mJumlahMassa"),
   mGoogleMaps: document.getElementById("mGoogleMaps"),
 };
@@ -105,6 +108,29 @@ function escapeHtml(s) {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
+}
+
+function renderKategoriDemoBadge(value) {
+  const text = toStr(value);
+  if (!text) return "—";
+  const normalized = text.toLowerCase();
+  const tone = normalized === "pro" ? "demoBadge--pro" : normalized === "kontra" ? "demoBadge--kontra" : "";
+  return `<span class="demoBadge ${tone}">${escapeHtml(text)}</span>`;
+}
+
+function renderStatusBadge(value) {
+  const text = toStr(value);
+  if (!text) return "—";
+  const normalized = text.toLowerCase();
+  const tone =
+    normalized === "rencana"
+      ? "demoBadge--status-rencana"
+      : normalized === "yang berlangsung"
+        ? "demoBadge--status-berlangsung"
+        : normalized === "selesai"
+          ? "demoBadge--status-selesai"
+          : "";
+  return `<span class="demoBadge ${tone}">${escapeHtml(text)}</span>`;
 }
 
 function safeHref(url) {
@@ -209,6 +235,26 @@ function getMonthValue(value) {
   return parseDateParts(value)?.month || "";
 }
 
+function compareRecordOrder(a, b) {
+  const dateA = toDateInputValue(a["TANGGAL AKSI"] || a.TANGGAL);
+  const dateB = toDateInputValue(b["TANGGAL AKSI"] || b.TANGGAL);
+  if (dateA !== dateB) return dateB.localeCompare(dateA);
+
+  const wilayahA = toStr(a.WILAYAH);
+  const wilayahB = toStr(b.WILAYAH);
+  if (wilayahA !== wilayahB) return wilayahA.localeCompare(wilayahB, "id");
+
+  const mulaiA = toStr(a["WAKTU MULAI"]);
+  const mulaiB = toStr(b["WAKTU MULAI"]);
+  if (mulaiA !== mulaiB) return mulaiA.localeCompare(mulaiB, "id");
+
+  const noA = Number.parseInt(String(a.NO || "").trim(), 10);
+  const noB = Number.parseInt(String(b.NO || "").trim(), 10);
+  if (Number.isFinite(noA) && Number.isFinite(noB) && noA !== noB) return noA - noB;
+
+  return toStr(a.id).localeCompare(toStr(b.id), "id");
+}
+
 function getMonthLabel(month) {
   const labels = {
     "01": "Januari",
@@ -261,14 +307,17 @@ async function runWithButtonLoading(button, task, loadingText = "Loading...") {
 function resetManualForm() {
   state.editingRecordId = "";
   els.mTanggal.value = "";
-  els.mWaktu.value = "";
-  if (els.mStatus) els.mStatus.value = "Realisasi";
+  els.mWaktuMulai.value = "";
+  els.mWaktuSelesai.value = "";
+  if (els.mStatus) els.mStatus.value = "Selesai";
   els.mWilayah.value = "";
   els.mJumlahMassa.value = "";
   els.mLokasi.value = "";
   els.mKelompokAksi.value = "";
+  if (els.mKategoriDemo) els.mKategoriDemo.value = "";
   els.mTuntutan.value = "";
   els.mRingkasan.value = "";
+  els.mHalMenonjol.value = "";
   els.mGoogleMaps.value = "";
   els.mSubmit.textContent = "Tambah";
   els.mCancelEdit.hidden = true;
@@ -473,40 +522,45 @@ function getFilteredRecords() {
   const tanggal = toStr(els.filterTanggal.value);
   const bulan = toStr(els.filterBulan.value);
   const tahun = toStr(els.filterTahun.value);
-  return state.activeRecords.filter((row) => {
-    if (wilayah && toStr(row.WILAYAH) !== wilayah) return false;
-    if (status && toStr(row.STATUS || "Realisasi") !== status) return false;
-    const rowDate = toDateInputValue(row["TANGGAL AKSI"] || row.TANGGAL);
-    const rowMonth = getMonthValue(row["TANGGAL AKSI"] || row.TANGGAL);
-    const rowYear = getYearValue(row["TANGGAL AKSI"] || row.TANGGAL);
-    if (tanggal && rowDate !== tanggal) return false;
-    if (bulan && rowMonth !== bulan) return false;
-    if (tahun && rowYear !== tahun) return false;
-    if (!keyword) return true;
-    const hay = normalizeSearch(
-      [
-        row.NO,
-        row["TANGGAL AKSI"],
-        row.TANGGAL,
-        row.WAKTU,
-        row.STATUS,
-        row.WILAYAH,
-        row.LOKASI,
-        row["KELOMPOK AKSI"],
-        row.TUNTUTAN,
-        row.RINGKASAN,
-        row["GOOGLE MAPS"],
-      ].join(" ")
-    );
-    return hay.includes(keyword);
-  });
+  return state.activeRecords
+    .filter((row) => {
+      if (wilayah && toStr(row.WILAYAH) !== wilayah) return false;
+      if (status && toStr(row.STATUS || "Selesai") !== status) return false;
+      const rowDate = toDateInputValue(row["TANGGAL AKSI"] || row.TANGGAL);
+      const rowMonth = getMonthValue(row["TANGGAL AKSI"] || row.TANGGAL);
+      const rowYear = getYearValue(row["TANGGAL AKSI"] || row.TANGGAL);
+      if (tanggal && rowDate !== tanggal) return false;
+      if (bulan && rowMonth !== bulan) return false;
+      if (tahun && rowYear !== tahun) return false;
+      if (!keyword) return true;
+      const hay = normalizeSearch(
+        [
+          row.NO,
+          row["TANGGAL AKSI"],
+          row.TANGGAL,
+          row["WAKTU MULAI"],
+          row["WAKTU SELESAI"],
+          row.STATUS,
+          row.WILAYAH,
+          row.LOKASI,
+          row["KELOMPOK AKSI"],
+          row["KATEGORI DEMO"],
+          row.TUNTUTAN,
+          row.RINGKASAN,
+          row["HAL MENONJOL"],
+          row["GOOGLE MAPS"],
+        ].join(" ")
+      );
+      return hay.includes(keyword);
+    })
+    .sort(compareRecordOrder);
 }
 
 function renderRecordRows(rows) {
   els.recordBody.innerHTML = "";
   if (!rows.length) {
     const tr = document.createElement("tr");
-    tr.innerHTML = `<td colspan="9" style="text-align:center;">Tidak ada data yang sesuai.</td>`;
+    tr.innerHTML = `<td colspan="13" style="text-align:center;">Tidak ada data yang sesuai.</td>`;
     els.recordBody.appendChild(tr);
     return;
   }
@@ -517,12 +571,18 @@ function renderRecordRows(rows) {
       : "—";
     const tr = document.createElement("tr");
     tr.innerHTML = `<td>${escapeHtml(formatDisplayDate(row["TANGGAL AKSI"] || row.TANGGAL))}</td><td>${escapeHtml(
-      row.STATUS || "Realisasi"
+      row["WAKTU MULAI"] || "—"
+    )}</td><td>${escapeHtml(
+      row["WAKTU SELESAI"] || "—"
+    )}</td><td>${renderStatusBadge(
+      row.STATUS || "Selesai"
     )}</td><td>${escapeHtml(row.WILAYAH || "—")}</td><td class="num">${escapeHtml(
       formatMassDisplay(row["JUMLAH MASSA"])
     )}</td><td>${escapeHtml(row.LOKASI || "—")}</td><td>${escapeHtml(
       row["KELOMPOK AKSI"] || "—"
-    )}</td><td>${escapeHtml(row.TUNTUTAN || "—")}</td><td>${mapsCell}</td><td class="adminActions">
+    )}</td><td>${renderKategoriDemoBadge(row["KATEGORI DEMO"])}</td><td>${escapeHtml(
+      row.TUNTUTAN || "—"
+    )}</td><td>${escapeHtml(row["HAL MENONJOL"] || "—")}</td><td>${mapsCell}</td><td class="adminActions">
       <button class="btn btn--ghost" data-record-action="edit" data-id="${escapeHtml(row.id)}">Update</button>
       <button class="btn btn--ghost" data-record-action="delete" data-id="${escapeHtml(row.id)}">Hapus</button>
     </td>`;
@@ -602,28 +662,49 @@ async function deleteDataset(id) {
 
 async function submitManual() {
   const tanggal = toStr(els.mTanggal.value);
-  const waktu = toStr(els.mWaktu.value);
+  const waktuMulai = toStr(els.mWaktuMulai.value);
+  const waktuSelesai = toStr(els.mWaktuSelesai.value);
   const status = toStr(els.mStatus?.value);
   const wilayah = toStr(els.mWilayah.value);
   const lokasi = toStr(els.mLokasi.value);
   const kelompokAksi = toStr(els.mKelompokAksi.value);
+  const kategoriDemo = toStr(els.mKategoriDemo?.value);
   const tuntutan = toStr(els.mTuntutan.value);
   const ringkasan = toStr(els.mRingkasan.value);
+  const halMenonjol = toStr(els.mHalMenonjol.value);
   const estimasiMassa = toStr(els.mJumlahMassa.value);
   const googleMaps = normalizeGoogleMapsUrl(els.mGoogleMaps.value);
 
   if (!tanggal) throw new Error("TANGGAL wajib diisi.");
-  if (!waktu) throw new Error("WAKTU wajib diisi.");
+  if (!waktuMulai) throw new Error("WAKTU MULAI wajib diisi.");
+  if (!waktuSelesai) throw new Error("WAKTU SELESAI wajib diisi.");
   if (!status) throw new Error("STATUS wajib dipilih.");
   if (!wilayah) throw new Error("WILAYAH wajib dipilih.");
   if (!isLikelyMass(estimasiMassa)) throw new Error("JUMLAH MASSA wajib diisi angka.");
   if (!lokasi) throw new Error("LOKASI wajib diisi.");
   if (!kelompokAksi) throw new Error("KELOMPOK AKSI wajib diisi.");
+  if (!kategoriDemo) throw new Error("KATEGORI DEMO wajib dipilih.");
   if (!tuntutan) throw new Error("TUNTUTAN wajib diisi.");
   if (!ringkasan) throw new Error("RINGKASAN wajib diisi.");
+  if (!halMenonjol) throw new Error("HAL MENONJOL wajib diisi.");
   if (!googleMaps) throw new Error("GOOGLE MAPS wajib diisi dengan link Google Maps yang valid.");
 
-  const payload = { tanggal, waktu, status, STATUS: status, wilayah, lokasi, kelompokAksi, tuntutan, ringkasan, estimasiMassa, googleMaps };
+  const payload = {
+    tanggal,
+    waktuMulai,
+    waktuSelesai,
+    status,
+    STATUS: status,
+    wilayah,
+    lokasi,
+    kelompokAksi,
+    kategoriDemo,
+    tuntutan,
+    ringkasan,
+    halMenonjol,
+    estimasiMassa,
+    googleMaps,
+  };
   const isEdit = Boolean(state.editingRecordId);
   const url = isEdit ? `/api/records/${encodeURIComponent(state.editingRecordId)}` : "/api/records";
   const res = await apiFetch(url, {
@@ -650,14 +731,17 @@ async function startEditRecord(id) {
   if (!row) throw new Error("Record tidak ditemukan");
   state.editingRecordId = id;
   els.mTanggal.value = toDateInputValue(row["TANGGAL AKSI"] || row.TANGGAL);
-  els.mWaktu.value = row.WAKTU || row["Waktu"] || "";
-  if (els.mStatus) els.mStatus.value = row.STATUS || "Realisasi";
+  els.mWaktuMulai.value = row["WAKTU MULAI"] || row.WAKTU || row["Waktu Mulai"] || row["Waktu"] || "";
+  els.mWaktuSelesai.value = row["WAKTU SELESAI"] || row["Waktu Selesai"] || "";
+  if (els.mStatus) els.mStatus.value = row.STATUS || "Selesai";
   els.mWilayah.value = row.WILAYAH || "";
   els.mJumlahMassa.value = row["JUMLAH MASSA"] == null ? "" : String(row["JUMLAH MASSA"]);
   els.mLokasi.value = row.LOKASI || "";
   els.mKelompokAksi.value = row["KELOMPOK AKSI"] || "";
+  if (els.mKategoriDemo) els.mKategoriDemo.value = row["KATEGORI DEMO"] || "";
   els.mTuntutan.value = row.TUNTUTAN || "";
   els.mRingkasan.value = row.RINGKASAN || "";
+  els.mHalMenonjol.value = row["HAL MENONJOL"] || "";
   els.mGoogleMaps.value = row["GOOGLE MAPS"] || "";
   els.mSubmit.textContent = "Simpan Perubahan";
   els.mCancelEdit.hidden = false;
