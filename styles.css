@@ -395,55 +395,16 @@ body{
   align-items:center;
 }
 .issueRank__row{
-  display:flex;
-  gap:10px;
-  align-items:flex-start;
+  display:block;
   padding:10px 12px;
   border-radius:12px;
   border:1px solid rgba(255,255,255,.12);
   background:rgba(0,0,0,.15);
 }
-.issueRank__count{
-  flex:0 0 58px;
-  width:58px;
-  min-height:58px;
-  border-radius:18px;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  padding:6px 4px;
-  color:#101010;
-  background:linear-gradient(135deg, rgba(255,230,160,.98), rgba(246,196,83,.98));
-  box-shadow:0 10px 24px rgba(246,196,83,.18);
-}
-.issueRank__countValue{
-  font-weight:900;
-  font-size:20px;
-  line-height:1;
-}
-.issueRank__countLabel{
-  margin-top:3px;
-  font-weight:800;
-  font-size:10px;
-  line-height:1;
-  text-transform:uppercase;
-  letter-spacing:.04em;
-}
-.issueRank__body{
-  min-width:0;
-  flex:1;
-}
 .issueRank__title{
   font-weight:800;
   font-size:12px;
   color:rgba(255,255,255,.92);
-}
-.issueRank__meta{
-  margin-top:4px;
-  font-size:11px;
-  font-weight:700;
-  color:rgba(255,255,255,.72);
 }
 .issueRank__empty{
   padding:12px;
@@ -767,6 +728,35 @@ body{
 .clusterMarkerIcon{
   background:transparent;
   border:0;
+}
+
+.provinceSummaryMarkerIcon{
+  background:transparent;
+  border:0;
+}
+
+.provinceSummaryMarkerWrap{
+  transform:translate(-50%, -50%);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:8px;
+}
+
+.provinceSummaryMarker__label{
+  max-width:140px;
+  padding:5px 10px;
+  border-radius:999px;
+  background:rgba(8,12,26,.84);
+  border:1px solid rgba(255,255,255,.16);
+  color:rgba(255,255,255,.95);
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.35px;
+  text-transform:uppercase;
+  text-align:center;
+  white-space:nowrap;
+  box-shadow:0 8px 18px rgba(0,0,0,.3);
 }
 
 .clusterMarker{

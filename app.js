@@ -74,6 +74,7 @@ const state = {
   hasInitializedDateDefault: false,
   clusterPreviewRows: null,
   locationPreviewRows: null,
+  activeProvinceKey: "",
 };
 
 const XLSX_CDN_URLS = [
@@ -664,8 +665,10 @@ function computeStats(rows) {
 let map;
 let markerCluster;
 let labelLayer;
+let provinceSummaryLayer;
 const markerIndex = new Map();
 const labelIndex = new Map();
+const provinceIndex = new Map();
 
 function refreshVisibleLabels() {
   if (Array.isArray(state.clusterPreviewRows) && state.clusterPreviewRows.length) {
@@ -690,6 +693,148 @@ function clearLocationPreview() {
   if (!state.locationPreviewRows) return;
   state.locationPreviewRows = null;
   refreshVisibleLabels();
+}
+
+function getProvinceCenter(items, wilayah) {
+  const coordItems = items.filter((r) => Number.isFinite(r.lat) && Number.isFinite(r.lng));
+  if (coordItems.length) {
+    return [
+      coordItems.reduce((a, r) => a + r.lat, 0) / coordItems.length,
+      coordItems.reduce((a, r) => a + r.lng, 0) / coordItems.length,
+    ];
+  }
+  const provinceKey = toStr(wilayah).trim().toUpperCase();
+  return PROVINCE_CENTROIDS[provinceKey] || null;
+}
+
+function getProvinceSummaryItems(rows) {
+  const byProvince = groupBy(rows, (r) => toStr(r.wilayah || "TIDAK DIKETAHUI"));
+  return Array.from(byProvince.entries())
+    .map(([wilayah, items]) => {
+      const center = getProvinceCenter(items, wilayah);
+      if (!center) return null;
+      const totalMass = items.reduce((a, r) => a + (Number.isFinite(r.estimasiMassa) ? r.estimasiMassa : 0), 0);
+      const byActionGroup = groupBy(items, (r) => normalizeKey(r.kegiatan || r.aliansi || r.tuntutan || "lainnya"));
+      const aksiList = Array.from(byActionGroup.entries())
+        .map(([, groupItems]) => ({
+          name: toStr(groupItems[0]?.kegiatan || groupItems[0]?.aliansi || groupItems[0]?.tuntutan || "Lainnya"),
+          count: groupItems.length,
+        }))
+        .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name))
+        .slice(0, 4);
+      return {
+        key: normalizeKey(wilayah),
+        wilayah: wilayah || "TIDAK DIKETAHUI",
+        items,
+        totalMass,
+        center,
+        aksiList,
+        statusMode: getDominantStatus(items),
+      };
+    })
+    .filter(Boolean)
+    .sort((a, b) => b.items.length - a.items.length || b.totalMass - a.totalMass || a.wilayah.localeCompare(b.wilayah));
+}
+
+function renderPointMarkers(rows) {
+  markerCluster.clearLayers();
+  markerIndex.clear();
+  for (const row of rows) {
+    if (!Number.isFinite(row.lat) || !Number.isFinite(row.lng)) continue;
+    const marker = L.marker([row.lat, row.lng], { icon: makePointIcon(row.status), title: row.locationLabel });
+    marker.__rowData = row;
+    marker.on("click", () => {
+      clearClusterPreview();
+      state.locationPreviewRows = [row];
+      refreshVisibleLabels();
+      setActiveRow(row.id, { scroll: false });
+      marker.bindPopup(buildPopupHtml(row), { closeButton: true, maxWidth: 360 }).openPopup();
+    });
+    markerCluster.addLayer(marker);
+    markerIndex.set(row.id, marker);
+  }
+}
+
+function renderProvinceSummaryMarkers(rows) {
+  provinceSummaryLayer.clearLayers();
+  provinceIndex.clear();
+  getProvinceSummaryItems(rows).forEach((province) => {
+    const count = province.items.length;
+    const size = count >= 50 ? 58 : count >= 10 ? 50 : 42;
+    const html = `<div class="provinceSummaryMarkerWrap"><div class="clusterMarker" style="width:${size}px;height:${size}px;"><span>${escapeHtml(
+      String(count)
+    )}</span></div><div class="provinceSummaryMarker__label">${escapeHtml(province.wilayah)}</div></div>`;
+    const marker = L.marker(province.center, {
+      icon: L.divIcon({ className: "provinceSummaryMarkerIcon", html, iconSize: [0, 0], iconAnchor: [0, 0] }),
+      title: province.wilayah,
+      interactive: true,
+    });
+    marker.__provinceData = province;
+    marker.on("click", () => {
+      showProvinceDetail(province, { fitBounds: true });
+    });
+    provinceSummaryLayer.addLayer(marker);
+    provinceIndex.set(province.key, marker);
+  });
+}
+
+function showProvinceSummary(rows, options = {}) {
+  state.activeProvinceKey = "";
+  state.clusterPreviewRows = null;
+  state.locationPreviewRows = null;
+  renderPointMarkers([]);
+  renderProvinceSummaryMarkers(rows);
+  refreshVisibleLabels();
+  if (options.fitBounds !== false) {
+    const points = [];
+    provinceSummaryLayer.eachLayer((layer) => {
+      const latLng = layer.getLatLng?.();
+      if (latLng) points.push(latLng);
+    });
+    if (points.length > 1) {
+      map.fitBounds(points, { padding: [30, 30], maxZoom: 8 });
+    } else if (points.length === 1) {
+      map.setView(points[0], 6);
+    } else {
+      map.setView([-2.3, 118.2], 5);
+    }
+  }
+}
+
+function showProvinceDetail(province, options = {}) {
+  if (!province) return;
+  state.activeProvinceKey = province.key;
+  state.clusterPreviewRows = province.items;
+  state.locationPreviewRows = null;
+  provinceSummaryLayer.clearLayers();
+  renderPointMarkers(province.items);
+  refreshVisibleLabels();
+  if (options.fitBounds !== false) {
+    const bounds = province.items
+      .filter((row) => Number.isFinite(row.lat) && Number.isFinite(row.lng))
+      .map((row) => [row.lat, row.lng]);
+    if (bounds.length > 1) {
+      map.fitBounds(bounds, { padding: [40, 40], maxZoom: 11 });
+    } else if (bounds.length === 1) {
+      map.setView(bounds[0], 11);
+    } else if (province.center) {
+      map.setView(province.center, 7);
+    }
+  }
+}
+
+function ensureProvinceDetailForRow(row) {
+  const provinceKey = normalizeKey(row?.wilayah || "TIDAK DIKETAHUI");
+  if (!provinceKey) return;
+  if (state.activeProvinceKey === provinceKey && markerIndex.has(row.id)) return;
+  const provinceMarker = provinceIndex.get(provinceKey);
+  const province = provinceMarker?.__provinceData;
+  if (province) {
+    showProvinceDetail(province, { fitBounds: false });
+    return;
+  }
+  const fallbackProvince = getProvinceSummaryItems(state.filteredRows).find((item) => item.key === provinceKey);
+  if (fallbackProvince) showProvinceDetail(fallbackProvince, { fitBounds: false });
 }
 
 function getLabelLimitByZoom() {
@@ -796,7 +941,9 @@ function initMap() {
     },
   });
   labelLayer = L.layerGroup();
+  provinceSummaryLayer = L.layerGroup();
   map.addLayer(markerCluster);
+  map.addLayer(provinceSummaryLayer);
   map.addLayer(labelLayer);
   updateLabelMarkerScale();
   updatePointMarkerScale();
@@ -808,8 +955,7 @@ function initMap() {
     refreshVisibleLabels();
   });
   map.on("click", () => {
-    clearClusterPreview();
-    clearLocationPreview();
+    showProvinceSummary(state.filteredRows, { fitBounds: false });
   });
   markerCluster.on("clusterclick", (e) => {
     const childMarkers = e.layer?.getAllChildMarkers?.() || [];
@@ -912,38 +1058,7 @@ function renderLabelMarkers(rows, options = {}) {
   if (labelLimit <= 0) return;
   const mode = options.mode === "province" ? "province" : "location";
   if (mode === "province") {
-    const byProvince = groupBy(rows, (r) => toStr(r.wilayah || "TIDAK DIKETAHUI"));
-    const provinceAgg = Array.from(byProvince.entries())
-      .map(([wilayah, items]) => {
-        const coordItems = items.filter((r) => Number.isFinite(r.lat) && Number.isFinite(r.lng));
-        if (!coordItems.length) return null;
-        const totalMass = items.reduce((a, r) => a + (Number.isFinite(r.estimasiMassa) ? r.estimasiMassa : 0), 0);
-        const center = [
-          coordItems.reduce((a, r) => a + r.lat, 0) / coordItems.length,
-          coordItems.reduce((a, r) => a + r.lng, 0) / coordItems.length,
-        ];
-        const byActionGroup = groupBy(items, (r) => normalizeKey(r.kegiatan || r.aliansi || r.tuntutan || "lainnya"));
-        const aksiList = Array.from(byActionGroup.entries())
-          .map(([, groupItems]) => ({
-            name: toStr(groupItems[0]?.kegiatan || groupItems[0]?.aliansi || groupItems[0]?.tuntutan || "Lainnya"),
-            count: groupItems.length,
-          }))
-          .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name))
-          .slice(0, 4);
-        const statusMode = getDominantStatus(items);
-        return {
-          key: normalizeKey(wilayah),
-          wilayah: wilayah || "TIDAK DIKETAHUI",
-          items,
-          totalMass,
-          center,
-          aksiList,
-          statusMode,
-        };
-      })
-      .filter(Boolean)
-      .sort((a, b) => b.items.length - a.items.length || b.totalMass - a.totalMass || a.wilayah.localeCompare(b.wilayah))
-      .slice(0, Math.max(6, labelLimit));
+    const provinceAgg = getProvinceSummaryItems(rows).slice(0, Math.max(6, labelLimit));
 
     for (const province of provinceAgg) {
       const statusClass = getStatusToneClass(province.statusMode);
@@ -1077,36 +1192,7 @@ function focusMapToLabels(rows, options = {}) {
 }
 
 function updateMapWithRows(rows) {
-  markerCluster.clearLayers();
-  markerIndex.clear();
-  state.clusterPreviewRows = null;
-  state.locationPreviewRows = null;
-
-  const bounds = [];
-
-  for (const row of rows) {
-    if (!Number.isFinite(row.lat) || !Number.isFinite(row.lng)) continue;
-    const marker = L.marker([row.lat, row.lng], { icon: makePointIcon(row.status), title: row.locationLabel });
-    marker.__rowData = row;
-    marker.on("click", () => {
-      clearClusterPreview();
-      state.locationPreviewRows = [row];
-      refreshVisibleLabels();
-      setActiveRow(row.id, { scroll: false });
-      marker.bindPopup(buildPopupHtml(row), { closeButton: true, maxWidth: 360 }).openPopup();
-    });
-    markerCluster.addLayer(marker);
-    markerIndex.set(row.id, marker);
-    bounds.push([row.lat, row.lng]);
-  }
-
-  refreshVisibleLabels();
-
-  if (bounds.length) {
-    map.fitBounds(bounds, { padding: [30, 30], maxZoom: 8 });
-  } else {
-    map.setView([-2.3, 118.2], 5);
-  }
+  showProvinceSummary(rows);
 }
 
 function setActiveRow(id, options = {}) {
@@ -1218,13 +1304,7 @@ function renderIssueRank(itemsByCategory) {
       ? section.items
           .map(
             (item) =>
-              `<div class="issueRank__row"><div class="issueRank__count"><span class="issueRank__countValue">${escapeHtml(
-                formatNumberId(item.count)
-              )}</span><span class="issueRank__countLabel">data</span></div><div class="issueRank__body"><div class="issueRank__title">${escapeHtml(
-                item.label
-              )}</div><div class="issueRank__meta">${escapeHtml(
-                `${formatNumberId(item.count)} data dengan tuntutan yang sama • ${formatMassa(item.mass)}`
-              )}</div></div></div>`
+              `<div class="issueRank__row"><div class="issueRank__title">${escapeHtml(item.label)}</div></div>`
           )
           .join("")
       : `<div class="issueRank__empty issueRank__empty--section">Belum ada data kategori ${escapeHtml(section.title)}.</div>`;
@@ -1272,6 +1352,7 @@ function renderTable(rows) {
     tr.addEventListener("click", () => {
       setActiveRow(r.id);
       focusMapToLabels([r], { preferredZoom: 11 });
+      ensureProvinceDetailForRow(r);
       const marker = markerIndex.get(r.id);
       if (marker) marker.fire("click");
     });
