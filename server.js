@@ -856,21 +856,41 @@ function normalizeFuelProducts(products) {
 }
 
 function normalizeDateOnly(value) {
+  const raw = String(value || "").trim();
+  const plainIsoMatch = raw.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (plainIsoMatch) return raw;
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "";
-  return date.toISOString().slice(0, 10);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function toLocalIsoDate(date) {
+  if (!(date instanceof Date) || Number.isNaN(date.getTime())) return "";
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function parseLocalIsoDate(iso) {
+  const match = String(iso || "").match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!match) return null;
+  return new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
 }
 
 function buildDateRange(startIso, endIso) {
-  const start = new Date(startIso);
-  const end = new Date(endIso);
+  const start = parseLocalIsoDate(startIso);
+  const end = parseLocalIsoDate(endIso);
   if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime()) || end < start) return [];
   const dates = [];
-  const cursor = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), start.getUTCDate()));
-  const last = new Date(Date.UTC(end.getUTCFullYear(), end.getUTCMonth(), end.getUTCDate()));
+  const cursor = new Date(start);
+  const last = new Date(end);
   while (cursor <= last) {
-    dates.push(cursor.toISOString().slice(0, 10));
-    cursor.setUTCDate(cursor.getUTCDate() + 1);
+    dates.push(toLocalIsoDate(cursor));
+    cursor.setDate(cursor.getDate() + 1);
   }
   return dates;
 }
@@ -905,7 +925,7 @@ function getRequestedDateList(req, fallbackDays = 30) {
     )
   ).sort();
   if (normalized.length) {
-    const todayIso = new Date().toISOString().slice(0, 10);
+    const todayIso = toLocalIsoDate(new Date());
     return normalized
       .filter((date) => date <= todayIso)
       .slice(-Math.max(1, fallbackDays));
@@ -916,10 +936,10 @@ function getRequestedDateList(req, fallbackDays = 30) {
   if (start && end) return buildDateRange(start, end);
 
   const today = new Date();
-  const endDate = today.toISOString().slice(0, 10);
+  const endDate = toLocalIsoDate(today);
   const startDate = new Date(today);
-  startDate.setUTCDate(startDate.getUTCDate() - Math.max(0, fallbackDays - 1));
-  return buildDateRange(startDate.toISOString().slice(0, 10), endDate);
+  startDate.setDate(startDate.getDate() - Math.max(0, fallbackDays - 1));
+  return buildDateRange(toLocalIsoDate(startDate), endDate);
 }
 
 async function fetchText(url) {
@@ -982,31 +1002,42 @@ function buildFuelDailySeries(targetDates, snapshots) {
   const sortedSnapshots = snapshots
     .slice()
     .sort((a, b) => String(a.effectiveDate).localeCompare(String(b.effectiveDate)));
-  return targetDates.map((date) => {
-    let selected = sortedSnapshots[0];
-    for (const snapshot of sortedSnapshots) {
-      if (snapshot.effectiveDate <= date) {
-        selected = snapshot;
-      } else {
-        break;
+  const firstActualDate = String(sortedSnapshots[0]?.effectiveDate || "");
+  return targetDates
+    .filter((date) => !firstActualDate || date >= firstActualDate)
+    .map((date) => {
+      let selected = null;
+      for (const snapshot of sortedSnapshots) {
+        if (snapshot.effectiveDate <= date) {
+          selected = snapshot;
+        } else {
+          break;
+        }
       }
-    }
-    return {
-      date,
-      fullDate: new Date(`${date}T00:00:00.000Z`),
-      sourceUpdatedAt: selected.updatedAt,
-      fuels: selected.fuels.map((fuel) => ({
-        name: fuel.name,
-        price: fuel.price,
-        availability: fuel.availability,
-      })),
-    };
-  });
+      if (!selected) return null;
+      return {
+        date,
+        fullDate: new Date(`${date}T00:00:00.000Z`),
+        sourceUpdatedAt: selected.updatedAt,
+        fuels: selected.fuels.map((fuel) => ({
+          name: fuel.name,
+          price: fuel.price,
+          availability: fuel.availability,
+        })),
+      };
+    })
+    .filter(Boolean);
 }
 
 function buildCommodityDailySeries(targetDates, commodities) {
   if (!targetDates.length || !commodities.length) return [];
+  const allActualDates = commodities
+    .flatMap((commodity) => (Array.isArray(commodity?.points) ? commodity.points : []).map((point) => point?.date))
+    .filter(Boolean)
+    .sort((a, b) => String(a).localeCompare(String(b)));
+  const firstActualDate = String(allActualDates[0] || "");
   return targetDates
+    .filter((date) => !firstActualDate || date >= firstActualDate)
     .map((date) => {
       const items = commodities
         .map((commodity) => {
