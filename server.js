@@ -12,6 +12,7 @@ const ROOT_DIR = path.resolve(process.cwd());
 const DB_PATH = path.join(ROOT_DIR, "aksi-db.json");
 const ADMIN_LOGIN_PATH = path.join(ROOT_DIR, "login.html");
 const ADMIN_PAGE_PATH = path.join(ROOT_DIR, "admin.html");
+const INTERNAL_MAP_PAGE_PATH = path.join(ROOT_DIR, "peta-internal.html");
 const ADMIN_USERNAME = String(process.env.ADMIN_USERNAME || "admin");
 const ADMIN_PASSWORD = String(process.env.ADMIN_PASSWORD || "admin123");
 const ADMIN_SESSION_COOKIE = "aksi_admin_session";
@@ -151,6 +152,7 @@ const PROVINCE_OPTIONS = [
   "PAPUA TENGAH",
   "PAPUA PEGUNUNGAN",
   "PAPUA SELATAN",
+  "PAPUA JAYA",
 ];
 const PROVINCE_ALIASES = new Map(
   Object.entries({
@@ -167,6 +169,7 @@ const PROVINCE_ALIASES = new Map(
     "D I YOGYAKARTA": "DI YOGYAKARTA",
     "D.I YOGYAKARTA": "DI YOGYAKARTA",
     "D.I. YOGYAKARTA": "DI YOGYAKARTA",
+    "IRIAN JAYA": "PAPUA JAYA",
   }).map(([key, value]) => [normalizeKey(key), value])
 );
 const VALID_PROVINCES = new Set(PROVINCE_OPTIONS);
@@ -725,6 +728,607 @@ function resequenceDatasetRecords(records, datasetId) {
   });
 }
 
+// Cache duration for exchange rate data: 1 hour
+const EXCHANGE_RATE_CACHE_MS = 60 * 60 * 1000;
+// Cache duration for fuel price data: 1 hour
+const FUEL_PRICE_CACHE_MS = 60 * 60 * 1000;
+// Cache duration for commodity price data: 1 hour
+const COMMODITY_PRICE_CACHE_MS = 60 * 60 * 1000;
+
+// External exchange rate API (using free ExchangeRate-API)
+// For production, replace with your own API key from https://www.exchangerate-api.com/
+const EXCHANGE_RATE_API_URL = "https://api.exchangerate-api.com/v4/latest/USD";
+const FUEL_PRICE_API_BASE_URL = "https://raw.githubusercontent.com/nasgunawann/bensin-api/main";
+const FUEL_PRICE_API_REPO_URL = "https://github.com/nasgunawann/bensin-api";
+const FUEL_PRICE_COMMITS_API_BASE = "https://api.github.com/repos/nasgunawann/bensin-api/commits";
+const FUEL_PRICE_DEFAULT_PROVINCE_SLUG = String(process.env.FUEL_PRICE_PROVINCE_SLUG || "dki-jakarta");
+const PIHPS_HOME_URL = "https://www.bi.go.id/hargapangan/WebSite";
+const PIHPS_API_BASE_URL = "https://www.bi.go.id/hargapangan/Website/Home";
+const PIHPS_COMMODITIES_TREE_URL = `${PIHPS_API_BASE_URL}/GetCommoditiesTree`;
+const PIHPS_CHART_DATA_URL = `${PIHPS_API_BASE_URL}/GetChartData`;
+const PIHPS_TRACKED_COMMODITIES = [
+  {
+    key: "rice-medium",
+    label: "Beras Medium",
+    aliases: ["Beras Kualitas Medium I", "Beras Kualitas Medium II"],
+  },
+  {
+    key: "chicken-meat",
+    label: "Daging Ayam",
+    aliases: ["Daging Ayam Ras Segar"],
+  },
+  {
+    key: "beef",
+    label: "Daging Sapi",
+    aliases: ["Daging Sapi Kualitas 1", "Daging Sapi Kualitas 2"],
+  },
+  {
+    key: "eggs",
+    label: "Telur Ayam",
+    aliases: ["Telur Ayam Ras Segar"],
+  },
+  {
+    key: "cooking-oil",
+    label: "Minyak Goreng",
+    aliases: ["Minyak Goreng Curah"],
+  },
+  {
+    key: "sugar",
+    label: "Gula Pasir",
+    aliases: ["Gula Pasir Kualitas Premium", "Gula Pasir Lokal"],
+  },
+];
+const FUEL_PRODUCTS_TRACKED = [
+  "PERTALITE",
+  "PERTAMINA BIOSOLAR SUBSIDI",
+  "PERTAMAX",
+  "PERTAMAX GREEN 95",
+  "PERTAMAX TURBO",
+  "DEXLITE",
+  "PERTAMINA DEX",
+];
+
+async function fetchExchangeRateData() {
+  const db = await readDb();
+  const cached = db.exchangeRateData;
+  if (cached && Date.now() - cached.updatedAt < EXCHANGE_RATE_CACHE_MS) {
+    return cached.data;
+  }
+
+  // Fetch new data from external API
+  const response = await fetch(EXCHANGE_RATE_API_URL);
+  if (!response.ok) {
+    throw new Error("Failed to fetch exchange rate data");
+  }
+  const externalData = await response.json();
+  const data = {
+    base: externalData.base,
+    rates: externalData.rates,
+    lastUpdated: externalData.time_last_updated,
+  };
+
+  // Save to cache
+  db.exchangeRateData = {
+    data,
+    updatedAt: Date.now(),
+  };
+  await fs.writeFile(DB_PATH, JSON.stringify(db, null, 2));
+
+  return data;
+}
+
+app.get("/api/exchange-rate", async (_req, res) => {
+  try {
+    const data = await fetchExchangeRateData();
+    res.json(data);
+  } catch (e) {
+    console.error("Exchange rate fetch error:", e);
+    res.status(500).json({ error: "failed to fetch exchange rate" });
+  }
+});
+
+function normalizeFuelName(productName) {
+  const raw = String(productName || "").trim().toUpperCase();
+  return {
+    PERTALITE: "Pertalite",
+    "PERTAMINA BIOSOLAR SUBSIDI": "Biosolar Subsidi",
+    PERTAMAX: "Pertamax",
+    "PERTAMAX GREEN 95": "Pertamax Green 95",
+    "PERTAMAX TURBO": "Pertamax Turbo",
+    DEXLITE: "Dexlite",
+    "PERTAMINA DEX": "Pertamina Dex",
+  }[raw] || String(productName || "").trim();
+}
+
+function normalizeFuelProducts(products) {
+  const map = new Map(
+    (Array.isArray(products) ? products : []).map((item) => [String(item?.product || "").trim().toUpperCase(), item])
+  );
+  return FUEL_PRODUCTS_TRACKED.map((productKey) => {
+    const item = map.get(productKey);
+    return {
+      product: productKey,
+      name: normalizeFuelName(productKey),
+      price: Number.isFinite(Number(item?.price_rupiah)) ? Number(item.price_rupiah) : null,
+      availability: String(item?.availability || "unknown"),
+    };
+  }).filter((item) => item.price != null);
+}
+
+function normalizeDateOnly(value) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toISOString().slice(0, 10);
+}
+
+function buildDateRange(startIso, endIso) {
+  const start = new Date(startIso);
+  const end = new Date(endIso);
+  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime()) || end < start) return [];
+  const dates = [];
+  const cursor = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), start.getUTCDate()));
+  const last = new Date(Date.UTC(end.getUTCFullYear(), end.getUTCMonth(), end.getUTCDate()));
+  while (cursor <= last) {
+    dates.push(cursor.toISOString().slice(0, 10));
+    cursor.setUTCDate(cursor.getUTCDate() + 1);
+  }
+  return dates;
+}
+
+function getRequestedFuelDates(req) {
+  return getRequestedDateList(req, 30);
+}
+
+async function fetchJson(url) {
+  const response = await fetch(url, {
+    headers: {
+      Accept: "application/json",
+      "User-Agent": "aksi-demo/1.0",
+    },
+  });
+  if (!response.ok) {
+    throw new Error(`Request failed (${response.status}) for ${url}`);
+  }
+  return response.json();
+}
+
+function getRequestedDateList(req, fallbackDays = 30) {
+  const datesParam = String(req.query?.dates || "")
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+  const normalized = Array.from(
+    new Set(
+      datesParam
+        .map((item) => normalizeDateOnly(item))
+        .filter(Boolean)
+    )
+  ).sort();
+  if (normalized.length) {
+    const todayIso = new Date().toISOString().slice(0, 10);
+    return normalized
+      .filter((date) => date <= todayIso)
+      .slice(-Math.max(1, fallbackDays));
+  }
+
+  const start = normalizeDateOnly(req.query?.start);
+  const end = normalizeDateOnly(req.query?.end);
+  if (start && end) return buildDateRange(start, end);
+
+  const today = new Date();
+  const endDate = today.toISOString().slice(0, 10);
+  const startDate = new Date(today);
+  startDate.setUTCDate(startDate.getUTCDate() - Math.max(0, fallbackDays - 1));
+  return buildDateRange(startDate.toISOString().slice(0, 10), endDate);
+}
+
+async function fetchText(url) {
+  const response = await fetch(url, {
+    headers: {
+      Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+      "User-Agent": "aksi-demo/1.0",
+    },
+  });
+  if (!response.ok) {
+    throw new Error(`Request failed (${response.status}) for ${url}`);
+  }
+  return response.text();
+}
+
+function getRequestedCommodityDates(req) {
+  return getRequestedDateList(req, 30);
+}
+
+function resolveTrackedCommodityName(availableNames, aliases) {
+  const names = Array.isArray(availableNames) ? availableNames : [];
+  const normalizedMap = new Map(names.map((name) => [normalizeKey(name), name]));
+  for (const alias of aliases) {
+    const exact = normalizedMap.get(normalizeKey(alias));
+    if (exact) return exact;
+  }
+  for (const alias of aliases) {
+    const aliasKey = normalizeKey(alias);
+    const fuzzy = names.find((name) => normalizeKey(name).includes(aliasKey) || aliasKey.includes(normalizeKey(name)));
+    if (fuzzy) return fuzzy;
+  }
+  return "";
+}
+
+function normalizeCommodityChartData(points) {
+  return (Array.isArray(points) ? points : [])
+    .map((item) => {
+      const date = normalizeDateOnly(item?.date);
+      const price = Number(item?.nominal);
+      if (!date || !Number.isFinite(price)) return null;
+      const changeAmount = Number(item?.harga);
+      const changePercent = Number(item?.fluc);
+      return {
+        date,
+        price,
+        denomination: String(item?.denomination || "").trim(),
+        changeAmount: Number.isFinite(changeAmount) ? changeAmount : null,
+        changePercent: Number.isFinite(changePercent) ? changePercent : null,
+        isMin: Boolean(Number(item?.isMin)),
+        isMax: Boolean(Number(item?.isMax)),
+        isStable: Boolean(Number(item?.isTetap)),
+      };
+    })
+    .filter(Boolean)
+    .sort((a, b) => String(a.date).localeCompare(String(b.date)));
+}
+
+function buildFuelDailySeries(targetDates, snapshots) {
+  if (!targetDates.length || !snapshots.length) return [];
+  const sortedSnapshots = snapshots
+    .slice()
+    .sort((a, b) => String(a.effectiveDate).localeCompare(String(b.effectiveDate)));
+  return targetDates.map((date) => {
+    let selected = sortedSnapshots[0];
+    for (const snapshot of sortedSnapshots) {
+      if (snapshot.effectiveDate <= date) {
+        selected = snapshot;
+      } else {
+        break;
+      }
+    }
+    return {
+      date,
+      fullDate: new Date(`${date}T00:00:00.000Z`),
+      sourceUpdatedAt: selected.updatedAt,
+      fuels: selected.fuels.map((fuel) => ({
+        name: fuel.name,
+        price: fuel.price,
+        availability: fuel.availability,
+      })),
+    };
+  });
+}
+
+function buildCommodityDailySeries(targetDates, commodities) {
+  if (!targetDates.length || !commodities.length) return [];
+  return targetDates
+    .map((date) => {
+      const items = commodities
+        .map((commodity) => {
+          let selected = null;
+          for (const point of commodity.points) {
+            if (point.date <= date) {
+              selected = point;
+            } else {
+              break;
+            }
+          }
+          if (!selected) return null;
+          return {
+            key: commodity.key,
+            label: commodity.label,
+            name: commodity.name,
+            price: selected.price,
+            denomination: selected.denomination || commodity.denomination || "",
+            sourceDate: selected.date,
+            changeAmount: selected.changeAmount,
+            changePercent: selected.changePercent,
+            isCarriedForward: selected.date !== date,
+          };
+        })
+        .filter(Boolean);
+      if (!items.length) return null;
+      return {
+        date,
+        fullDate: new Date(`${date}T00:00:00.000Z`),
+        commodities: items,
+      };
+    })
+    .filter(Boolean);
+}
+
+function hasUsableCommodityData(data) {
+  return Boolean(
+    data &&
+    Array.isArray(data.commodities) &&
+    data.commodities.length >= 4 &&
+    data.commodities.some((commodity) => Array.isArray(commodity?.points) && commodity.points.length)
+  );
+}
+
+function enrichCommodityMetadata(data) {
+  if (!hasUsableCommodityData(data)) return data;
+  const allDates = data.commodities
+    .flatMap((commodity) => (Array.isArray(commodity?.points) ? commodity.points : []).map((point) => point.date))
+    .filter(Boolean)
+    .sort((a, b) => String(a).localeCompare(String(b)));
+  return {
+    ...data,
+    earliestActualDate: data.earliestActualDate || allDates[0] || "",
+    latestActualDate: data.latestActualDate || allDates[allDates.length - 1] || "",
+  };
+}
+
+function hasUsableFuelSnapshots(data) {
+  return Boolean(
+    data &&
+    Array.isArray(data.snapshots) &&
+    data.snapshots.length &&
+    data.snapshots.some((snapshot) => Array.isArray(snapshot?.fuels) && snapshot.fuels.length)
+  );
+}
+
+function mergeFuelSnapshots(primarySnapshots, fallbackSnapshots) {
+  const merged = new Map();
+  for (const snapshot of Array.isArray(fallbackSnapshots) ? fallbackSnapshots : []) {
+    if (!snapshot?.effectiveDate || !Array.isArray(snapshot?.fuels) || !snapshot.fuels.length) continue;
+    merged.set(String(snapshot.effectiveDate), snapshot);
+  }
+  for (const snapshot of Array.isArray(primarySnapshots) ? primarySnapshots : []) {
+    if (!snapshot?.effectiveDate || !Array.isArray(snapshot?.fuels) || !snapshot.fuels.length) continue;
+    merged.set(String(snapshot.effectiveDate), snapshot);
+  }
+  return Array.from(merged.values()).sort((a, b) => String(a.effectiveDate).localeCompare(String(b.effectiveDate)));
+}
+
+async function fetchFuelPriceSourceData() {
+  const db = await readDb();
+  const cached = db.fuelPriceData;
+  const cachedFuelData = hasUsableFuelSnapshots(cached?.data) ? cached.data : null;
+  if (cachedFuelData && Date.now() - cached.updatedAt < FUEL_PRICE_CACHE_MS) {
+    return cachedFuelData;
+  }
+
+  const indexData = await fetchJson(`${FUEL_PRICE_API_BASE_URL}/v1/index.json`);
+  const provinceMeta = indexData?.provinsi?.[FUEL_PRICE_DEFAULT_PROVINCE_SLUG];
+  if (!provinceMeta?.path) {
+    throw new Error("Fuel price province source not found.");
+  }
+
+  const provincePath = String(provinceMeta.path).replace(/^\//, "");
+  const currentSnapshot = await fetchJson(`${FUEL_PRICE_API_BASE_URL}/${provincePath}`);
+  let commits = [];
+  let historyWarning = "";
+  try {
+    commits = await fetchJson(
+      `${FUEL_PRICE_COMMITS_API_BASE}?path=${encodeURIComponent(provincePath)}&per_page=100`
+    );
+  } catch (error) {
+    historyWarning = error?.message || "Unable to refresh historical fuel snapshots.";
+  }
+  const snapshots = [];
+  const seenEffectiveDates = new Set();
+
+  const candidateCommits = Array.isArray(commits) ? commits : [];
+  for (const commit of candidateCommits) {
+    const sha = String(commit?.sha || "").trim();
+    if (!sha) continue;
+    try {
+      const snapshot = await fetchJson(
+        `https://raw.githubusercontent.com/nasgunawann/bensin-api/${sha}/${provincePath}`
+      );
+      const effectiveDate = normalizeDateOnly(snapshot?.pertamina_updated_at || commit?.commit?.author?.date);
+      if (!effectiveDate || seenEffectiveDates.has(effectiveDate)) continue;
+      const fuels = normalizeFuelProducts(snapshot?.products);
+      if (!fuels.length) continue;
+      seenEffectiveDates.add(effectiveDate);
+      snapshots.push({
+        effectiveDate,
+        updatedAt: String(snapshot?.pertamina_updated_at || commit?.commit?.author?.date || ""),
+        fuels,
+        commitSha: sha,
+      });
+      if (snapshots.length >= 16) break;
+    } catch (_error) {
+      // Skip broken historical snapshot fetches and continue with available entries.
+    }
+  }
+
+  const currentEffectiveDate = normalizeDateOnly(currentSnapshot?.pertamina_updated_at || indexData?.pertamina_updated_at);
+  if (currentEffectiveDate && !seenEffectiveDates.has(currentEffectiveDate)) {
+    snapshots.push({
+      effectiveDate: currentEffectiveDate,
+      updatedAt: String(currentSnapshot?.pertamina_updated_at || ""),
+      fuels: normalizeFuelProducts(currentSnapshot?.products),
+      commitSha: null,
+    });
+  }
+
+  const mergedSnapshots = mergeFuelSnapshots(snapshots, cachedFuelData?.snapshots || []);
+  const finalSnapshots = mergedSnapshots.length ? mergedSnapshots : snapshots;
+  if (!finalSnapshots.length && cachedFuelData) {
+    return {
+      ...cachedFuelData,
+      warning: historyWarning || cachedFuelData.warning || "",
+      historySource: cachedFuelData.historySource || "cached-snapshots",
+    };
+  }
+  if (!finalSnapshots.length) {
+    throw new Error("Fuel price history source returned no usable snapshots.");
+  }
+
+  const data = {
+    provider: "bensin-api",
+    repository: FUEL_PRICE_API_REPO_URL,
+    province: String(currentSnapshot?.province || provinceMeta?.name || FUEL_PRICE_DEFAULT_PROVINCE_SLUG),
+    provinceSlug: String(currentSnapshot?.province_slug || FUEL_PRICE_DEFAULT_PROVINCE_SLUG),
+    sourceIndexUpdatedAt: String(indexData?.pertamina_updated_at || ""),
+    syncedAt: String(indexData?.synced_at || ""),
+    latestUpdatedAt: String(currentSnapshot?.pertamina_updated_at || ""),
+    warning: historyWarning,
+    historySource: historyWarning ? (cachedFuelData ? "current-plus-cache" : "current-only") : "current-plus-commits",
+    snapshots: finalSnapshots,
+  };
+
+  // Save to cache
+  db.fuelPriceData = {
+    data,
+    updatedAt: Date.now(),
+  };
+  await fs.writeFile(DB_PATH, JSON.stringify(db, null, 2));
+
+  return data;
+}
+
+async function fetchCommodityPriceSourceData() {
+  const db = await readDb();
+  const cached = db.commodityPriceData;
+  const cachedCommodityData = hasUsableCommodityData(cached?.data) ? enrichCommodityMetadata(cached.data) : null;
+  if (cachedCommodityData && Date.now() - cached.updatedAt < COMMODITY_PRICE_CACHE_MS) {
+    return cachedCommodityData;
+  }
+  try {
+    const homeHtml = await fetchText(PIHPS_HOME_URL);
+    const tempIdMatch = homeHtml.match(/id="temp_id"[^>]*value="([^"]+)"/i);
+    const tempId = String(tempIdMatch?.[1] || "").trim();
+    if (!tempId) {
+      throw new Error("PIHPS temp id not found.");
+    }
+
+    const treeData = await fetchJson(PIHPS_COMMODITIES_TREE_URL);
+    const availableNames = (Array.isArray(treeData?.data) ? treeData.data : [])
+      .filter((item) => String(item?.ParentID || "").trim())
+      .map((item) => String(item?.TreeName || "").trim())
+      .filter(Boolean);
+
+    const selectedCommodities = PIHPS_TRACKED_COMMODITIES.map((item) => {
+      const resolvedName = resolveTrackedCommodityName(availableNames, item.aliases);
+      return resolvedName
+        ? {
+            key: item.key,
+            label: item.label,
+            name: resolvedName,
+          }
+        : null;
+    }).filter(Boolean);
+
+    const commodities = [];
+    for (const commodity of selectedCommodities) {
+      try {
+        const params = new URLSearchParams({
+          tempId,
+          comName: commodity.name,
+        });
+        const chartData = await fetchJson(`${PIHPS_CHART_DATA_URL}?${params.toString()}`);
+        const points = normalizeCommodityChartData(chartData?.data);
+        if (!points.length) {
+          throw new Error(`PIHPS returned no usable points for ${commodity.name}`);
+        }
+        commodities.push({
+          key: commodity.key,
+          label: commodity.label,
+          name: commodity.name,
+          denomination: points.find((point) => point.denomination)?.denomination || "",
+          points,
+        });
+      } catch (_error) {
+        // Skip temporarily unavailable commodity series and keep usable ones.
+      }
+    }
+    if (!commodities.length) {
+      throw new Error("Commodity price source returned no usable series.");
+    }
+
+    const data = enrichCommodityMetadata({
+      provider: "PIHPS Nasional Bank Indonesia",
+      sourceUrl: PIHPS_HOME_URL,
+      tempId,
+      commodities,
+    });
+
+    db.commodityPriceData = {
+      data,
+      updatedAt: Date.now(),
+    };
+    await fs.writeFile(DB_PATH, JSON.stringify(db, null, 2));
+
+    return data;
+  } catch (error) {
+    if (cachedCommodityData) {
+      return {
+        ...cachedCommodityData,
+        warning: error?.message || "Menggunakan cache sembako terakhir karena sumber PIHPS sedang gagal diakses.",
+      };
+    }
+    throw error;
+  }
+}
+
+app.get("/api/fuel-prices", async (req, res) => {
+  try {
+    const sourceData = await fetchFuelPriceSourceData();
+    const targetDates = getRequestedFuelDates(req);
+    const prices = buildFuelDailySeries(targetDates, sourceData.snapshots);
+    const latest = prices[prices.length - 1] || null;
+    res.json({
+      provider: sourceData.provider,
+      repository: sourceData.repository,
+      province: sourceData.province,
+      provinceSlug: sourceData.provinceSlug,
+      latestUpdatedAt: sourceData.latestUpdatedAt,
+      syncedAt: sourceData.syncedAt,
+      snapshots: sourceData.snapshots.map((item) => ({
+        effectiveDate: item.effectiveDate,
+        updatedAt: item.updatedAt,
+      })),
+      prices,
+      latest,
+    });
+  } catch (e) {
+    console.error("Fuel price fetch error:", e);
+    res.status(500).json({ error: "failed to fetch fuel prices" });
+  }
+});
+
+app.get("/api/sembako-prices", async (req, res) => {
+  try {
+    const sourceData = await fetchCommodityPriceSourceData();
+    const targetDates = getRequestedCommodityDates(req);
+    const prices = buildCommodityDailySeries(targetDates, sourceData.commodities);
+    const latest = prices[prices.length - 1] || null;
+    res.json({
+      provider: sourceData.provider,
+      sourceUrl: sourceData.sourceUrl,
+      earliestActualDate: sourceData.earliestActualDate,
+      latestActualDate: sourceData.latestActualDate,
+      commodities: sourceData.commodities.map((commodity) => {
+        const earliestPoint = commodity.points[0] || null;
+        const latestPoint = commodity.points[commodity.points.length - 1] || null;
+        return {
+          key: commodity.key,
+          label: commodity.label,
+          name: commodity.name,
+          denomination: commodity.denomination,
+          earliestDate: earliestPoint?.date || "",
+          latestDate: latestPoint?.date || "",
+          latestPrice: latestPoint?.price ?? null,
+          pointCount: commodity.points.length,
+        };
+      }),
+      prices,
+      latest,
+    });
+  } catch (e) {
+    console.error("Commodity price fetch error:", e);
+    res.status(500).json({ error: "failed to fetch commodity prices" });
+  }
+});
+
 app.get("/api/health", (_req, res) => res.json({ ok: true }));
 
 app.get("/login.html", (req, res) => {
@@ -737,6 +1341,12 @@ app.get("/admin.html", (req, res) => {
   const session = getSessionUser(req);
   if (!session) return res.redirect("/login.html");
   res.sendFile(ADMIN_PAGE_PATH);
+});
+
+app.get("/peta-internal.html", (req, res) => {
+  const session = getSessionUser(req);
+  if (!session) return res.redirect("/login.html");
+  res.sendFile(INTERNAL_MAP_PAGE_PATH);
 });
 
 app.get("/api/admin/auth/session", (req, res) => {

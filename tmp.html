@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Data Grafik Massa Aksi</title>
+    <link rel="stylesheet" href="./styles.css?v=20260621-28" />
+  </head>
+  <body class="chartPage">
+    <header class="topbar">
+      <div class="topbar__inner">
+        <div class="topbar__title">
+          <div class="topbar__titleMain">DATA GRAFIK</div>
+          <div class="topbar__titleSub" id="chartSubtitle">Memuat data grafik nasional…</div>
+        </div>
+        <div class="topbar__controls">
+          <a class="btn btn--ghost" href="./index.html">Halaman Peta</a>
+          <a class="btn btn--ghost" href="./admin.html">Admin Data</a>
+        </div>
+      </div>
+      <div class="subbar">
+        <div class="subbar__left">
+          <div class="chip">
+            <span class="chip__label">Dataset</span>
+            <span class="chip__value" id="chartDataset">Belum dimuat</span>
+          </div>
+        </div>
+        <div class="subbar__right" style="gap:8px">
+          <input id="filterStartDate" type="date" class="input" style="min-width:auto">
+          <span style="color:#a0aec0">s/d</span>
+          <input id="filterEndDate" type="date" class="input" style="min-width:auto">
+          <button class="btn btn--ghost" id="filterBtn" type="button">Filter</button>
+          <button class="btn btn--ghost" id="resetFilterBtn" type="button">Reset</button>
+          <button class="btn btn--ghost" id="reloadChartBtn" type="button">Refresh Grafik</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="chartLayout">
+      <section class="chartHero card">
+        <div class="chartHero__header">
+          <div>
+            <div class="chartHero__title">Grafik: Massa Aksi Nasional</div>
+            <div class="chartHero__subtitle" id="chartPeriod">Indonesia</div>
+          </div>
+          <div class="chartHero__meta" id="chartMeta">Memproses data harian…</div>
+        </div>
+        <div class="chartCanvasWrap">
+          <div class="chartLabelLayer chartLabelLayer--top" id="chartLabelLayerTop"></div>
+          <div class="chartCanvas" id="nationalChart"></div>
+        </div>
+      </section>
+
+      <section class="chartStats">
+        <article class="summaryItem chartStat">
+          <div class="summaryItem__label">Total Hari</div>
+          <div class="summaryItem__value" id="statDays">—</div>
+        </article>
+        <article class="summaryItem chartStat">
+          <div class="summaryItem__label">Total Massa</div>
+          <div class="summaryItem__value" id="statMass">—</div>
+        </article>
+        <article class="summaryItem chartStat">
+          <div class="summaryItem__label">Massa Puncak</div>
+          <div class="summaryItem__value" id="statPeakMass">—</div>
+        </article>
+        <article class="summaryItem chartStat">
+          <div class="summaryItem__label">Tanggal Puncak</div>
+          <div class="summaryItem__value" id="statPeakDate">—</div>
+        </article>
+      </section>
+
+      <section class="chartBottom">
+        <article class="card chartInfo">
+          <div class="card__title">Keterangan</div>
+          <div class="chartInfo__grid">
+            <div class="chartInfo__item">
+              <div class="chartInfo__icon chartInfo__icon--line"></div>
+              <div>
+                <div class="chartInfo__title">Grafik Batang</div>
+                <div class="chartInfo__text">Batang emas menunjukkan total massa per hari.</div>
+              </div>
+            </div>
+            <div class="chartInfo__item">
+              <div class="chartInfo__icon chartInfo__icon--pin"></div>
+              <div>
+                <div class="chartInfo__title">Daftar Wilayah</div>
+                <div class="chartInfo__text">Label tiap tanggal kini tampil sebagai satu kotak utuh yang memuat seluruh daftar wilayah pada hari tersebut beserta total wilayah aktif.</div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="card chartBreakdown">
+          <div class="card__title">Rincian Harian</div>
+          <div class="tableWrap tableWrap--compact">
+            <table class="table table--compact">
+              <thead>
+                <tr>
+                  <th>Tanggal</th>
+                  <th class="num">Massa</th>
+                  <th class="num">Total Wilayah</th>
+                  <th>Wilayah Dominan</th>
+                </tr>
+              </thead>
+              <tbody id="chartBreakdownBody"></tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+
+      <section class="chartExchange card">
+        <div class="chartExchange__header">
+          <div class="chartExchange__title">GRAFIK NILAI TUKAR RUPIAH TERHADAP DOLAR AMERIKA SERIKAT</div>
+          <div class="chartExchange__period" id="exchangePeriod">PERIODE 1-19 JUNI 2026</div>
+          <div class="chartExchange__note">(Data resmi JISDOR Bank Indonesia / referensi hari predagangan)</div>
+        </div>
+        <div class="chartExchange__wrap">
+          <div class="chartExchange__chart">
+            <div class="chartExchange__chartTitle">TREN NILAI TUKAR RUPIAH (Rp/US$)</div>
+            <div class="chartCanvasWrap" id="exchangeChartWrap">
+              <div class="chartCanvas" id="exchangeChart"></div>
+            </div>
+            <div class="chartExchange__footnote">Catatan: 1 Juni libur nasional; grafik menampilkan tanggal publikasi JISDOR yang tersedia.</div>
+          </div>
+          <div class="chartExchange__summary">
+            <div class="chartExchange__summaryTitle">RINGKASAN PERGERAKAN</div>
+            <div class="chartExchange__summaryList" id="exchangeSummaryList">
+            <div class="chartExchange__summaryItem" id="summaryStart">
+              <div class="chartExchange__summaryIcon chartExchange__summaryIcon--start"></div>
+              <div class="chartExchange__summaryText">
+                <div>Awal Periode:</div>
+                <div class="chartExchange__summaryValue" id="summaryStartValue">-</div>
+              </div>
+            </div>
+            <div class="chartExchange__summaryItem" id="summaryWeak">
+              <div class="chartExchange__summaryIcon chartExchange__summaryIcon--down"></div>
+              <div class="chartExchange__summaryText">
+                <div>Titik Terlemah:</div>
+                <div class="chartExchange__summaryValue" id="summaryWeakValue">-</div>
+              </div>
+            </div>
+            <div class="chartExchange__summaryItem" id="summaryStrong">
+              <div class="chartExchange__summaryIcon chartExchange__summaryIcon--up"></div>
+              <div class="chartExchange__summaryText">
+                <div>Titik Terkuat:</div>
+                <div class="chartExchange__summaryValue" id="summaryStrongValue">-</div>
+              </div>
+            </div>
+            <div class="chartExchange__summaryItem" id="summaryEnd">
+              <div class="chartExchange__summaryIcon chartExchange__summaryIcon--end"></div>
+              <div class="chartExchange__summaryText">
+                <div>Akhir Periode:</div>
+                <div class="chartExchange__summaryValue" id="summaryEndValue">-</div>
+              </div>
+            </div>
+            <div class="chartExchange__summaryItem" id="summaryChange">
+              <div class="chartExchange__summaryIcon chartExchange__summaryIcon--change"></div>
+              <div class="chartExchange__summaryText">
+                <div>Perubahan Bersih:</div>
+                <div class="chartExchange__summaryValue" id="summaryChangeValue">-</div>
+              </div>
+            </div>
+            <div class="chartExchange__summaryItem" id="summaryRange">
+              <div class="chartExchange__summaryIcon chartExchange__summaryIcon--range"></div>
+              <div class="chartExchange__summaryText">
+                <div>Rentang Pergerakan:</div>
+                <div class="chartExchange__summaryValue" id="summaryRangeValue">-</div>
+              </div>
+            </div>
+          </div>
+          </div>
+        </div>
+        <div class="chartExchange__events">
+          <div class="chartExchange__eventsTitle" id="exchangeEventsTitle">PERISTIWA PENTING SELAMA PERIODE</div>
+          <div class="chartExchange__eventsList" id="exchangeEventsList">
+          </div>
+        </div>
+        <div class="chartExchange__footer">
+          <div>Sumber: Bank Indonesia (JISDOR), Siaran Pers RDG BI 18 Juni 2026, Antara, Bloomberg, Reuters.</div>
+          <div>Catatan: Data per 19 Juni 2026.</div>
+        </div>
+      </section>
+    </main>
+
+    <div class="toast" id="chartToast" role="status" aria-live="polite"></div>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+    <script src="./data-grafik.js?v=20260621-31"></script>
+  </body>
+</html>

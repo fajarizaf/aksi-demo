@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Peta Sebaran Unras</title>
+    <title>Peta Sebaran Unras Internal</title>
     <link rel="preconnect" href="https://unpkg.com" />
     <link
       rel="stylesheet"
@@ -19,18 +19,20 @@
       rel="stylesheet"
       href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css"
     />
-    <link rel="stylesheet" href="./styles.css?v=20260620-13" />
+    <link rel="stylesheet" href="./styles.css?v=20260621-88" />
   </head>
   <body>
     <header class="topbar">
       <div class="topbar__inner">
         <div class="topbar__title">
-          <div class="topbar__titleMain">PETA SEBARAN UNRAS</div>
+          <div class="topbar__titleMain">PETA SEBARAN UNRAS INTERNAL</div>
           <div class="topbar__titleSub" id="titleDate">—</div>
         </div>
         <div class="topbar__controls">
+          <a class="btn btn--ghost" href="./index.html">Peta Publik</a>
           <a class="btn btn--ghost" href="./data-grafik.html">Data Grafik</a>
           <a class="btn btn--ghost" href="./admin.html">Admin Data</a>
+          <button id="protectedLogoutBtn" class="btn btn--ghost" type="button">Logout</button>
         </div>
       </div>
       <div class="subbar">
@@ -67,6 +69,10 @@
     <main class="layout">
       <section class="mapPanel">
         <div id="map" class="map" style="z-index: 1;"></div>
+        <div class="mapPanel__clock" id="realtimeClock" aria-live="polite">
+          <div class="mapPanel__clockLabel">Jam Realtime</div>
+          <div class="mapPanel__clockValue">--:--:-- WIB</div>
+        </div>
         <div class="legend">
           <div class="legend__title">Keterangan</div>
           <div class="legend__row"><span class="dot dot--gold"></span> Rencana</div>
@@ -145,16 +151,12 @@
           </div>
         </div>
         <div class="card">
-          <div class="card__title">Grafik Massa Per Wilayah / Hari</div>
-          <div class="massChart" id="massChart"></div>
-        </div>
-          <div class="card">
-          <div class="card__title">Top 3 Tuntutan Dominan</div>
-          <div class="issueRank" id="issueRank"></div>
-        </div>
-        <div class="card">
           <div class="card__title">Highlight</div>
           <ol class="analysis" id="analisaList"></ol>
+        </div>
+        <div hidden aria-hidden="true">
+          <div id="massChart"></div>
+          <div id="issueRank"></div>
         </div>
       </aside>
     </main>
@@ -166,5 +168,6 @@
     ></script>
     <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
     <script src="./app.js?v=20260620-8"></script>
+    <script src="./protected-map.js?v=20260621-1"></script>
   </body>
 </html>

@@ -273,6 +273,61 @@ function getMonthLabel(month) {
   return labels[month] || month;
 }
 
+const PROVINCE_OPTIONS = [
+  "ACEH",
+  "SUMATERA UTARA",
+  "SUMATERA BARAT",
+  "RIAU",
+  "JAMBI",
+  "SUMATERA SELATAN",
+  "BENGKULU",
+  "LAMPUNG",
+  "KEPULAUAN BANGKA BELITUNG",
+  "KEPULAUAN RIAU",
+  "DKI JAKARTA",
+  "JAWA BARAT",
+  "JAWA TENGAH",
+  "DI YOGYAKARTA",
+  "JAWA TIMUR",
+  "BANTEN",
+  "BALI",
+  "NUSA TENGGARA BARAT",
+  "NUSA TENGGARA TIMUR",
+  "KALIMANTAN BARAT",
+  "KALIMANTAN TENGAH",
+  "KALIMANTAN SELATAN",
+  "KALIMANTAN TIMUR",
+  "KALIMANTAN UTARA",
+  "SULAWESI UTARA",
+  "SULAWESI TENGAH",
+  "SULAWESI SELATAN",
+  "SULAWESI TENGGARA",
+  "GORONTALO",
+  "SULAWESI BARAT",
+  "MALUKU",
+  "MALUKU UTARA",
+  "PAPUA",
+  "PAPUA BARAT",
+  "PAPUA BARAT DAYA",
+  "PAPUA TENGAH",
+  "PAPUA PEGUNUNGAN",
+  "PAPUA SELATAN",
+  "PAPUA JAYA",
+];
+
+function populateManualProvinceOptions() {
+  if (!els.mWilayah) return;
+  const current = toStr(els.mWilayah.value);
+  els.mWilayah.innerHTML = `<option value="">Pilih WILAYAH</option>`;
+  PROVINCE_OPTIONS.forEach((province) => {
+    const opt = document.createElement("option");
+    opt.value = province;
+    opt.textContent = province;
+    els.mWilayah.appendChild(opt);
+  });
+  if (PROVINCE_OPTIONS.includes(current)) els.mWilayah.value = current;
+}
+
 function setButtonLoading(button, isLoading, loadingText = "Loading...") {
   if (!button) return;
   if (isLoading) {
@@ -911,6 +966,7 @@ function wireEvents() {
 }
 
 wireEvents();
+populateManualProvinceOptions();
 resetManualForm();
 ensureAdminSession()
   .then(() => renderAll())
