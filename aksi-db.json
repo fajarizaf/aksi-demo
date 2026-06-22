@@ -4212,7 +4212,7 @@
       },
       "lastUpdated": 1782000001
     },
-    "updatedAt": 1782082447369
+    "updatedAt": 1782095254842
   },
   "fuelPriceData": {
     "data": {
@@ -4221,7 +4221,7 @@
       "province": "Prov. DKI Jakarta",
       "provinceSlug": "dki-jakarta",
       "sourceIndexUpdatedAt": "2026-06-10T10:59:37.000Z",
-      "syncedAt": "2026-06-21T21:21:16.872702Z",
+      "syncedAt": "2026-06-21T23:21:36.305340Z",
       "latestUpdatedAt": "2026-06-10T10:59:37.000Z",
       "warning": "",
       "historySource": "current-plus-commits",
@@ -4322,17 +4322,17 @@
               "availability": "available"
             }
           ],
-          "commitSha": "26e740098dfc1f61700b8bf237ac9c1f4efb00c0"
+          "commitSha": "4abc1aadf2b97c5b4f08a9c6155c2ecc277b1420"
         }
       ]
     },
-    "updatedAt": 1782082207683
+    "updatedAt": 1782095197727
   },
   "commodityPriceData": {
     "data": {
       "provider": "PIHPS Nasional Bank Indonesia",
       "sourceUrl": "https://www.bi.go.id/hargapangan/WebSite",
-      "tempId": "d11da6d0-0ffa-4ae1-8d04-d0ab0d94364e",
+      "tempId": "98ebc5e1-ba5e-42ed-87bb-23c7df76c39b",
       "commodities": [
         {
           "key": "rice-medium",
@@ -4340,16 +4340,6 @@
           "name": "Beras Kualitas Medium I",
           "denomination": "kg",
           "points": [
-            {
-              "date": "2026-06-12",
-              "price": 16250,
-              "denomination": "kg",
-              "changeAmount": 0,
-              "changePercent": 0,
-              "isMin": false,
-              "isMax": false,
-              "isStable": false
-            },
             {
               "date": "2026-06-15",
               "price": 16250,
@@ -4397,6 +4387,16 @@
               "changeAmount": 50,
               "changePercent": 0.31,
               "isMin": false,
+              "isMax": false,
+              "isStable": false
+            },
+            {
+              "date": "2026-06-22",
+              "price": 17650,
+              "denomination": "kg",
+              "changeAmount": 1400,
+              "changePercent": 8.62,
+              "isMin": false,
               "isMax": true,
               "isStable": false
             }
@@ -4409,21 +4409,11 @@
           "denomination": "kg",
           "points": [
             {
-              "date": "2026-06-12",
-              "price": 37200,
-              "denomination": "kg",
-              "changeAmount": 0,
-              "changePercent": 0,
-              "isMin": false,
-              "isMax": false,
-              "isStable": false
-            },
-            {
               "date": "2026-06-15",
               "price": 37050,
               "denomination": "kg",
-              "changeAmount": -150,
-              "changePercent": -0.4,
+              "changeAmount": 0,
+              "changePercent": 0,
               "isMin": false,
               "isMax": false,
               "isStable": false
@@ -4432,8 +4422,8 @@
               "date": "2026-06-16",
               "price": 36800,
               "denomination": "kg",
-              "changeAmount": -400,
-              "changePercent": -1.08,
+              "changeAmount": -250,
+              "changePercent": -0.67,
               "isMin": true,
               "isMax": false,
               "isStable": false
@@ -4442,8 +4432,8 @@
               "date": "2026-06-17",
               "price": 37200,
               "denomination": "kg",
-              "changeAmount": 0,
-              "changePercent": 0,
+              "changeAmount": 150,
+              "changePercent": 0.4,
               "isMin": false,
               "isMax": false,
               "isStable": false
@@ -4452,20 +4442,30 @@
               "date": "2026-06-18",
               "price": 37250,
               "denomination": "kg",
-              "changeAmount": 50,
-              "changePercent": 0.13,
+              "changeAmount": 200,
+              "changePercent": 0.54,
               "isMin": false,
-              "isMax": true,
+              "isMax": false,
               "isStable": false
             },
             {
               "date": "2026-06-19",
               "price": 37100,
               "denomination": "kg",
-              "changeAmount": -100,
-              "changePercent": -0.27,
+              "changeAmount": 50,
+              "changePercent": 0.13,
               "isMin": false,
               "isMax": false,
+              "isStable": false
+            },
+            {
+              "date": "2026-06-22",
+              "price": 38650,
+              "denomination": "kg",
+              "changeAmount": 1600,
+              "changePercent": 4.32,
+              "isMin": false,
+              "isMax": true,
               "isStable": false
             }
           ]
@@ -4477,21 +4477,11 @@
           "denomination": "kg",
           "points": [
             {
-              "date": "2026-06-12",
-              "price": 148600,
-              "denomination": "kg",
-              "changeAmount": 0,
-              "changePercent": 0,
-              "isMin": true,
-              "isMax": false,
-              "isStable": false
-            },
-            {
               "date": "2026-06-15",
               "price": 149050,
               "denomination": "kg",
-              "changeAmount": 450,
-              "changePercent": 0.3,
+              "changeAmount": 0,
+              "changePercent": 0,
               "isMin": false,
               "isMax": false,
               "isStable": false
@@ -4500,9 +4490,9 @@
               "date": "2026-06-16",
               "price": 148600,
               "denomination": "kg",
-              "changeAmount": 0,
-              "changePercent": 0,
-              "isMin": false,
+              "changeAmount": -450,
+              "changePercent": -0.3,
+              "isMin": true,
               "isMax": false,
               "isStable": false
             },
@@ -4510,8 +4500,8 @@
               "date": "2026-06-17",
               "price": 149100,
               "denomination": "kg",
-              "changeAmount": 500,
-              "changePercent": 0.34,
+              "changeAmount": 50,
+              "changePercent": 0.03,
               "isMin": false,
               "isMax": false,
               "isStable": false
@@ -4520,8 +4510,8 @@
               "date": "2026-06-18",
               "price": 149250,
               "denomination": "kg",
-              "changeAmount": 650,
-              "changePercent": 0.44,
+              "changeAmount": 200,
+              "changePercent": 0.13,
               "isMin": false,
               "isMax": false,
               "isStable": false
@@ -4530,8 +4520,18 @@
               "date": "2026-06-19",
               "price": 149300,
               "denomination": "kg",
-              "changeAmount": 700,
-              "changePercent": 0.47,
+              "changeAmount": 250,
+              "changePercent": 0.17,
+              "isMin": false,
+              "isMax": false,
+              "isStable": false
+            },
+            {
+              "date": "2026-06-22",
+              "price": 149700,
+              "denomination": "kg",
+              "changeAmount": 650,
+              "changePercent": 0.44,
               "isMin": false,
               "isMax": true,
               "isStable": false
@@ -4545,21 +4545,11 @@
           "denomination": "kg",
           "points": [
             {
-              "date": "2026-06-12",
-              "price": 30100,
-              "denomination": "kg",
-              "changeAmount": 0,
-              "changePercent": 0,
-              "isMin": false,
-              "isMax": true,
-              "isStable": false
-            },
-            {
               "date": "2026-06-15",
               "price": 30050,
               "denomination": "kg",
-              "changeAmount": -50,
-              "changePercent": -0.17,
+              "changeAmount": 0,
+              "changePercent": 0,
               "isMin": false,
               "isMax": false,
               "isStable": false
@@ -4568,8 +4558,8 @@
               "date": "2026-06-16",
               "price": 29600,
               "denomination": "kg",
-              "changeAmount": -500,
-              "changePercent": -1.66,
+              "changeAmount": -450,
+              "changePercent": -1.5,
               "isMin": true,
               "isMax": false,
               "isStable": false
@@ -4578,8 +4568,8 @@
               "date": "2026-06-17",
               "price": 30000,
               "denomination": "kg",
-              "changeAmount": -100,
-              "changePercent": -0.33,
+              "changeAmount": -50,
+              "changePercent": -0.17,
               "isMin": false,
               "isMax": false,
               "isStable": false
@@ -4588,8 +4578,8 @@
               "date": "2026-06-18",
               "price": 29950,
               "denomination": "kg",
-              "changeAmount": -150,
-              "changePercent": -0.5,
+              "changeAmount": -100,
+              "changePercent": -0.33,
               "isMin": false,
               "isMax": false,
               "isStable": false
@@ -4598,10 +4588,20 @@
               "date": "2026-06-19",
               "price": 29950,
               "denomination": "kg",
-              "changeAmount": -150,
-              "changePercent": -0.5,
+              "changeAmount": -100,
+              "changePercent": -0.33,
               "isMin": false,
               "isMax": false,
+              "isStable": false
+            },
+            {
+              "date": "2026-06-22",
+              "price": 31600,
+              "denomination": "kg",
+              "changeAmount": 1550,
+              "changePercent": 5.16,
+              "isMin": false,
+              "isMax": true,
               "isStable": false
             }
           ]
@@ -4612,16 +4612,6 @@
           "name": "Minyak Goreng Curah",
           "denomination": "kg",
           "points": [
-            {
-              "date": "2026-06-12",
-              "price": 20600,
-              "denomination": "kg",
-              "changeAmount": 0,
-              "changePercent": 0,
-              "isMin": false,
-              "isMax": false,
-              "isStable": false
-            },
             {
               "date": "2026-06-15",
               "price": 20600,
@@ -4669,8 +4659,18 @@
               "changeAmount": 0,
               "changePercent": 0,
               "isMin": false,
+              "isMax": false,
+              "isStable": false
+            },
+            {
+              "date": "2026-06-22",
+              "price": 21200,
+              "denomination": "kg",
+              "changeAmount": 600,
+              "changePercent": 2.91,
+              "isMin": false,
               "isMax": true,
-              "isStable": true
+              "isStable": false
             }
           ]
         },
@@ -4681,8 +4681,8 @@
           "denomination": "kg",
           "points": [
             {
-              "date": "2026-06-12",
-              "price": 20250,
+              "date": "2026-06-15",
+              "price": 20300,
               "denomination": "kg",
               "changeAmount": 0,
               "changePercent": 0,
@@ -4691,21 +4691,11 @@
               "isStable": false
             },
             {
-              "date": "2026-06-15",
-              "price": 20300,
-              "denomination": "kg",
-              "changeAmount": 50,
-              "changePercent": 0.25,
-              "isMin": false,
-              "isMax": false,
-              "isStable": false
-            },
-            {
               "date": "2026-06-16",
               "price": 20300,
               "denomination": "kg",
-              "changeAmount": 50,
-              "changePercent": 0.25,
+              "changeAmount": 0,
+              "changePercent": 0,
               "isMin": false,
               "isMax": false,
               "isStable": false
@@ -4714,8 +4704,8 @@
               "date": "2026-06-17",
               "price": 20300,
               "denomination": "kg",
-              "changeAmount": 50,
-              "changePercent": 0.25,
+              "changeAmount": 0,
+              "changePercent": 0,
               "isMin": false,
               "isMax": false,
               "isStable": false
@@ -4724,8 +4714,8 @@
               "date": "2026-06-18",
               "price": 20300,
               "denomination": "kg",
-              "changeAmount": 50,
-              "changePercent": 0.25,
+              "changeAmount": 0,
+              "changePercent": 0,
               "isMin": false,
               "isMax": false,
               "isStable": false
@@ -4734,8 +4724,18 @@
               "date": "2026-06-19",
               "price": 20300,
               "denomination": "kg",
-              "changeAmount": 50,
-              "changePercent": 0.25,
+              "changeAmount": 0,
+              "changePercent": 0,
+              "isMin": false,
+              "isMax": false,
+              "isStable": false
+            },
+            {
+              "date": "2026-06-22",
+              "price": 23350,
+              "denomination": "kg",
+              "changeAmount": 3050,
+              "changePercent": 15.02,
               "isMin": false,
               "isMax": true,
               "isStable": false
@@ -4743,9 +4743,9 @@
           ]
         }
       ],
-      "earliestActualDate": "2026-06-12",
-      "latestActualDate": "2026-06-19"
+      "earliestActualDate": "2026-06-15",
+      "latestActualDate": "2026-06-22"
     },
-    "updatedAt": 1782082296277
+    "updatedAt": 1782095246835
   }
 }

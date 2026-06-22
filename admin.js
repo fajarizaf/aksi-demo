@@ -224,7 +224,7 @@ function toDateInputValue(value) {
 function formatDisplayDate(value) {
   const parsed = parseDateParts(value);
   if (!parsed) return toStr(value) || "—";
-  return `${Number(parsed.month)}/${Number(parsed.day)}/${parsed.year.slice(-2)}`;
+  return `${Number(parsed.day)} ${getMonthLabel(parsed.month)} ${parsed.year}`;
 }
 
 function getYearValue(value) {

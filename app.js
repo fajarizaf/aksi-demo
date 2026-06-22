@@ -274,7 +274,7 @@ function toDateInputValue(value) {
 function formatDisplayDate(value) {
   const parsed = parseDateParts(value);
   if (!parsed) return toStr(value) || "—";
-  return `${Number(parsed.month)}/${Number(parsed.day)}/${parsed.year.slice(-2)}`;
+  return `${Number(parsed.day)} ${getMonthLabel(parsed.month)} ${parsed.year}`;
 }
 
 function getMonthValue(value) {
@@ -1488,7 +1488,7 @@ function populateSheets(wb) {
 function loadWorkbook(wb, datasetLabel) {
   state.workbook = wb;
   state.datasetLabel = datasetLabel;
-  els.datasetName.textContent = datasetLabel;
+  if (els.datasetName) els.datasetName.textContent = datasetLabel;
   populateSheets(wb);
   const sheetName = state.sheetName && wb.SheetNames.includes(state.sheetName) ? state.sheetName : wb.SheetNames[0];
   state.sheetName = sheetName;
@@ -1506,7 +1506,7 @@ function loadRows(rows, datasetLabel) {
   state.workbook = null;
   state.sheetName = null;
   state.datasetLabel = datasetLabel;
-  els.datasetName.textContent = datasetLabel;
+  if (els.datasetName) els.datasetName.textContent = datasetLabel;
   els.sheetSelect.innerHTML = "";
   els.sheetSelect.disabled = true;
   state.allRows = rows;

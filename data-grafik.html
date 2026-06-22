@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Data Grafik Massa Aksi</title>
-    <link rel="stylesheet" href="./styles.css?v=20260621-84" />
+    <link rel="stylesheet" href="./styles.css?v=20260622-1" />
   </head>
   <body class="chartPage">
     <header class="topbar">
@@ -19,12 +19,7 @@
         </div>
       </div>
       <div class="subbar">
-        <div class="subbar__left">
-          <div class="chip">
-            <span class="chip__label">Dataset</span>
-            <span class="chip__value" id="chartDataset">Belum dimuat</span>
-          </div>
-        </div>
+        <div class="subbar__left"></div>
         <div class="subbar__right" style="gap:8px">
           <input id="filterStartDate" type="date" class="input" style="min-width:auto">
           <span style="color:#a0aec0">s/d</span>
@@ -45,7 +40,7 @@
           </div>
           <div class="chartHero__meta" id="chartMeta">Memproses data harian…</div>
         </div>
-        <div class="chartCanvasWrap">
+        <div class="chartCanvasWrap chartCanvasWrap--national">
           <div class="chartLabelLayer chartLabelLayer--top" id="chartLabelLayerTop"></div>
           <div class="chartCanvas" id="nationalChart"></div>
         </div>
@@ -319,6 +314,6 @@
 
     <div class="toast" id="chartToast" role="status" aria-live="polite"></div>
     <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
-    <script src="./data-grafik.js?v=20260621-87"></script>
+    <script src="./data-grafik.js?v=20260622-3"></script>
   </body>
 </html>

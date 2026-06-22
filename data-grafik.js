@@ -1,6 +1,5 @@
 const els = {
   chartSubtitle: document.getElementById("chartSubtitle"),
-  chartDataset: document.getElementById("chartDataset"),
   chartPeriod: document.getElementById("chartPeriod"),
   chartMeta: document.getElementById("chartMeta"),
   nationalChart: document.getElementById("nationalChart"),
@@ -432,6 +431,13 @@ function renderStats(series) {
   els.statMass.textContent = formatMassa(totalMass);
   els.statPeakMass.textContent = peak ? formatMassa(peak.totalMass) : "—";
   els.statPeakDate.textContent = peak ? peak.tanggalLong : "—";
+}
+
+function syncChartSubtitleWithPeriod(series) {
+  if (!els.chartSubtitle) return;
+  els.chartSubtitle.textContent = Array.isArray(series) && series.length
+    ? buildPeriodLabel(series)
+    : "Periode grafik nasional belum tersedia";
 }
 
 function renderBreakdown(series) {
@@ -1370,20 +1376,20 @@ function resetFilterLegacy() {
 function renderPageWithSeries(series) {
   currentChartSeries = series;
   els.chartPeriod.textContent = buildPeriodLabel(series);
+  syncChartSubtitleWithPeriod(series);
   renderStats(series);
   renderChart(series);
   renderBreakdown(series);
 }
 
 async function loadChartPageLegacy() {
-  els.chartSubtitle.textContent = "Memuat data grafik nasional…";
+  if (els.chartSubtitle) els.chartSubtitle.textContent = "Memuat periode grafik nasional…";
   els.chartMeta.textContent = "Mengambil dataset aktif…";
   try {
     const [metaRes, recRes] = await Promise.all([fetch("/api/active"), fetch("/api/active/records")]);
     if (!metaRes.ok || !recRes.ok) throw new Error("Gagal mengambil data dari server.");
-    const meta = await metaRes.json();
+    await metaRes.json();
     const recData = await recRes.json();
-    const datasetName = meta?.dataset?.name || "Belum ada dataset aktif";
     const records = Array.isArray(recData?.records) ? recData.records : [];
     const series = buildDailySeries(records);
 
@@ -1391,9 +1397,8 @@ async function loadChartPageLegacy() {
     fullChartSeries = series;
     currentChartSeries = series;
 
-    els.chartDataset.textContent = datasetName;
-    els.chartSubtitle.textContent = datasetName;
     els.chartPeriod.textContent = buildPeriodLabel(series);
+    syncChartSubtitleWithPeriod(series);
     els.chartMeta.textContent = series.length
       ? `${formatNumberId(series.length)} hari pengamatan • ${formatNumberId(records.length)} data aksi`
       : "Belum ada data aksi untuk dihitung";
@@ -1460,8 +1465,7 @@ async function loadChartPageLegacy() {
       syncFilterInputBounds("end");
     }
   } catch (error) {
-    els.chartDataset.textContent = "Gagal dimuat";
-    els.chartSubtitle.textContent = "Gagal memuat data grafik";
+    if (els.chartSubtitle) els.chartSubtitle.textContent = "Gagal memuat periode grafik";
     els.chartPeriod.textContent = "Periksa koneksi atau status server";
     els.chartMeta.textContent = toStr(error?.message) || "Terjadi kesalahan";
     els.nationalChart.innerHTML = `<div class="massChart__empty">Gagal memuat grafik. Silakan refresh halaman.</div>`;
@@ -3342,14 +3346,13 @@ function resetFilter() {
 
 // Update loadChartPage to also load fuel data
 async function loadChartPage() {
-  els.chartSubtitle.textContent = "Memuat data grafik nasional…";
+  if (els.chartSubtitle) els.chartSubtitle.textContent = "Memuat periode grafik nasional…";
   els.chartMeta.textContent = "Mengambil dataset aktif…";
   try {
     const [metaRes, recRes] = await Promise.all([fetch("/api/active"), fetch("/api/active/records")]);
     if (!metaRes.ok || !recRes.ok) throw new Error("Gagal mengambil data dari server.");
-    const meta = await metaRes.json();
+    await metaRes.json();
     const recData = await recRes.json();
-    const datasetName = meta?.dataset?.name || "Belum ada dataset aktif";
     const records = Array.isArray(recData?.records) ? recData.records : [];
     const series = buildDailySeries(records);
 
@@ -3357,9 +3360,8 @@ async function loadChartPage() {
     fullChartSeries = series;
     currentChartSeries = series;
 
-    els.chartDataset.textContent = datasetName;
-    els.chartSubtitle.textContent = datasetName;
     els.chartPeriod.textContent = buildPeriodLabel(series);
+    syncChartSubtitleWithPeriod(series);
     els.chartMeta.textContent = series.length
       ? `${formatNumberId(series.length)} hari pengamatan • ${formatNumberId(records.length)} data aksi`
       : "Belum ada data aksi untuk dihitung";
@@ -3409,8 +3411,7 @@ async function loadChartPage() {
       syncFilterInputBounds("end");
     }
   } catch (error) {
-    els.chartDataset.textContent = "Gagal dimuat";
-    els.chartSubtitle.textContent = "Gagal memuat data grafik";
+    if (els.chartSubtitle) els.chartSubtitle.textContent = "Gagal memuat periode grafik";
     els.chartPeriod.textContent = "Periksa koneksi atau status server";
     els.chartMeta.textContent = toStr(error?.message) || "Terjadi kesalahan";
     els.nationalChart.innerHTML = `<div class="massChart__empty">Gagal memuat grafik. Silakan refresh halaman.</div>`;
