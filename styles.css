@@ -200,6 +200,8 @@ body{
   background:rgba(0,0,0,.15);
   border-radius:12px;
   padding:10px 10px;
+  min-width:0;
+  overflow:hidden;
 }
 .summaryItem__label{
   font-size:12px;
@@ -211,6 +213,20 @@ body{
   font-size:18px;
   font-weight:900;
   color:var(--gold);
+  min-width:0;
+  line-height:1.35;
+  white-space:normal;
+  overflow-wrap:anywhere;
+  word-break:break-word;
+}
+
+#sumIsuDominan{
+  display:-webkit-box;
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp:4;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  line-height:1.4;
 }
 
 .bottomPanel{
@@ -469,6 +485,10 @@ body{
   font-weight:800;
   font-size:12px;
   color:rgba(255,255,255,.92);
+  line-height:1.4;
+  white-space:normal;
+  overflow-wrap:anywhere;
+  word-break:break-word;
 }
 .issueRank__empty{
   padding:12px;
