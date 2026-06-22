@@ -19,7 +19,7 @@
       rel="stylesheet"
       href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css"
     />
-    <link rel="stylesheet" href="./styles.css?v=20260620-13" />
+    <link rel="stylesheet" href="./styles.css?v=20260621-88" />
   </head>
   <body>
     <header class="topbar">
@@ -63,6 +63,10 @@
     <main class="layout">
       <section class="mapPanel">
         <div id="map" class="map" style="z-index: 1;"></div>
+        <div class="mapPanel__clock" id="realtimeClock" aria-live="polite">
+          <div class="mapPanel__clockLabel">Jam Realtime</div>
+          <div class="mapPanel__clockValue">--:--:-- WIB</div>
+        </div>
         <div class="legend">
           <div class="legend__title">Keterangan</div>
           <div class="legend__row"><span class="dot dot--gold"></span> Rencana</div>
@@ -71,7 +75,14 @@
         </div>
       </section>
       <section class="bottomPanel">
-        <div class="bottomPanel__title">Rincian Data</div>
+        <div class="bottomPanel__title bottomPanel__title--withPagination">
+          <span>Rincian Data</span>
+          <div class="tablePagination" id="rincianPagination" aria-label="Pagination rincian data">
+            <button class="btn btn--ghost tablePagination__btn" id="rincianPrevBtn" type="button">Sebelumnya</button>
+            <div class="tablePagination__info" id="rincianPageInfo">Halaman 1 dari 1</div>
+            <button class="btn btn--ghost tablePagination__btn" id="rincianNextBtn" type="button">Berikutnya</button>
+          </div>
+        </div>
         <div class="tableWrap">
           <table class="table">
             <thead>
@@ -161,6 +172,6 @@
       crossorigin=""
     ></script>
     <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
-    <script src="./app.js?v=20260622-1"></script>
+    <script src="./app.js?v=20260622-3"></script>
   </body>
 </html>

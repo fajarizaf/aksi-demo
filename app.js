@@ -18,7 +18,12 @@ const els = {
   issueRank: document.getElementById("issueRank"),
   analisaList: document.getElementById("analisaList"),
   rincianBody: document.getElementById("rincianBody"),
+  rincianPagination: document.getElementById("rincianPagination"),
+  rincianPrevBtn: document.getElementById("rincianPrevBtn"),
+  rincianNextBtn: document.getElementById("rincianNextBtn"),
+  rincianPageInfo: document.getElementById("rincianPageInfo"),
   toast: document.getElementById("toast"),
+  realtimeClock: document.getElementById("realtimeClock"),
 };
 
 const PROVINCE_CENTROIDS = {
@@ -76,7 +81,10 @@ const state = {
   clusterPreviewRows: null,
   locationPreviewRows: null,
   activeProvinceKey: "",
+  currentTablePage: 1,
 };
+
+const TABLE_PAGE_SIZE = 5;
 
 const XLSX_CDN_URLS = [
   "https://unpkg.com/xlsx@0.19.3/dist/xlsx.full.min.js",
@@ -85,6 +93,31 @@ const XLSX_CDN_URLS = [
 ];
 
 let xlsxReadyPromise = null;
+
+function padTimePart(value) {
+  return String(value).padStart(2, "0");
+}
+
+function renderRealtimeClock() {
+  if (!els.realtimeClock) return;
+  const now = new Date();
+  const day = padTimePart(now.getDate());
+  const month = now.toLocaleString("id-ID", { month: "short" }).toUpperCase();
+  const year = now.getFullYear();
+  const hours = padTimePart(now.getHours());
+  const minutes = padTimePart(now.getMinutes());
+  const seconds = padTimePart(now.getSeconds());
+  els.realtimeClock.innerHTML = `
+    <div class="mapPanel__clockLabel">Jam Realtime</div>
+    <div class="mapPanel__clockValue">${hours}:${minutes}:${seconds} WIB</div>
+    <div class="mapPanel__clockDate">${day} ${month} ${year}</div>
+  `;
+}
+
+renderRealtimeClock();
+if (els.realtimeClock) {
+  window.setInterval(renderRealtimeClock, 1000);
+}
 
 function loadScript(url) {
   return new Promise((resolve, reject) => {
@@ -1196,8 +1229,44 @@ function updateMapWithRows(rows) {
   showProvinceSummary(rows);
 }
 
+function getTableTotalPages(rows) {
+  return Math.max(1, Math.ceil((Array.isArray(rows) ? rows.length : 0) / TABLE_PAGE_SIZE));
+}
+
+function getPaginatedTableRows(rows) {
+  const list = Array.isArray(rows) ? rows : [];
+  const totalPages = getTableTotalPages(list);
+  if (state.currentTablePage > totalPages) state.currentTablePage = totalPages;
+  if (state.currentTablePage < 1) state.currentTablePage = 1;
+  const start = (state.currentTablePage - 1) * TABLE_PAGE_SIZE;
+  return list.slice(start, start + TABLE_PAGE_SIZE);
+}
+
+function updateTablePagination(rows) {
+  if (!els.rincianPagination || !els.rincianPageInfo || !els.rincianPrevBtn || !els.rincianNextBtn) return;
+  const totalItems = Array.isArray(rows) ? rows.length : 0;
+  const totalPages = getTableTotalPages(rows);
+  const currentPage = Math.min(Math.max(state.currentTablePage, 1), totalPages);
+  state.currentTablePage = currentPage;
+  els.rincianPageInfo.textContent = totalItems
+    ? `Halaman ${currentPage} dari ${totalPages} • ${formatNumberId(totalItems)} data`
+    : "Halaman 1 dari 1 • 0 data";
+  els.rincianPrevBtn.disabled = currentPage <= 1 || totalItems === 0;
+  els.rincianNextBtn.disabled = currentPage >= totalPages || totalItems === 0;
+}
+
+function syncTablePageToActiveRow(rows, activeId) {
+  const list = Array.isArray(rows) ? rows : [];
+  const targetId = toStr(activeId);
+  if (!targetId) return;
+  const rowIndex = list.findIndex((row) => row?.id === targetId);
+  if (rowIndex < 0) return;
+  state.currentTablePage = Math.floor(rowIndex / TABLE_PAGE_SIZE) + 1;
+}
+
 function setActiveRow(id, options = {}) {
   state.activeId = id;
+  syncTablePageToActiveRow(state.filteredRows, id);
   renderTable(state.filteredRows);
   if (options.scroll === false) return;
   const el = document.querySelector(`[data-row-id="${CSS.escape(id)}"]`);
@@ -1318,11 +1387,13 @@ function renderIssueRank(itemsByCategory) {
 
 function renderTable(rows) {
   els.rincianBody.innerHTML = "";
-  rows.forEach((r, idx) => {
+  const pagedRows = getPaginatedTableRows(rows);
+  const startIndex = (state.currentTablePage - 1) * TABLE_PAGE_SIZE;
+  pagedRows.forEach((r, idx) => {
     const tr = document.createElement("tr");
     tr.dataset.rowId = r.id;
     if (state.activeId === r.id) tr.classList.add("is-active");
-    const noCell = toStr(r.no) || String(idx + 1);
+    const noCell = toStr(r.no) || String(startIndex + idx + 1);
     const tanggalCell = formatDisplayDate(r.tanggal);
     const waktuMulaiCell = r.waktuMulai || "—";
     const waktuSelesaiCell = r.waktuSelesai || "—";
@@ -1359,6 +1430,7 @@ function renderTable(rows) {
     });
     els.rincianBody.appendChild(tr);
   });
+  updateTablePagination(rows);
 }
 
 function applyFiltersAndRender() {
@@ -1401,6 +1473,7 @@ function applyFiltersAndRender() {
     return hay.includes(q);
   });
 
+  state.currentTablePage = 1;
   setTitleDate(buildTitleDateText());
   const stats = computeStats(state.filteredRows);
   renderSummary(stats);
@@ -1410,6 +1483,19 @@ function applyFiltersAndRender() {
     focusMapToLabels(state.filteredRows, { preferredZoom: q ? 11 : 9 });
   }
 }
+
+els.rincianPrevBtn?.addEventListener("click", () => {
+  if (state.currentTablePage <= 1) return;
+  state.currentTablePage -= 1;
+  renderTable(state.filteredRows);
+});
+
+els.rincianNextBtn?.addEventListener("click", () => {
+  const totalPages = getTableTotalPages(state.filteredRows);
+  if (state.currentTablePage >= totalPages) return;
+  state.currentTablePage += 1;
+  renderTable(state.filteredRows);
+});
 
 function populateFilters(rows) {
   const selectedWilayah = toStr(els.wilayahFilter.value);

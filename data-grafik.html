@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Data Grafik Massa Aksi</title>
-    <link rel="stylesheet" href="./styles.css?v=20260622-1" />
+    <link rel="stylesheet" href="./styles.css?v=20260622-7" />
   </head>
   <body class="chartPage">
     <header class="topbar">
@@ -72,15 +72,15 @@
             <div class="chartInfo__item">
               <div class="chartInfo__icon chartInfo__icon--line"></div>
               <div>
-                <div class="chartInfo__title">Grafik Batang</div>
-                <div class="chartInfo__text">Batang emas menunjukkan total massa per hari.</div>
+                <div class="chartInfo__title">Grafik Batang & Garis</div>
+                <div class="chartInfo__text">Batang emas menunjukkan total massa per hari. Dua garis menunjukkan pemisahan massa aksi berdasarkan kategori demo Pro dan Kontra.</div>
               </div>
             </div>
             <div class="chartInfo__item">
               <div class="chartInfo__icon chartInfo__icon--pin"></div>
               <div>
-                <div class="chartInfo__title">Daftar Wilayah</div>
-                <div class="chartInfo__text">Label tiap tanggal kini tampil sebagai satu kotak utuh yang memuat seluruh daftar wilayah pada hari tersebut beserta total wilayah aktif.</div>
+                <div class="chartInfo__title">Total Wilayah</div>
+                <div class="chartInfo__text">Label pada grafik hanya menampilkan total wilayah aktif per tanggal (daftar wilayah tidak ditampilkan).</div>
               </div>
             </div>
           </div>
@@ -163,12 +163,12 @@
                 <div class="chartExchange__summaryValue" id="summaryRangeValue">-</div>
               </div>
             </div>
+            <div class="chartExchange__events chartExchange__events--compact">
+              <div class="chartExchange__eventsTitle" id="exchangeEventsTitle">PERISTIWA PENTING SELAMA PERIODE</div>
+              <div class="chartExchange__eventsList" id="exchangeEventsList">
+              </div>
+            </div>
           </div>
-          </div>
-        </div>
-        <div class="chartExchange__events">
-          <div class="chartExchange__eventsTitle" id="exchangeEventsTitle">PERISTIWA PENTING SELAMA PERIODE</div>
-          <div class="chartExchange__eventsList" id="exchangeEventsList">
           </div>
         </div>
         <div class="chartExchange__footer">
@@ -212,12 +212,12 @@
                 </tbody>
               </table>
             </div>
+            <div class="chartExchange__events chartExchange__events--compact chartFuel__latest">
+              <div class="chartExchange__eventsTitle chartFuel__latestTitle">HARGA BBM TERBARU</div>
+              <div class="chartExchange__eventsList chartFuel__latestList" id="fuelPricesList">
+              </div>
+            </div>
           </aside>
-        </div>
-        <div class="chartExchange__events" style="padding: 16px;">
-          <div class="chartExchange__eventsTitle" style="background: linear-gradient(90deg, rgba(246,196,83,0.25), rgba(233,75,75,0.25)); margin-bottom: 16px;">HARGA BBM TERBARU</div>
-          <div class="chartExchange__eventsList" id="fuelPricesList">
-          </div>
         </div>
         <div class="chartExchange__footer">
           <div id="fuelFooterMeta">Sumber BBM eksternal sedang dimuat...</div>
@@ -258,6 +258,11 @@
                 </tbody>
               </table>
             </div>
+            <div class="chartExchange__events chartExchange__events--compact chartCommodity__latest">
+              <div class="chartExchange__eventsTitle chartCommodity__latestTitle">HARGA SEMBAKO TERBARU</div>
+              <div class="chartExchange__eventsList chartCommodity__latestList" id="commodityPricesList">
+              </div>
+            </div>
           </aside>
         </div>
         <div class="chartExchange__chart chartExchange__chart--sub">
@@ -266,11 +271,6 @@
             <div class="chartCanvas" id="commodityBeefChart"></div>
           </div>
           <div class="chartExchange__footnote">Catatan: Daging sapi dipisahkan ke grafik khusus agar pergerakannya lebih mudah dibaca tanpa bercampur dengan komoditas sembako lainnya.</div>
-        </div>
-        <div class="chartExchange__events" style="padding: 16px;">
-          <div class="chartExchange__eventsTitle" style="background: linear-gradient(90deg, rgba(59,130,246,0.25), rgba(34,197,94,0.25)); margin-bottom: 16px;">HARGA SEMBAKO TERBARU</div>
-          <div class="chartExchange__eventsList" id="commodityPricesList">
-          </div>
         </div>
         <div class="chartExchange__footer">
           <div id="commodityFooterMeta">Sumber sembako eksternal sedang dimuat...</div>
@@ -314,6 +314,6 @@
 
     <div class="toast" id="chartToast" role="status" aria-live="polite"></div>
     <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
-    <script src="./data-grafik.js?v=20260622-3"></script>
+    <script src="./data-grafik.js?v=20260622-11"></script>
   </body>
 </html>

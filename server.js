@@ -746,6 +746,7 @@ const PIHPS_HOME_URL = "https://www.bi.go.id/hargapangan/WebSite";
 const PIHPS_API_BASE_URL = "https://www.bi.go.id/hargapangan/Website/Home";
 const PIHPS_COMMODITIES_TREE_URL = `${PIHPS_API_BASE_URL}/GetCommoditiesTree`;
 const PIHPS_CHART_DATA_URL = `${PIHPS_API_BASE_URL}/GetChartData`;
+const COMMODITY_TRACKED_CACHE_VERSION = 2;
 const PIHPS_TRACKED_COMMODITIES = [
   {
     key: "rice-medium",
@@ -768,6 +769,21 @@ const PIHPS_TRACKED_COMMODITIES = [
     aliases: ["Telur Ayam Ras Segar"],
   },
   {
+    key: "shallot",
+    label: "Bawang Merah",
+    aliases: ["Bawang Merah Ukuran Sedang", "Bawang Merah"],
+  },
+  {
+    key: "garlic",
+    label: "Bawang Putih",
+    aliases: ["Bawang Putih Ukuran Sedang", "Bawang Putih"],
+  },
+  {
+    key: "red-chili",
+    label: "Cabe Merah",
+    aliases: ["Cabai Merah Keriting", "Cabai Merah Besar", "Cabai Merah", "Cabe Merah"],
+  },
+  {
     key: "cooking-oil",
     label: "Minyak Goreng",
     aliases: ["Minyak Goreng Curah"],
@@ -776,6 +792,11 @@ const PIHPS_TRACKED_COMMODITIES = [
     key: "sugar",
     label: "Gula Pasir",
     aliases: ["Gula Pasir Kualitas Premium", "Gula Pasir Lokal"],
+  },
+  {
+    key: "soybean",
+    label: "Kedelai",
+    aliases: ["Kedelai Impor", "Kedelai Lokal", "Kedelai Biji Kering", "Kedelai"],
   },
 ];
 const FUEL_PRODUCTS_TRACKED = [
@@ -1220,7 +1241,9 @@ async function fetchCommodityPriceSourceData() {
   const db = await readDb();
   const cached = db.commodityPriceData;
   const cachedCommodityData = hasUsableCommodityData(cached?.data) ? enrichCommodityMetadata(cached.data) : null;
-  if (cachedCommodityData && Date.now() - cached.updatedAt < COMMODITY_PRICE_CACHE_MS) {
+  const isCommodityCacheVersionCurrent =
+    Number(cached?.data?.trackedCommodityCacheVersion || 0) === COMMODITY_TRACKED_CACHE_VERSION;
+  if (cachedCommodityData && isCommodityCacheVersionCurrent && Date.now() - cached.updatedAt < COMMODITY_PRICE_CACHE_MS) {
     return cachedCommodityData;
   }
   try {
@@ -1275,10 +1298,17 @@ async function fetchCommodityPriceSourceData() {
       throw new Error("Commodity price source returned no usable series.");
     }
 
+    const availableCommodityKeys = new Set(commodities.map((commodity) => commodity.key));
+    const missingCommodityLabels = PIHPS_TRACKED_COMMODITIES
+      .filter((commodity) => !availableCommodityKeys.has(commodity.key))
+      .map((commodity) => commodity.label);
+
     const data = enrichCommodityMetadata({
       provider: "PIHPS Nasional Bank Indonesia",
       sourceUrl: PIHPS_HOME_URL,
       tempId,
+      trackedCommodityCacheVersion: COMMODITY_TRACKED_CACHE_VERSION,
+      missingCommodityLabels,
       commodities,
     });
 
@@ -1337,6 +1367,7 @@ app.get("/api/sembako-prices", async (req, res) => {
       sourceUrl: sourceData.sourceUrl,
       earliestActualDate: sourceData.earliestActualDate,
       latestActualDate: sourceData.latestActualDate,
+      missingCommodityLabels: sourceData.missingCommodityLabels || [],
       commodities: sourceData.commodities.map((commodity) => {
         const earliestPoint = commodity.points[0] || null;
         const latestPoint = commodity.points[commodity.points.length - 1] || null;

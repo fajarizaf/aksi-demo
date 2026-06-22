@@ -73,6 +73,54 @@ let filterGlobalMaxDate = "";
 const FILTER_MAX_DAYS = 30;
 const FIXED_FILTER_START_MIN_DATE = "2026-06-16";
 
+function normalizeFuelLatestLayout() {
+  const latestList = document.getElementById("fuelPricesList");
+  const compareAside = document.querySelector(".chartFuel__compare");
+  if (!latestList || !compareAside) return;
+
+  const latestPanel = latestList.closest(".chartExchange__events");
+  if (!latestPanel) return;
+
+  const currentTitle = latestPanel.querySelector(".chartExchange__eventsTitle");
+  latestPanel.classList.add("chartExchange__events--compact", "chartFuel__latest");
+  latestPanel.removeAttribute("style");
+  if (currentTitle) {
+    currentTitle.classList.add("chartFuel__latestTitle");
+    currentTitle.removeAttribute("style");
+  }
+  latestList.classList.add("chartFuel__latestList");
+
+  if (latestPanel.parentElement !== compareAside) {
+    compareAside.appendChild(latestPanel);
+  }
+}
+
+normalizeFuelLatestLayout();
+
+function normalizeCommodityLatestLayout() {
+  const latestList = document.getElementById("commodityPricesList");
+  const compareAside = document.getElementById("commodityCompareBody")?.closest(".chartFuel__compare");
+  if (!latestList || !compareAside) return;
+
+  const latestPanel = latestList.closest(".chartExchange__events");
+  if (!latestPanel) return;
+
+  const currentTitle = latestPanel.querySelector(".chartExchange__eventsTitle");
+  latestPanel.classList.add("chartExchange__events--compact", "chartCommodity__latest");
+  latestPanel.removeAttribute("style");
+  if (currentTitle) {
+    currentTitle.classList.add("chartCommodity__latestTitle");
+    currentTitle.removeAttribute("style");
+  }
+  latestList.classList.add("chartCommodity__latestList");
+
+  if (latestPanel.parentElement !== compareAside) {
+    compareAside.appendChild(latestPanel);
+  }
+}
+
+normalizeCommodityLatestLayout();
+
 function toStr(v) {
   return String(v ?? "").trim();
 }
@@ -337,14 +385,24 @@ function seededRandom(seed) {
   };
 }
 
+function normalizeDemoSide(value) {
+  const s = toStr(value).toLowerCase();
+  if (!s) return "";
+  if (s.includes("kontra") || s.includes("anti")) return "kontra";
+  if (s.includes("pro")) return "pro";
+  return "";
+}
+
 function normalizeRecord(record) {
   const parsedDate = parseDateParts(record?.TANGGAL);
   const mass = Number(record?.["JUMLAH MASSA"]);
+  const demoSide = normalizeDemoSide(record?.["KATEGORI DEMO"] ?? record?.KATEGORI_DEMO ?? record?.kategoriDemo);
   return {
     id: toStr(record?.id || record?.NO),
     tanggalIso: parsedDate?.iso || "",
     wilayah: toStr(record?.WILAYAH || "TIDAK DIKETAHUI"),
     massa: Number.isFinite(mass) ? mass : 0,
+    demoSide,
   };
 }
 
@@ -353,12 +411,29 @@ function buildDailySeries(records) {
   const map = new Map();
   normalized.forEach((row) => {
     if (!map.has(row.tanggalIso)) {
-      map.set(row.tanggalIso, { tanggalIso: row.tanggalIso, totalMass: 0, count: 0, wilayahMap: new Map() });
+      map.set(row.tanggalIso, {
+        tanggalIso: row.tanggalIso,
+        totalMass: 0,
+        proMass: 0,
+        kontraMass: 0,
+        count: 0,
+        wilayahMap: new Map(),
+        proWilayahMap: new Map(),
+        kontraWilayahMap: new Map(),
+      });
     }
     const day = map.get(row.tanggalIso);
     day.totalMass += row.massa;
+    if (row.demoSide === "pro") day.proMass += row.massa;
+    if (row.demoSide === "kontra") day.kontraMass += row.massa;
     day.count += 1;
     day.wilayahMap.set(row.wilayah, (day.wilayahMap.get(row.wilayah) || 0) + row.massa);
+    if (row.demoSide === "pro") {
+      day.proWilayahMap.set(row.wilayah, (day.proWilayahMap.get(row.wilayah) || 0) + row.massa);
+    }
+    if (row.demoSide === "kontra") {
+      day.kontraWilayahMap.set(row.wilayah, (day.kontraWilayahMap.get(row.wilayah) || 0) + row.massa);
+    }
   });
 
   let dates = Array.from(map.keys()).sort((a, b) => a.localeCompare(b));
@@ -377,7 +452,16 @@ function buildDailySeries(records) {
       const dateIso = `${y}-${m}-${d}`;
       
       if (!map.has(dateIso)) {
-        map.set(dateIso, { tanggalIso: dateIso, totalMass: 0, count: 0, wilayahMap: new Map() });
+        map.set(dateIso, {
+          tanggalIso: dateIso,
+          totalMass: 0,
+          proMass: 0,
+          kontraMass: 0,
+          count: 0,
+          wilayahMap: new Map(),
+          proWilayahMap: new Map(),
+          kontraWilayahMap: new Map(),
+        });
       }
       
       currentDate.setDate(currentDate.getDate() + 1);
@@ -402,8 +486,12 @@ function buildDailySeries(records) {
       tanggalShort: formatDateShort(tanggalIso),
       tanggalLong: formatDateLong(tanggalIso),
       totalMass: day.totalMass,
+      proMass: day.proMass,
+      kontraMass: day.kontraMass,
       count: day.count,
       wilayahCount: day.wilayahMap.size,
+      proWilayahCount: day.proWilayahMap.size,
+      kontraWilayahCount: day.kontraWilayahMap.size,
       indexValue,
       dominantWilayah,
       allWilayah,
@@ -463,29 +551,89 @@ function clearExternalLabels() {
   if (els.chartLabelLayerTop) els.chartLabelLayerTop.innerHTML = "";
 }
 
+function buildNationalStackLabelHtml({ left, top, width, totalMass, proMass, kontraMass, proWilayahCount, kontraWilayahCount }) {
+  return `<div class="chartFloatingLabel chartFloatingLabel--stack" style="left:${left}px;top:${top}px;width:${width}px;">
+    <div class="chartFloatingLabel__mass">Total Massa: ${escapeHtml(formatMassa(totalMass))}</div>
+    <div class="chartFloatingLabel__split">
+      <span class="chartFloatingLabel__chip chartFloatingLabel__chip--pro">PRO ${escapeHtml(formatMassa(proMass))} • ${escapeHtml(
+    formatNumberId(proWilayahCount)
+  )} wilayah</span>
+      <span class="chartFloatingLabel__chip chartFloatingLabel__chip--kontra">KONTRA ${escapeHtml(formatMassa(kontraMass))} • ${escapeHtml(
+    formatNumberId(kontraWilayahCount)
+  )} wilayah</span>
+    </div>
+  </div>`;
+}
+
+function pickNationalLabelIndices(series) {
+  const n = series.length;
+  if (!n) return new Set();
+
+  const step = n <= 7 ? 1 : n <= 14 ? 2 : n <= 24 ? 3 : 4;
+  const indices = new Set();
+  for (let i = 0; i < n; i += step) indices.add(i);
+  indices.add(n - 1);
+
+  const proMax = series.reduce((best, day, idx) => (day.proMass > (best?.value ?? -1) ? { idx, value: day.proMass } : best), null);
+  const kontraMax = series.reduce(
+    (best, day, idx) => (day.kontraMass > (best?.value ?? -1) ? { idx, value: day.kontraMass } : best),
+    null
+  );
+  if (proMax?.value > 0) indices.add(proMax.idx);
+  if (kontraMax?.value > 0) indices.add(kontraMax.idx);
+
+  return indices;
+}
+
+function rectsIntersect(a, b) {
+  return !(a.right <= b.left || a.left >= b.right || a.bottom <= b.top || a.top >= b.bottom);
+}
+
 function renderExternalLabels(series) {
   if (!chartInstance || !els.chartLabelLayerTop) return;
   const chartWidth = els.nationalChart.clientWidth || 0;
-  if (!chartWidth || !series.length) {
+  const chartHeight = els.nationalChart.clientHeight || 0;
+  if (!chartWidth || !chartHeight || !series.length) {
     clearExternalLabels();
     return;
   }
-  const labelWidth = Math.max(112, Math.min(148, Math.round(chartWidth / Math.max(series.length, 1) * 1.85)));
+  const labelWidth = Math.max(116, Math.min(154, Math.round(chartWidth / Math.max(series.length, 1) * 1.75)));
+  const labelHeight = 62;
+  const labelIndices = pickNationalLabelIndices(series);
   const topHtml = [];
+  const placed = [];
   series.forEach((day, idx) => {
-    const pixelCoords = chartInstance.convertToPixel({ xAxisIndex: 0, yAxisIndex: 0 }, [idx, day.totalMass]);
-    if (!pixelCoords || !Number.isFinite(pixelCoords[0]) || !Number.isFinite(pixelCoords[1])) return;
-    const pixelX = pixelCoords[0];
-    const pixelY = pixelCoords[1];
-    const left = Math.max(0, Math.min(chartWidth - labelWidth, pixelX - labelWidth / 2));
-    const lines = Array.isArray(day.wilayahLines) ? day.wilayahLines : [];
-    const lineHtml = lines.map((line) => escapeHtml(line)).join("<br/>");
-    const estimatedHeight = 38 + lines.length * 14;
-    const top = pixelY - estimatedHeight - 8;
-    const html = `<div class="chartFloatingLabel" style="left:${left}px;top:${top}px;width:${labelWidth}px;"><div>${lineHtml}</div><div class="chartFloatingLabel__count">Total: ${escapeHtml(
-      formatNumberId(day.wilayahCount)
-    )} wilayah</div></div>`;
-    topHtml.push(html);
+    if (!labelIndices.has(idx)) return;
+    if (!(day.totalMass > 0)) return;
+    const barCoords = chartInstance.convertToPixel({ xAxisIndex: 0, yAxisIndex: 0 }, [idx, day.totalMass]);
+    if (!barCoords || !Number.isFinite(barCoords[0]) || !Number.isFinite(barCoords[1])) return;
+
+    const left = Math.max(0, Math.min(chartWidth - labelWidth, barCoords[0] - labelWidth / 2));
+    let top = Math.max(2, Math.min(chartHeight - labelHeight - 2, barCoords[1] - labelHeight - 10));
+    let placedRect = null;
+    for (let attempt = 0; attempt < 6; attempt += 1) {
+      const rect = { left, top, right: left + labelWidth, bottom: top + labelHeight };
+      const collision = placed.some((prev) => rectsIntersect(rect, prev));
+      if (!collision) {
+        placedRect = rect;
+        break;
+      }
+      top = Math.max(2, top - 14);
+    }
+    if (!placedRect) return;
+    placed.push(placedRect);
+    topHtml.push(
+      buildNationalStackLabelHtml({
+        left,
+        top: placedRect.top,
+        width: labelWidth,
+        totalMass: day.totalMass,
+        proMass: day.proMass,
+        kontraMass: day.kontraMass,
+        proWilayahCount: day.proWilayahCount ?? 0,
+        kontraWilayahCount: day.kontraWilayahCount ?? 0,
+      })
+    );
   });
   els.chartLabelLayerTop.innerHTML = topHtml.join("");
 }
@@ -525,7 +673,12 @@ function renderChart(series) {
     return;
   }
   const xAxisInterval = getXAxisInterval(series.length);
-  const maxMass = niceCeil(Math.max(...series.map((day) => day.totalMass), 100));
+  const maxMass = niceCeil(
+    Math.max(
+      ...series.map((day) => Math.max(Number(day.totalMass) || 0, Number(day.proMass) || 0, Number(day.kontraMass) || 0)),
+      100
+    )
+  );
   const categories = series.map((day) => day.tanggalShort);
   currentChartSeries = series;
   chart.setOption(
@@ -535,9 +688,17 @@ function renderChart(series) {
       grid: {
         left: 44,
         right: 44,
-        top: 18,
+        top: 44,
         bottom: 40,
         containLabel: false,
+      },
+      legend: {
+        top: 0,
+        left: "center",
+        itemWidth: 10,
+        itemHeight: 10,
+        textStyle: { color: "#e6f0ff", fontSize: 11, fontWeight: 800 },
+        data: ["Pro", "Kontra"],
       },
       tooltip: {
         trigger: "axis",
@@ -549,11 +710,16 @@ function renderChart(series) {
           fontSize: 11,
         },
         formatter(params) {
-          const point = params?.[0]?.data;
+          const idx = Number(params?.[0]?.dataIndex);
+          const point = Number.isInteger(idx) ? series[idx] : null;
           if (!point) return "";
           return [
             `<strong>${escapeHtml(point.tanggalLong || "")}</strong>`,
-            `Massa: ${escapeHtml(formatMassa(point.totalMass))}`,
+            `Total Massa: ${escapeHtml(formatMassa(point.totalMass))}`,
+            `Pro: ${escapeHtml(formatMassa(point.proMass))}`,
+            `Kontra: ${escapeHtml(formatMassa(point.kontraMass))}`,
+            `Wilayah Pro: ${escapeHtml(formatNumberId(point.proWilayahCount ?? 0))}`,
+            `Wilayah Kontra: ${escapeHtml(formatNumberId(point.kontraWilayahCount ?? 0))}`,
             `Total Wilayah: ${escapeHtml(formatNumberId(point.wilayahCount))}`,
           ].join("<br/>");
         },
@@ -618,35 +784,10 @@ function renderChart(series) {
             fontWeight: 700,
           },
         },
-        {
-          type: "value",
-          min: 0,
-          max: Math.max(200, Math.max(...series.map((day) => day.indexValue), 100)),
-          splitNumber: 5,
-          position: "right",
-          axisLine: { show: false },
-          axisTick: { show: false },
-          axisLabel: {
-            color: "#86b0ff",
-            fontSize: 10,
-            fontWeight: 700,
-            formatter(value) {
-              return value;
-            },
-          },
-          splitLine: { show: false },
-          name: "Indeks",
-          nameLocation: "middle",
-          nameGap: 30,
-          nameTextStyle: {
-            color: "#86b0ff",
-            fontSize: 11,
-            fontWeight: 700,
-          },
-        },
       ],
       series: [
         {
+          name: "Total Massa",
           type: "bar",
           yAxisIndex: 0,
           barMaxWidth: 22,
@@ -661,35 +802,47 @@ function renderChart(series) {
               color: "rgba(255,214,110,.58)",
             },
           },
-          data: series.map((day) => ({
-            value: day.totalMass,
-            tanggalLong: day.tanggalLong,
-            totalMass: day.totalMass,
-            wilayahCount: day.wilayahCount,
-          })),
+          data: series.map((day) => day.totalMass),
           z: 1,
         },
         {
+          name: "Pro",
           type: "line",
-          yAxisIndex: 1,
+          yAxisIndex: 0,
           smooth: false,
           symbol: "circle",
-          symbolSize: 7,
+          symbolSize: 6,
           lineStyle: {
-            width: 2.5,
-            color: "#2d6fe9",
+            width: 2.6,
+            color: "#22C55E",
           },
           itemStyle: {
-            color: "#2d6fe9",
+            color: "#22C55E",
             borderColor: "#ffffff",
-            borderWidth: 1.5,
+            borderWidth: 1.2,
           },
-          data: series.map((day) => ({
-            value: day.indexValue,
-            tanggalLong: day.tanggalLong,
-            totalMass: day.totalMass,
-            wilayahCount: day.wilayahCount,
-          })),
+          label: { show: false },
+          data: series.map((day) => day.proMass),
+          z: 2,
+        },
+        {
+          name: "Kontra",
+          type: "line",
+          yAxisIndex: 0,
+          smooth: false,
+          symbol: "circle",
+          symbolSize: 6,
+          lineStyle: {
+            width: 2.6,
+            color: "#EF4444",
+          },
+          itemStyle: {
+            color: "#EF4444",
+            borderColor: "#ffffff",
+            borderWidth: 1.2,
+          },
+          label: { show: false },
+          data: series.map((day) => day.kontraMass),
           z: 2,
         },
       ],
@@ -1497,6 +1650,7 @@ async function loadFuelPriceData(dateStrings) {
 }
 
 function renderPageWithFuelSeries(series) {
+  normalizeFuelLatestLayout();
   if (series.length > 0) {
     updateFuelSourceMeta();
     updateFuelPeriodLabels(series[0], series[series.length - 1]);
@@ -1590,6 +1744,7 @@ function updateFuelComparisonSummary(series) {
 }
 
 function updateFuelPricesList(latestDay) {
+  normalizeFuelLatestLayout();
   if (!els.fuelPricesList || !latestDay) return;
   els.fuelPricesList.innerHTML = "";
   
@@ -1608,7 +1763,7 @@ function updateFuelPricesList(latestDay) {
   
   latestDay.fuels.forEach(fuel => {
     const eventItem = document.createElement("div");
-    eventItem.className = "chartExchange__eventItem";
+    eventItem.className = "chartExchange__eventItem chartFuel__latestItem";
     const color = fuelColors[fuel.name] || "#3B82F6";
     const icon = oilIcon;
 
@@ -1619,9 +1774,9 @@ function updateFuelPricesList(latestDay) {
         </div>
       </div>
       <div class="chartExchange__eventContent">
-        <div style="font-weight: 900; color: #ffffff; margin-bottom: 4px;">${fuel.name}</div>
-        <div style="color: var(--gold); font-size: 24px; font-weight: 900;">Rp${fuel.price.toLocaleString("id-ID")}</div>
-        <div style="color: rgba(255,255,255,0.75); font-size: 12px; margin-top: 4px;">per liter</div>
+        <div class="chartFuel__latestName">${fuel.name}</div>
+        <div class="chartFuel__latestPrice">Rp${fuel.price.toLocaleString("id-ID")}</div>
+        <div class="chartFuel__latestUnit">per liter</div>
       </div>
     `;
     els.fuelPricesList.appendChild(eventItem);
@@ -1805,8 +1960,12 @@ function getCommodityColor(key) {
     "chicken-meat": "#22C55E",
     beef: "#EF4444",
     eggs: "#F59E0B",
+    shallot: "#EC4899",
+    garlic: "#A855F7",
+    "red-chili": "#DC2626",
     "cooking-oil": "#06B6D4",
     sugar: "#8B5CF6",
+    soybean: "#84CC16",
   }[key] || "#3B82F6";
 }
 
@@ -1815,6 +1974,7 @@ function getCommodityMetaByKey(key) {
 }
 
 function renderPageWithCommoditySeries(series) {
+  normalizeCommodityLatestLayout();
   updateCommoditySourceMeta();
   if (!series.length) {
     if (els.commodityCompareBody) {
@@ -1844,11 +2004,17 @@ function updateCommoditySourceMeta() {
   const provider = commoditySourceMeta?.provider || "API eksternal";
   const earliestDate = commoditySourceMeta?.earliestActualDate ? formatDateLong(commoditySourceMeta.earliestActualDate) : "—";
   const latestDate = commoditySourceMeta?.latestActualDate ? formatDateLong(commoditySourceMeta.latestActualDate) : "—";
+  const missingLabels = Array.isArray(commoditySourceMeta?.missingCommodityLabels)
+    ? commoditySourceMeta.missingCommodityLabels.filter(Boolean)
+    : [];
+  const missingText = missingLabels.length
+    ? ` • belum tersedia di sumber saat ini: ${missingLabels.join(", ")}`
+    : "";
   if (els.commodityNote) {
-    els.commodityNote.textContent = `Sumber eksternal: ${provider} • data tersedia mulai ${earliestDate} • pembaruan data terakhir ${latestDate}`;
+    els.commodityNote.textContent = `Sumber eksternal: ${provider} • data tersedia mulai ${earliestDate} • pembaruan data terakhir ${latestDate}${missingText}`;
   }
   if (els.commodityFooterMeta) {
-    els.commodityFooterMeta.textContent = `Sumber: ${provider} • portal ${commoditySourceMeta?.sourceUrl || "PIHPS"} • data tersedia mulai ${earliestDate} • data terakhir ${latestDate}`;
+    els.commodityFooterMeta.textContent = `Sumber: ${provider} • portal ${commoditySourceMeta?.sourceUrl || "PIHPS"} • data tersedia mulai ${earliestDate} • data terakhir ${latestDate}${missingText}`;
   }
 }
 
@@ -1921,6 +2087,7 @@ function updateCommodityComparisonSummary(series) {
 }
 
 function updateCommodityPricesList(latestDay) {
+  normalizeCommodityLatestLayout();
   if (!els.commodityPricesList || !latestDay) return;
   els.commodityPricesList.innerHTML = "";
 
@@ -1931,7 +2098,7 @@ function updateCommodityPricesList(latestDay) {
     const referenceDate = item.sourceDate ? formatDateShort(item.sourceDate) : formatDateShort(latestDay.date);
     const referenceText = item.isCarriedForward ? `Acuan terakhir ${referenceDate}` : `Update ${referenceDate}`;
     const eventItem = document.createElement("div");
-    eventItem.className = "chartExchange__eventItem";
+    eventItem.className = "chartExchange__eventItem chartCommodity__latestItem";
     eventItem.innerHTML = `
       <div class="chartExchange__eventDateContainer">
         <div class="chartExchange__eventBadge" style="background: ${badgeColor}; border-radius: 16px;">
@@ -1939,10 +2106,10 @@ function updateCommodityPricesList(latestDay) {
         </div>
       </div>
       <div class="chartExchange__eventContent">
-        <div style="font-weight: 900; color: #ffffff; margin-bottom: 4px;">${escapeHtml(item.label || item.name)}</div>
-        <div style="color: var(--gold); font-size: 24px; font-weight: 900;">${escapeHtml(formatIdr(item.price))}</div>
-        <div style="color: rgba(255,255,255,0.75); font-size: 12px; margin-top: 4px;">per ${escapeHtml(item.denomination || "satuan")}</div>
-        <div style="color: rgba(255,255,255,0.62); font-size: 11px; margin-top: 6px;">${escapeHtml(referenceText)}</div>
+        <div class="chartCommodity__latestName">${escapeHtml(item.label || item.name)}</div>
+        <div class="chartCommodity__latestPrice">${escapeHtml(formatIdr(item.price))}</div>
+        <div class="chartCommodity__latestUnit">per ${escapeHtml(item.denomination || "satuan")}</div>
+        <div class="chartCommodity__latestMeta">${escapeHtml(referenceText)}</div>
       </div>
     `;
     els.commodityPricesList.appendChild(eventItem);
@@ -3346,6 +3513,8 @@ function resetFilter() {
 
 // Update loadChartPage to also load fuel data
 async function loadChartPage() {
+  normalizeFuelLatestLayout();
+  normalizeCommodityLatestLayout();
   if (els.chartSubtitle) els.chartSubtitle.textContent = "Memuat periode grafik nasional…";
   els.chartMeta.textContent = "Mengambil dataset aktif…";
   try {
