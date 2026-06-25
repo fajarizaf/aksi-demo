@@ -536,15 +536,6 @@ function buildRowsFromRecords(json) {
           lng = b;
         }
       }
-      if (lat == null || lng == null) {
-        const base = PROVINCE_CENTROIDS[wilayah];
-        if (base) {
-          const [jlat, jlng] = jitterLatLng(base, idx + 1);
-          lat = jlat;
-          lng = jlng;
-        }
-      }
-
       const locationLabel =
         [kotaKab, wilayah].filter(Boolean).join(", ") || lokasi || "Lokasi tidak diketahui";
 
@@ -705,12 +696,12 @@ const labelIndex = new Map();
 const provinceIndex = new Map();
 
 function refreshVisibleLabels() {
-  if (Array.isArray(state.clusterPreviewRows) && state.clusterPreviewRows.length) {
-    renderLabelMarkers(state.clusterPreviewRows, { mode: "province" });
-    return;
-  }
   if (Array.isArray(state.locationPreviewRows) && state.locationPreviewRows.length) {
     renderLabelMarkers(state.locationPreviewRows, { mode: "location" });
+    return;
+  }
+  if (Array.isArray(state.clusterPreviewRows) && state.clusterPreviewRows.length) {
+    renderLabelMarkers(state.clusterPreviewRows, { mode: "location" });
     return;
   }
   labelLayer.clearLayers();
@@ -773,19 +764,21 @@ function getProvinceSummaryItems(rows) {
 function renderPointMarkers(rows) {
   markerCluster.clearLayers();
   markerIndex.clear();
-  for (const row of rows) {
-    if (!Number.isFinite(row.lat) || !Number.isFinite(row.lng)) continue;
-    const marker = L.marker([row.lat, row.lng], { icon: makePointIcon(row.status), title: row.locationLabel });
-    marker.__rowData = row;
+  for (const loc of getLocationSummaryItems(rows)) {
+    const marker = L.marker(loc.center, { icon: makePointIcon(loc.statusMode), title: loc.lokasi });
+    marker.__rowData = loc.primary;
+    marker.__locationRows = loc.items;
     marker.on("click", () => {
       clearClusterPreview();
-      state.locationPreviewRows = [row];
+      state.locationPreviewRows = loc.items;
       refreshVisibleLabels();
-      setActiveRow(row.id, { scroll: false });
-      marker.bindPopup(buildPopupHtml(row), { closeButton: true, maxWidth: 360 }).openPopup();
+      setActiveRow(loc.primary.id, { scroll: false });
+      marker.bindPopup(buildPopupHtml(loc.primary), { closeButton: true, maxWidth: 360 }).openPopup();
     });
     markerCluster.addLayer(marker);
-    markerIndex.set(row.id, marker);
+    loc.items.forEach((item) => {
+      markerIndex.set(item.id, marker);
+    });
   }
 }
 
@@ -812,26 +805,31 @@ function renderProvinceSummaryMarkers(rows) {
   });
 }
 
+function fitMapToRows(rows, options = {}) {
+  if (!map) return;
+  const preferredZoom = Number.isFinite(options.preferredZoom) ? options.preferredZoom : 11;
+  const points = (Array.isArray(rows) ? rows : [])
+    .filter((row) => Number.isFinite(row.lat) && Number.isFinite(row.lng))
+    .map((row) => [row.lat, row.lng]);
+  if (points.length > 1) {
+    map.fitBounds(points, { padding: [40, 40], maxZoom: preferredZoom });
+  } else if (points.length === 1) {
+    map.setView(points[0], preferredZoom);
+  } else {
+    map.setView([-2.3, 118.2], 5);
+  }
+}
+
 function showProvinceSummary(rows, options = {}) {
   state.activeProvinceKey = "";
   state.clusterPreviewRows = null;
   state.locationPreviewRows = null;
-  renderPointMarkers([]);
-  renderProvinceSummaryMarkers(rows);
+  provinceSummaryLayer.clearLayers();
+  provinceIndex.clear();
+  renderPointMarkers(rows);
   refreshVisibleLabels();
   if (options.fitBounds !== false) {
-    const points = [];
-    provinceSummaryLayer.eachLayer((layer) => {
-      const latLng = layer.getLatLng?.();
-      if (latLng) points.push(latLng);
-    });
-    if (points.length > 1) {
-      map.fitBounds(points, { padding: [30, 30], maxZoom: 8 });
-    } else if (points.length === 1) {
-      map.setView(points[0], 6);
-    } else {
-      map.setView([-2.3, 118.2], 5);
-    }
+    fitMapToRows(rows, { preferredZoom: 11 });
   }
 }
 
@@ -937,43 +935,13 @@ function updatePointMarkerScale() {
   root.setProperty("--point-marker-glow", `${glow.toFixed(1)}px`);
 }
 
-function revealClusterPoints(cluster) {
-  if (!map || !cluster) return;
-  const bounds = cluster.getBounds?.();
-  const reveal = () => {
-    if (!cluster._map) return;
-    cluster.spiderfy?.();
-  };
-  if (bounds?.isValid?.()) {
-    map.once("moveend", reveal);
-    map.fitBounds(bounds, { padding: [50, 50], maxZoom: Math.max(map.getZoom(), 12) });
-    return;
-  }
-  reveal();
-}
-
 function initMap() {
   map = L.map("map", { zoomControl: true }).setView([-2.3, 118.2], 5);
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
     maxZoom: 19,
+    subdomains: "abcd",
   }).addTo(map);
-  markerCluster = L.markerClusterGroup({
-    showCoverageOnHover: false,
-    maxClusterRadius: 52,
-    zoomToBoundsOnClick: false,
-    iconCreateFunction(cluster) {
-      const count = cluster.getChildCount();
-      const size = count >= 50 ? 58 : count >= 10 ? 50 : 42;
-      return L.divIcon({
-        className: "clusterMarkerIcon",
-        html: `<div class="clusterMarker" style="width:${size}px;height:${size}px;"><span>${escapeHtml(
-          String(count)
-        )}</span></div>`,
-        iconSize: [size, size],
-        iconAnchor: [size / 2, size / 2],
-      });
-    },
-  });
+  markerCluster = L.layerGroup();
   labelLayer = L.layerGroup();
   provinceSummaryLayer = L.layerGroup();
   map.addLayer(markerCluster);
@@ -989,16 +957,9 @@ function initMap() {
     refreshVisibleLabels();
   });
   map.on("click", () => {
-    showProvinceSummary(state.filteredRows, { fitBounds: false });
-  });
-  markerCluster.on("clusterclick", (e) => {
-    const childMarkers = e.layer?.getAllChildMarkers?.() || [];
-    const childRows = childMarkers.map((marker) => marker.__rowData).filter(Boolean);
-    if (!childRows.length) return;
-    state.clusterPreviewRows = childRows;
-    state.locationPreviewRows = null;
+    clearClusterPreview();
+    clearLocationPreview();
     refreshVisibleLabels();
-    revealClusterPoints(e.layer);
   });
 }
 
@@ -1085,6 +1046,34 @@ function makePointIcon(status) {
   });
 }
 
+function getLocationSummaryItems(rows) {
+  const byLocation = groupBy(rows, (r) => getLocationGroupKey(r));
+  return Array.from(byLocation.entries())
+    .map(([key, items]) => {
+      const sortedItems = items.slice().sort((a, b) => (b.estimasiMassa || 0) - (a.estimasiMassa || 0));
+      const primary = sortedItems[0];
+      const coordItems = sortedItems.filter((r) => Number.isFinite(r.lat) && Number.isFinite(r.lng));
+      if (!primary || !coordItems.length) return null;
+      const totalMass = sortedItems.reduce((a, r) => a + (Number.isFinite(r.estimasiMassa) ? r.estimasiMassa : 0), 0);
+      const center = [
+        coordItems.reduce((a, r) => a + r.lat, 0) / coordItems.length,
+        coordItems.reduce((a, r) => a + r.lng, 0) / coordItems.length,
+      ];
+      return {
+        key,
+        items: sortedItems,
+        primary,
+        lokasi: toStr(primary.lokasi || primary.kotaKab || primary.locationLabel || "Titik Aksi"),
+        wilayah: toStr(primary.wilayah || "—"),
+        totalMass,
+        center,
+        statusMode: getDominantStatus(sortedItems),
+      };
+    })
+    .filter(Boolean)
+    .sort((a, b) => b.items.length - a.items.length || b.totalMass - a.totalMass || a.lokasi.localeCompare(b.lokasi));
+}
+
 function renderLabelMarkers(rows, options = {}) {
   labelLayer.clearLayers();
   labelIndex.clear();
@@ -1128,37 +1117,10 @@ function renderLabelMarkers(rows, options = {}) {
     }
     return;
   }
-  const byLocation = groupBy(rows, (r) => {
-    return getLocationGroupKey(r);
-  });
-  const locationAgg = Array.from(byLocation.entries())
-    .map(([key, items]) => {
-      const sortedItems = items.slice().sort((a, b) => (b.estimasiMassa || 0) - (a.estimasiMassa || 0));
-      const primary = sortedItems[0];
-      const coordItems = sortedItems.filter((r) => Number.isFinite(r.lat) && Number.isFinite(r.lng));
-      if (!primary || !coordItems.length) return null;
-      const totalMass = sortedItems.reduce((a, r) => a + (Number.isFinite(r.estimasiMassa) ? r.estimasiMassa : 0), 0);
-      const center = [
-        coordItems.reduce((a, r) => a + r.lat, 0) / coordItems.length,
-        coordItems.reduce((a, r) => a + r.lng, 0) / coordItems.length,
-      ];
-      return {
-        key,
-        items: sortedItems,
-        primary,
-        lokasi: toStr(primary.lokasi || primary.kotaKab || primary.locationLabel || "Titik Aksi"),
-        wilayah: toStr(primary.wilayah || "—"),
-        totalMass,
-        center,
-      };
-    })
-    .filter(Boolean)
-    .sort((a, b) => b.items.length - a.items.length || b.totalMass - a.totalMass || a.lokasi.localeCompare(b.lokasi))
-    .slice(0, labelLimit);
+  const locationAgg = getLocationSummaryItems(rows).slice(0, labelLimit);
 
   for (const loc of locationAgg) {
-    const statusMode = getDominantStatus(loc.items);
-    const statusClass = getStatusToneClass(statusMode);
+    const statusClass = getStatusToneClass(loc.statusMode);
     const byActionGroup = groupBy(loc.items, (r) => normalizeKey(r.kegiatan || r.aliansi || r.tuntutan || "lainnya"));
     const topGroups = Array.from(byActionGroup.entries())
       .map(([, groupItems]) => {
@@ -1424,7 +1386,6 @@ function renderTable(rows) {
     tr.addEventListener("click", () => {
       setActiveRow(r.id);
       focusMapToLabels([r], { preferredZoom: 11 });
-      ensureProvinceDetailForRow(r);
       const marker = markerIndex.get(r.id);
       if (marker) marker.fire("click");
     });

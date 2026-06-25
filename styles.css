@@ -222,6 +222,7 @@ body{
 
 #sumIsuDominan{
   display:-webkit-box;
+  line-clamp:4;
   -webkit-box-orient:vertical;
   -webkit-line-clamp:4;
   overflow:hidden;
@@ -510,7 +511,7 @@ body{
 }
 .analysis li{margin:6px 0}
 
-.leaflet-container{background:#0b1220}
+.leaflet-container{background:#eef3f8}
 .leaflet-control-attribution{display:none}
 
 .labelMarkerIcon{
@@ -782,10 +783,22 @@ body{
 }
 
 .pointMarker{
+  position:relative;
   width:var(--point-marker-size);
   height:var(--point-marker-size);
   border-radius:50%;
   border:var(--point-marker-ring) solid rgba(255,255,255,.96);
+  animation:pointMarkerPulse 1.8s ease-out infinite;
+}
+.pointMarker::after{
+  content:"";
+  position:absolute;
+  inset:calc(var(--point-marker-ring) * -1.5);
+  border-radius:50%;
+  border:2px solid transparent;
+  opacity:.68;
+  transform:scale(.9);
+  animation:pointMarkerRipple 1.8s ease-out infinite;
 }
 .pointMarker--rencana{
   background:radial-gradient(circle at 35% 35%, #fff2aa 0%, #ffd54f 34%, #f0b400 68%, #9a6700 100%);
@@ -794,6 +807,9 @@ body{
     0 0 var(--point-marker-glow) rgba(255,206,68,.88),
     0 10px 22px rgba(0,0,0,.4);
 }
+.pointMarker--rencana::after{
+  border-color:rgba(255,221,87,.72);
+}
 .pointMarker--berlangsung{
   background:radial-gradient(circle at 35% 35%, #ffb4b4 0%, #ff5a5a 30%, #e53935 65%, #9f1010 100%);
   box-shadow:
@@ -801,12 +817,44 @@ body{
     0 0 var(--point-marker-glow) rgba(233,75,75,.9),
     0 10px 22px rgba(0,0,0,.4);
 }
+.pointMarker--berlangsung::after{
+  border-color:rgba(255,110,110,.78);
+}
 .pointMarker--selesai{
   background:radial-gradient(circle at 35% 35%, #bff6d1 0%, #5ade8c 34%, #27ae60 68%, #0e6b37 100%);
   box-shadow:
     0 0 0 calc(var(--point-marker-ring) + 1px) rgba(58,208,123,.42),
     0 0 var(--point-marker-glow) rgba(58,208,123,.78),
     0 10px 22px rgba(0,0,0,.4);
+}
+.pointMarker--selesai::after{
+  border-color:rgba(95,224,149,.72);
+}
+
+@keyframes pointMarkerPulse{
+  0%, 100%{
+    transform:scale(1);
+    filter:brightness(1);
+  }
+  45%{
+    transform:scale(1.08);
+    filter:brightness(1.12);
+  }
+}
+
+@keyframes pointMarkerRipple{
+  0%{
+    opacity:.72;
+    transform:scale(.88);
+  }
+  80%{
+    opacity:0;
+    transform:scale(2.2);
+  }
+  100%{
+    opacity:0;
+    transform:scale(2.35);
+  }
 }
 
 .clusterMarkerIcon{
