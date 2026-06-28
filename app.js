@@ -347,6 +347,11 @@ function getTodayDateInputValue() {
   return `${year}-${month}-${day}`;
 }
 
+function getLatestAvailableDate(rows) {
+  const dates = uniq(rows.map((r) => toDateInputValue(r.tanggal)).filter(Boolean)).sort((a, b) => b.localeCompare(a));
+  return dates[0] || "";
+}
+
 function buildTitleDateText() {
   const tanggal = toStr(els.tanggalFilter?.value);
   const bulan = toStr(els.bulanFilter?.value);
@@ -1509,7 +1514,11 @@ function populateFilters(rows) {
   if (selectedTanggal) {
     els.tanggalFilter.value = selectedTanggal;
   } else if (!state.hasInitializedDateDefault && !els.bulanFilter.value && !els.tahunFilter.value) {
-    els.tanggalFilter.value = getTodayDateInputValue();
+    const todayValue = getTodayDateInputValue();
+    const latestAvailableDate = getLatestAvailableDate(rows);
+    els.tanggalFilter.value = rows.some((row) => toDateInputValue(row.tanggal) === todayValue)
+      ? todayValue
+      : latestAvailableDate;
     state.hasInitializedDateDefault = true;
   } else {
     els.tanggalFilter.value = "";
