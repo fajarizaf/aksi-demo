@@ -347,15 +347,12 @@ body{
 }
 
 .legend{
-  position:absolute;
-  left:12px;
-  bottom:12px;
   background:rgba(0,0,0,.45);
   border:1px solid rgba(255,255,255,.14);
   border-radius:12px;
-  padding:10px 10px;
+  padding:10px 12px;
   box-shadow:var(--shadow);
-  min-width:180px;
+  min-width:200px;
 }
 .legend__title{
   font-weight:900;

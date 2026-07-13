@@ -952,6 +952,7 @@ function initMap() {
   map.addLayer(markerCluster);
   map.addLayer(provinceSummaryLayer);
   map.addLayer(labelLayer);
+  addMapLegend();
   updateLabelMarkerScale();
   updatePointMarkerScale();
   map.on("zoom zoomend", () => {
@@ -966,6 +967,23 @@ function initMap() {
     clearLocationPreview();
     refreshVisibleLabels();
   });
+}
+
+function addMapLegend() {
+  const LegendControl = L.Control.extend({
+    options: { position: "bottomleft" },
+    onAdd() {
+      const div = L.DomUtil.create("div", "legend legend--map");
+      div.innerHTML =
+        '<div class="legend__title">Keterangan Titik</div>' +
+        '<div class="legend__row"><span class="dot dot--gold"></span> Kuning: Rencana Unras</div>' +
+        '<div class="legend__row"><span class="dot dot--red"></span> Merah: Unras Sedang Berlangsung</div>' +
+        '<div class="legend__row"><span class="dot dot--green"></span> Hijau: Unras Selesai</div>';
+      L.DomEvent.disableClickPropagation(div);
+      return div;
+    },
+  });
+  map.addControl(new LegendControl());
 }
 
 function buildPopupHtml(row) {
