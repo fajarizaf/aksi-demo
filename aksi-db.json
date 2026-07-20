@@ -7257,7 +7257,7 @@
       "province": "Prov. DKI Jakarta",
       "provinceSlug": "dki-jakarta",
       "sourceIndexUpdatedAt": "2026-06-30T17:00:44.000Z",
-      "syncedAt": "2026-07-12T06:39:43.576145Z",
+      "syncedAt": "2026-07-20T00:02:01.205434Z",
       "latestUpdatedAt": "2026-06-30T17:00:44.000Z",
       "warning": "",
       "historySource": "current-plus-commits",
@@ -7407,11 +7407,11 @@
               "availability": "available"
             }
           ],
-          "commitSha": "b45ae91fc37faea5aecdedf38884a9dc37b764dc"
+          "commitSha": "ed0c304712077f3a1aff35c2c895a9ca806c7938"
         }
       ]
     },
-    "updatedAt": 1783845134857
+    "updatedAt": 1784518304202
   },
   "commodityPriceData": {
     "data": {
