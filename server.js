@@ -833,7 +833,7 @@ async function fetchExchangeRateData() {
     data,
     updatedAt: Date.now(),
   };
-  await fs.writeFile(DB_PATH, JSON.stringify(db, null, 2));
+  await writeDb(db);
 
   return data;
 }
@@ -1232,7 +1232,7 @@ async function fetchFuelPriceSourceData() {
     data,
     updatedAt: Date.now(),
   };
-  await fs.writeFile(DB_PATH, JSON.stringify(db, null, 2));
+  await writeDb(db);
 
   return data;
 }
@@ -1316,7 +1316,7 @@ async function fetchCommodityPriceSourceData() {
       data,
       updatedAt: Date.now(),
     };
-    await fs.writeFile(DB_PATH, JSON.stringify(db, null, 2));
+    await writeDb(db);
 
     return data;
   } catch (error) {
