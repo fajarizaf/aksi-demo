@@ -6,9 +6,9 @@
       "name": "Data Rencana Aksi Unjuk Rasa 17 Juni 2026 - Data Rencana Aksi Unjuk Rasa 17 Juni 2026",
       "type": "csv",
       "createdAt": "2026-06-17T04:03:24.664Z",
-      "updatedAt": "2026-07-20T12:24:12.071Z",
+      "updatedAt": "2026-08-24T11:37:28.567Z",
       "sheetName": "Sheet1",
-      "rowCount": 323
+      "rowCount": 347
     }
   ],
   "records": [
@@ -7117,6 +7117,534 @@
       "LNG": 106.7979395,
       "createdAt": "2026-07-20T10:32:53.401Z",
       "updatedAt": "2026-07-20T10:32:53.401Z"
+    },
+    {
+      "id": "2ea85ba0-68e1-4bda-a055-88d1773be21a",
+      "datasetId": "84bd6c3d-847e-4682-b214-08e5d83536af",
+      "NO": "324",
+      "TANGGAL": "8/19/26",
+      "WAKTU MULAI": "10:00",
+      "WAKTU SELESAI": "11:00",
+      "STATUS": "Selesai",
+      "WILAYAH": "SULAWESI TENGGARA",
+      "JUMLAH MASSA": 7,
+      "LOKASI": "Kantor Sekretariat Daerah Kab. Buton Utara dan Kantor DPRD Kab. Buton Utara",
+      "KELOMPOK AKSI": "Asosiasi Mahasiswa Pemerhati Publik. Pimpinan Ahmad Ghazy Abulkhair",
+      "KATEGORI DEMO": "Kontra",
+      "TUNTUTAN": "Terkait dugaaan penyalahgunaan anggaran dan KKN pada program Makan Bergizi Gratis (MBG) di Kab. Buton Utara.",
+      "RINGKASAN": "Pada Rabu, 19 Agustus 2026 pukul 10.00 hingga 11.00 WITA, Pilar Keadilan Sulawesi Tenggara yang dipimpin oleh Sdr. La Ode Inal Slam melaksanakan kegiatan di Kantor Sekretariat Daerah Kabupaten Buton Utara dan Kantor DPRD Kabupaten Buton Utara. Kegiatan tersebut diikuti oleh sekitar 7 orang dan berkaitan dengan dugaan penyalahgunaan anggaran serta praktik KKN pada program Makan Bergizi Gratis (MBG) di Kabupaten Buton Utara. Kegiatan telah selesai dalam keadaan aman.",
+      "HAL MENONJOL": "-",
+      "GOOGLE MAPS": "https://maps.app.goo.gl/JbRDVzot2oX31m766",
+      "LAT": -4.7810117,
+      "LNG": 123.1923084,
+      "createdAt": "2026-08-20T01:58:56.251Z",
+      "updatedAt": "2026-08-20T01:58:56.251Z"
+    },
+    {
+      "id": "1bace306-404a-4ca5-bed1-805f12c4f433",
+      "datasetId": "84bd6c3d-847e-4682-b214-08e5d83536af",
+      "NO": "325",
+      "TANGGAL": "8/19/26",
+      "WAKTU MULAI": "10:10",
+      "WAKTU SELESAI": "16:00",
+      "STATUS": "Selesai",
+      "WILAYAH": "PAPUA BARAT",
+      "JUMLAH MASSA": 100,
+      "LOKASI": "Rute depan Perpustakaan UNIPA- Kementerian Hukum dan Ham Papua Barat-Polda Papua Barat Kabupaten Manokwari, Provinsi Papua Barat",
+      "KELOMPOK AKSI": "Solidaritas Peduli Kemanusiaan (GMKI Cabang Manokwari, IMM Manokwari,dan IMKHA Mnaokwari) Penembakan di Maybrat. Pimpinan Sdr. Yunus Sowe (Koordinator Lapangan) dan Simon Petrus Turot (Sekretaris)",
+      "KATEGORI DEMO": "Kontra",
+      "TUNTUTAN": "Penyampaian aspirasi terkait dugaan penembakan terhadap masyarakat sipil di Maybrat, Papua Barat Daya, pada Jumat, 14 Agustus 2026",
+      "RINGKASAN": "Pada Rabu, 19 Agustus 2026 pukul 10.10 hingga 16.20 WIT, Solidaritas Peduli Kemanusiaan yang terdiri dari GMKI Cabang Manokwari, IMM Manokwari, dan IMKHA Manokwari, dengan pimpinan Sdr. Yunus Sowe selaku Koordinator Lapangan dan Simon Petrus Turot selaku Sekretaris, melaksanakan aksi di rute depan Perpustakaan UNIPA – Kementerian Hukum dan HAM Papua Barat – Polda Papua Barat, Kabupaten Manokwari, Provinsi Papua Barat. Kegiatan tersebut diikuti oleh sekitar 100 orang untuk menyampaikan aspirasi terkait dugaan penembakan terhadap masyarakat sipil di Maybrat, Papua Barat Daya, pada Jumat, 14 Agustus 2026. Kegiatan telah selesai dalam keadaan aman",
+      "HAL MENONJOL": "-",
+      "GOOGLE MAPS": "https://maps.app.goo.gl/3vMVj7XBApr7YqnAA",
+      "LAT": -0.9276444,
+      "LNG": 134.0244521,
+      "createdAt": "2026-08-20T02:02:39.467Z",
+      "updatedAt": "2026-08-20T02:02:39.467Z"
+    },
+    {
+      "id": "250ebe31-b83c-4a56-b13f-32b215eea02e",
+      "datasetId": "84bd6c3d-847e-4682-b214-08e5d83536af",
+      "NO": "326",
+      "TANGGAL": "8/19/26",
+      "WAKTU MULAI": "10:30",
+      "WAKTU SELESAI": "13:45",
+      "STATUS": "Selesai",
+      "WILAYAH": "PAPUA BARAT DAYA",
+      "JUMLAH MASSA": 15,
+      "LOKASI": "Kantor Gubernur Papua Barat Daya, Kota Sorong",
+      "KELOMPOK AKSI": "DPC GMNI Kota dan Kabupaten Sorong bekerja sama dengan Aliansi Pemuda Kwoor Peduli Pembangunan Jalan Sausapor- Kwoor. Pimpinan Sdr. Yeheskel Kalasuat (Ketua DPC GMNI Kab. Sorong)",
+      "KATEGORI DEMO": "Kontra",
+      "TUNTUTAN": "Membahas kasus penembakan di Maybrat, Papua Barat Daya, yang terjadi pada tanggal 14 Agustus 2026",
+      "RINGKASAN": "Pada Rabu, 19 Agustus 2026 pukul 10.30 hingga 13.45 WIT, DPC GMNI Kota dan Kabupaten Sorong bekerja sama dengan Aliansi Pemuda Kwoor Peduli Pembangunan Jalan Sausapor-Kwoor, yang dipimpin oleh Sdr. Yeheskel Kalasuat selaku Ketua DPC GMNI Kabupaten Sorong, melaksanakan kegiatan di Kantor Gubernur Papua Barat Daya, Kota Sorong. Kegiatan tersebut diikuti oleh sekitar 15 orang untuk membahas kasus penembakan di Maybrat, Papua Barat Daya, yang terjadi pada 14 Agustus 2026. Kegiatan telah selesai dan berlangsung dalam keadaan aman.",
+      "HAL MENONJOL": "-",
+      "GOOGLE MAPS": "https://maps.app.goo.gl/qPZ7DTAdV9HaFAf69",
+      "LAT": -0.8812801,
+      "LNG": 131.2875911,
+      "createdAt": "2026-08-20T02:06:17.785Z",
+      "updatedAt": "2026-08-20T02:06:17.786Z"
+    },
+    {
+      "id": "d30af8c0-6a5b-443c-af05-b157b10f57c6",
+      "datasetId": "84bd6c3d-847e-4682-b214-08e5d83536af",
+      "NO": "327",
+      "TANGGAL": "8/22/26",
+      "WAKTU MULAI": "11:20",
+      "WAKTU SELESAI": "14:00",
+      "STATUS": "Selesai",
+      "WILAYAH": "DKI JAKARTA",
+      "JUMLAH MASSA": 23,
+      "LOKASI": "Depan Gd. DPR/MPR RI Jl. Gatot Subroto Jakarta Pusat",
+      "KELOMPOK AKSI": "Aliansi Masyarakat Pati Bersatu (AMPB) & ARIB (Aliansi Rakyat Indonesia Bersatu) Pimpinan Pj. Suryadi Supriyono alias Botok dan Teguh Istiyanto alias RW",
+      "KATEGORI DEMO": "Kontra",
+      "TUNTUTAN": "Sahkan RUU Perampasan Aset dan  revisi UU No. 31 Tahun 1999 (koruptor wajib dihukum mati tanpa toleransi).",
+      "RINGKASAN": "Sabtu, 22 Agustus 2026, Aliansi Rakyat Indonesia Bersatu (AMPB, MURYI, dan BMPJ) yang dipimpin oleh Sdri. Suryani Kaliyana dan Sdr. Wahyu berencana melaksanakan kegiatan pada pukul 10.00 WIB di depan Gedung DPR/MPR RI, Jl. Gatot Subroto, Jakarta Pusat, dengan jumlah peserta sekitar ±20 orang.  Kegiatan tersebut bertujuan menyampaikan aspirasi terkait pengesahan RUU Perampasan Aset serta revisi UU No. 31 Tahun 1999, dengan tuntutan agar pelaku tindak pidana korupsi mendapatkan hukuman yang tegas, termasuk tuntutan hukuman mati tanpa toleransi.",
+      "HAL MENONJOL": "-",
+      "GOOGLE MAPS": "https://maps.app.goo.gl/EGEiFn7ZzRQwZG8A8",
+      "LAT": -6.2089515,
+      "LNG": 106.7998183,
+      "createdAt": "2026-08-22T01:58:48.375Z",
+      "updatedAt": "2026-08-22T08:33:14.125Z"
+    },
+    {
+      "id": "92228257-39a7-4ab8-b2a3-9fa21602b01b",
+      "datasetId": "84bd6c3d-847e-4682-b214-08e5d83536af",
+      "NO": "328",
+      "TANGGAL": "8/22/26",
+      "WAKTU MULAI": "15:57",
+      "WAKTU SELESAI": "17:50",
+      "STATUS": "Selesai",
+      "WILAYAH": "SULAWESI SELATAN",
+      "JUMLAH MASSA": 12,
+      "LOKASI": "Fly Over Makassar Kota Makassar",
+      "KELOMPOK AKSI": "Komite Rakyat Demokratik (KOMRAD), pimpinan Sdr. Tajering.",
+      "KATEGORI DEMO": "Kontra",
+      "TUNTUTAN": "Menggugat rezim Prabowo–Gibran",
+      "RINGKASAN": "Aksi KOMRAD Gugat Rezim Prabowo–Gibran  Pada Sabtu, 22 Agustus 2026, Komite Rakyat Demokratik (KOMRAD) di bawah pimpinan Sdr. Tajering berencana melaksanakan kegiatan pada pukul 16.00 WITA di Fly Over Makassar, Kota Makassar, dengan jumlah peserta sekitar ±12 orang.  Kegiatan tersebut mengusung isu menggugat rezim Prabowo–Gibran. Berdasarkan informasi yang diperoleh, kegiatan tersebut merupakan rencana aksi dengan sikap KONTRA.",
+      "HAL MENONJOL": "-",
+      "GOOGLE MAPS": "https://maps.app.goo.gl/4RBFxAiEPCkt3NpBA",
+      "LAT": -5.1372256,
+      "LNG": 119.4388021,
+      "createdAt": "2026-08-22T02:03:30.708Z",
+      "updatedAt": "2026-08-22T10:19:45.903Z"
+    },
+    {
+      "id": "969601de-119e-497d-8a74-94b59bd02959",
+      "datasetId": "84bd6c3d-847e-4682-b214-08e5d83536af",
+      "NO": "329",
+      "TANGGAL": "8/22/26",
+      "WAKTU MULAI": "08:00",
+      "WAKTU SELESAI": "15:35",
+      "STATUS": "Selesai",
+      "WILAYAH": "JAWA TIMUR",
+      "JUMLAH MASSA": 30,
+      "LOKASI": "Depan Perusahaan PT. Pakerin alamat Ds. Bangun Kec. Pungging Kab. Mojokerto.",
+      "KELOMPOK AKSI": "PUK SPAI FSPMI PT. Pakerin Bpk. Sutikno Yantoro (Ketua PUK PT. Pakerin).",
+      "KATEGORI DEMO": "Kontra",
+      "TUNTUTAN": "Segera bayarkan seluruh hak karyawan berupa upah, THR, pesangon, biaya pengobatan, serta meminta LPS segera mencairkan dana PT Pakerin",
+      "RINGKASAN": "Rencana Aksi PUK SPAI FSPMI PT. Pakerin  Pada Sabtu, 22 Agustus 2026, PUK SPAI FSPMI PT. Pakerin yang dipimpin oleh Bpk. Sutikno Yantoro (Ketua PUK PT. Pakerin) berencana melaksanakan kegiatan pada pukul 08.00 WIB di depan perusahaan PT. Pakerin, Desa Bangun, Kecamatan Pungging, Kabupaten Mojokerto, dengan jumlah peserta sekitar ±30 orang.  Kegiatan tersebut bertujuan menyampaikan tuntutan agar segera dibayarkan seluruh hak karyawan, meliputi upah, THR, pesangon, dan biaya pengobatan, serta meminta LPS segera mencairkan dana PT. Pakerin.",
+      "HAL MENONJOL": "-",
+      "GOOGLE MAPS": "https://maps.app.goo.gl/HFusoZMva7vLTaWz5",
+      "LAT": -7.4759766,
+      "LNG": 112.560323,
+      "createdAt": "2026-08-22T05:26:20.220Z",
+      "updatedAt": "2026-08-22T08:38:57.475Z"
+    },
+    {
+      "id": "9ffa882d-3238-4c89-83a5-6db96085a0ed",
+      "datasetId": "84bd6c3d-847e-4682-b214-08e5d83536af",
+      "NO": "330",
+      "TANGGAL": "8/22/26",
+      "WAKTU MULAI": "11:10",
+      "WAKTU SELESAI": "12:30",
+      "STATUS": "Selesai",
+      "WILAYAH": "SULAWESI SELATAN",
+      "JUMLAH MASSA": 50,
+      "LOKASI": "Dusun Salewatang Desa Kalukuang Kec. Galesong Kab. Takalar",
+      "KELOMPOK AKSI": "masyarakat Desa Kalukuang Kec. Galesong kab. Takalar",
+      "KATEGORI DEMO": "Kontra",
+      "TUNTUTAN": "adanya aktivitas tambang galian C yang diduga dikelola oleh Sdr. Ikshan Mapparentah Dg Tika, alamat Desa Taeng Kec. Pallangga Kab. Gowa",
+      "RINGKASAN": "Aktivitas Masyarakat Desa Kalukuang Terkait Tambang Galian C  Pada Sabtu, 22 Agustus 2026, masyarakat Desa Kalukuang, Kecamatan Galesong, Kabupaten Takalar, melaksanakan kegiatan pada pukul 11.10 WITA s.d. 12.30 WITA di Dusun Salewatang, Desa Kalukuang, Kecamatan Galesong, Kabupaten Takalar, dengan jumlah peserta sekitar ±50 orang.  Kegiatan tersebut berkaitan dengan adanya aktivitas tambang galian C yang diduga dikelola oleh Sdr. Ikshan Mapparentah Dg Tika, beralamat di Desa Taeng, Kecamatan Pallangga, Kabupaten Gowa.",
+      "HAL MENONJOL": "-",
+      "GOOGLE MAPS": "https://maps.app.goo.gl/WYhHxq2HUPi3MSQR9",
+      "LAT": -5.306351,
+      "LNG": 119.3784794,
+      "createdAt": "2026-08-22T10:22:11.107Z",
+      "updatedAt": "2026-08-22T10:22:11.107Z"
+    },
+    {
+      "id": "533e3977-6baf-4051-9be0-523914c9d3ce",
+      "datasetId": "84bd6c3d-847e-4682-b214-08e5d83536af",
+      "NO": "331",
+      "TANGGAL": "8/22/26",
+      "WAKTU MULAI": "12:15",
+      "WAKTU SELESAI": "13:25",
+      "STATUS": "Selesai",
+      "WILAYAH": "DKI JAKARTA",
+      "JUMLAH MASSA": 20,
+      "LOKASI": "Kantor Kedubes Jepang Jl. MH. Thamrin No.24 Menteng Jakarta Pusat",
+      "KELOMPOK AKSI": "Persatuan Rakyat Indonesia Anti Imperialis (PERISAI) Pj. Richi",
+      "KATEGORI DEMO": "Kontra",
+      "TUNTUTAN": "Tolak Indonesia Japan Ekonomic Partnership Agreemant (IJEPA)",
+      "RINGKASAN": "Aksi Persatuan Rakyat Indonesia Anti Imperialis (PERISAI)  Pada Sabtu, 22 Agustus 2026, Persatuan Rakyat Indonesia Anti Imperialis (PERISAI) di bawah pimpinan Pj. Richi melaksanakan kegiatan pada pukul 12.15 WIB s.d. 13.25 WIB di Kantor Kedutaan Besar Jepang, Jl. M.H. Thamrin No. 24, Menteng, Jakarta Pusat, dengan jumlah peserta sekitar ±20 orang.  Kegiatan tersebut menyampaikan aspirasi untuk menolak Indonesia-Japan Economic Partnership Agreement (IJEPA).",
+      "HAL MENONJOL": "-",
+      "GOOGLE MAPS": "https://maps.app.goo.gl/Mk3CHYe1M8kuhWrq7",
+      "LAT": -6.1917911,
+      "LNG": 106.8226227,
+      "createdAt": "2026-08-22T10:25:16.433Z",
+      "updatedAt": "2026-08-22T10:25:16.433Z"
+    },
+    {
+      "id": "130ce760-36ae-4c7b-87d1-24c42ef73f26",
+      "datasetId": "84bd6c3d-847e-4682-b214-08e5d83536af",
+      "NO": "332",
+      "TANGGAL": "8/22/26",
+      "WAKTU MULAI": "11:00",
+      "WAKTU SELESAI": "13:05",
+      "STATUS": "Selesai",
+      "WILAYAH": "SULAWESI SELATAN",
+      "JUMLAH MASSA": 30,
+      "LOKASI": "area Persetujuan Penggunaan Kawasan Hutan (PPKH) di Desa Bukit Harapan, Kec. Gantarang, Kab. Bulukumba",
+      "KELOMPOK AKSI": "Masyarakat Pengelola/pekerja Kawasan Hutan produksi Anrang , dipimpin oleh Sdr. Yusran alias Yuyun",
+      "KATEGORI DEMO": "Kontra",
+      "TUNTUTAN": "aksi penolakan terkait  Rencana pembangunan sarana dan prasarana Yon TP.",
+      "RINGKASAN": "Aksi Penolakan Masyarakat Kawasan Hutan Produksi Anrang  Pada Sabtu, 22 Agustus 2026, masyarakat pengelola/pekerja Kawasan Hutan Produksi Anrang yang dipimpin oleh Sdr. Yusran alias Yuyun melaksanakan kegiatan pada pukul 11.00 WITA s.d. 13.05 WITA di area Persetujuan Penggunaan Kawasan Hutan (PPKH) di Desa Bukit Harapan, Kecamatan Gantarang, Kabupaten Bulukumba, dengan jumlah peserta sekitar ±30 orang.  Kegiatan tersebut merupakan aksi penolakan terkait rencana pembangunan sarana dan prasarana Yon TP.",
+      "HAL MENONJOL": "-",
+      "GOOGLE MAPS": "https://maps.app.goo.gl/Q2Qfr73wsz2zqJYY8",
+      "LAT": -5.4830541,
+      "LNG": 120.1628215,
+      "createdAt": "2026-08-22T10:27:55.649Z",
+      "updatedAt": "2026-08-22T10:27:55.649Z"
+    },
+    {
+      "id": "3041cc41-8804-4557-95c8-3d94012b73ac",
+      "datasetId": "84bd6c3d-847e-4682-b214-08e5d83536af",
+      "NO": "333",
+      "TANGGAL": "8/18/26",
+      "WAKTU MULAI": "12:30",
+      "WAKTU SELESAI": "19:00",
+      "STATUS": "Selesai",
+      "WILAYAH": "DKI JAKARTA",
+      "JUMLAH MASSA": 370,
+      "LOKASI": "Depan Gedung  Bank UOB, Jakarta Pusat",
+      "KELOMPOK AKSI": "BEM Fakultas se-UI dan BEM  Perguruan Tinggi lainnya di  Jabodetabek",
+      "KATEGORI DEMO": "Kontra",
+      "TUNTUTAN": "Hentikan penjajahan negara atas rakyat sendiri, lawan rezim Prabowo-Gibran, dengan tagar #MerebutKemerdekaan",
+      "RINGKASAN": "Pada 18 Agustus 2026, pukul 12.30 WIB, telah dilaksanakan aksi unjuk rasa oleh BEM Fakultas se-UI dan BEM Perguruan Tinggi lainnya di Jabodetabek, dipimpin Yatalathop Ma'shum Imawan (Ketua BEM UI) dan M. Farel Adyatama, bertempat di depan Gedung Bank UOB, Jakarta Pusat, dengan massa ±370 orang. Aksi mengusung tuntutan “Hentikan penjajahan negara atas rakyat sendiri, lawan rezim Prabowo-Gibran” dengan tagar #MerebutKemerdekaan. Massa melakukan orasi dan bernegosiasi untuk melanjutkan aksi menuju Bundaran HI",
+      "HAL MENONJOL": "-",
+      "GOOGLE MAPS": "https://maps.app.goo.gl/aRaWzEweWMG5BYnu6",
+      "LAT": -6.1989392,
+      "LNG": 106.8226711,
+      "createdAt": "2026-08-23T01:18:47.549Z",
+      "updatedAt": "2026-08-23T01:18:47.549Z"
+    },
+    {
+      "id": "3a5274a9-75f6-49d2-8277-42a710849ce9",
+      "datasetId": "84bd6c3d-847e-4682-b214-08e5d83536af",
+      "NO": "334",
+      "TANGGAL": "8/18/26",
+      "WAKTU MULAI": "16:45",
+      "WAKTU SELESAI": "18:00",
+      "STATUS": "Selesai",
+      "WILAYAH": "JAWA BARAT",
+      "JUMLAH MASSA": 100,
+      "LOKASI": "Kantor Pemda  Bogor",
+      "KELOMPOK AKSI": "BEM Perguruan Tinggi  Nahdlatul Ulama Bogor Raya  dan BEM Universitas  Muhammadiyah Bogor Raya  (UMBARA)",
+      "KATEGORI DEMO": "Kontra",
+      "TUNTUTAN": "percepatan pemberantasan korupsi dan perampasan aset, reformasi partai politik dan Kepolisian, evaluasi keterlibatan militer, reformasi sistem peradilan, perlindungan kebebasan berpendapat, penghentian kriminalisasi, penguatan transparansi anggaran, serta pemutusan mata rantai konflik kepentingan",
+      "RINGKASAN": "Pada 18 Agustus 2026, pukul 16.45 s.d. 18.00 WIB, telah dilaksanakan aksi unjuk rasa oleh BEM Perguruan Tinggi Nahdlatul Ulama Bogor Raya dan BEM Universitas Muhammadiyah Bogor Raya (UMBARA), dipimpin Sdr. Muhammad Aminnulah dan M. Afif Zaelani, dengan estimasi massa ±100 orang, bertempat di Kantor Pemda Bogor, Polres Bogor, dan Kejaksaan Negeri Kabupaten Bogor, dengan tuntutan percepatan pemberantasan korupsi dan perampasan aset, reformasi partai politik dan Kepolisian, evaluasi keterlibatan militer, reformasi sistem peradilan, perlindungan kebebasan berpendapat, penghentian kriminalisasi, penguatan transparansi anggaran, serta pemutusan mata rantai konflik kepentingan",
+      "HAL MENONJOL": "-",
+      "GOOGLE MAPS": "https://maps.app.goo.gl/Phkxpu7QyA2FJvLb7",
+      "LAT": -6.48082,
+      "LNG": 106.8144252,
+      "createdAt": "2026-08-23T01:33:16.037Z",
+      "updatedAt": "2026-08-23T01:33:16.037Z"
+    },
+    {
+      "id": "6be5fc3b-f116-44af-a55c-70d8b7d6cc88",
+      "datasetId": "84bd6c3d-847e-4682-b214-08e5d83536af",
+      "NO": "335",
+      "TANGGAL": "8/24/26",
+      "WAKTU MULAI": "10:00",
+      "WAKTU SELESAI": "10:00",
+      "STATUS": "Selesai",
+      "WILAYAH": "DKI JAKARTA",
+      "JUMLAH MASSA": 100,
+      "LOKASI": "Silang Selatan Monas/Seberang Gedung Danareksa",
+      "KELOMPOK AKSI": "Front Masyarakat Menggugat, pimpinan Sdr. Rivai Sabon Mehen",
+      "KATEGORI DEMO": "Kontra",
+      "TUNTUTAN": "Evaluasi Kapolda Metro Jaya yang dinilai gagal menyelesaikan konflik antarsuku serta menyoroti isu rasisme terhadap masyarakat/suku dari wilayah timur Indonesia",
+      "RINGKASAN": "Senin, 24 Agustus 2026, pukul 10.00 WIB, akan dilaksnakan aksi dari Front Masyarakat Menggugat dipimpin Rivai Sabon Mehen akan menggelar aksi di Silang Selatan Monas/seberang Gedung Danareksa, dengan massa sekitar ±100 orang tuntutan mengevaluasi Kapolda Metro Jaya yang dinilai gagal menangani konflik antarsuku serta menyoroti dugaan rasisme terhadap masyarakat/suku dari wilayah timur Indonesia.",
+      "HAL MENONJOL": "-",
+      "GOOGLE MAPS": "https://maps.app.goo.gl/dkiPxnL5UCL7HLtV7",
+      "LAT": -6.1811706,
+      "LNG": 106.8246704,
+      "createdAt": "2026-08-24T02:43:00.739Z",
+      "updatedAt": "2026-08-24T10:34:16.599Z"
+    },
+    {
+      "id": "93a12990-082f-4e9a-b605-9a23d4653fc6",
+      "datasetId": "84bd6c3d-847e-4682-b214-08e5d83536af",
+      "NO": "336",
+      "TANGGAL": "8/24/26",
+      "WAKTU MULAI": "13:00",
+      "WAKTU SELESAI": "13:00",
+      "STATUS": "Selesai",
+      "WILAYAH": "DKI JAKARTA",
+      "JUMLAH MASSA": 20,
+      "LOKASI": "Depan Mabes TNI AD, Jl. Veteran, Gambir, Jakarta Pusat",
+      "KELOMPOK AKSI": "Poros Mahasiswa Jakarta Raya, pimpinan Sdr. Erza Putra Mulya",
+      "KATEGORI DEMO": "Kontra",
+      "TUNTUTAN": "Usut tuntas dugaan kasus penganiayaan terhadap korban (DJ) yang diduga melibatkan oknum pejabat TNI",
+      "RINGKASAN": "Senin, 24 Agustus 2026, pukul 13.00 WIB, akan dilaksanakan aksi dari Poros Mahasiswa Jakarta Raya dipimpin Erza Putra Mulya di depan Mabes TNI AD, Jl. Veteran, Gambir, Jakarta Pusat, dengan massa sekitar ±20 orang, dengan tuntutan mengusut tuntas dugaan kasus penganiayaan terhadap korban (DJ) yang diduga melibatkan oknum pejabat TNI.",
+      "HAL MENONJOL": "-",
+      "GOOGLE MAPS": "https://maps.app.goo.gl/hKaJCjDs65i1ciMz6",
+      "LAT": -6.1687813,
+      "LNG": 106.8286772,
+      "createdAt": "2026-08-24T02:46:37.257Z",
+      "updatedAt": "2026-08-24T06:50:29.297Z"
+    },
+    {
+      "id": "bd6b0672-3b0f-443d-80e2-7f513a9f1349",
+      "datasetId": "84bd6c3d-847e-4682-b214-08e5d83536af",
+      "NO": "337",
+      "TANGGAL": "8/24/26",
+      "WAKTU MULAI": "12:00",
+      "WAKTU SELESAI": "16:20",
+      "STATUS": "Selesai",
+      "WILAYAH": "DKI JAKARTA",
+      "JUMLAH MASSA": 25,
+      "LOKASI": "Depan Gd. DPR/MPR RI, Jl. Gatot Subroto, Jakarta Pusat",
+      "KELOMPOK AKSI": "Aliansi Rakyat Indonesia Bersatu (AMPB, MURYI dan BMPI), pimpinan Suryani Kaliyana dan Wahyu",
+      "KATEGORI DEMO": "Kontra",
+      "TUNTUTAN": "Sahkan RUU Perampasan Aset dan revisi UU No. 31 Tahun 1999, dengan tuntutan pemberian hukuman mati terhadap koruptor tanpa toleransi",
+      "RINGKASAN": "enin, 24 Agustus 2026, pukul 10.00 WIB, akan dilaksanakan aksi dari Aliansi Rakyat Indonesia Bersatu (AMPB, MURYI dan BMPI) dipimpin Suryani Kaliyana dan Wahyu di depan Gd. DPR/MPR RI, Jl. Gatot Subroto, Jakarta Pusat, dengan massa sekitar ±25 orang, dengan tuntutan mengesahkan RUU Perampasan Aset dan merevisi UU No. 31 Tahun 1999, serta pemberian hukuman mati terhadap koruptor tanpa toleransi.",
+      "HAL MENONJOL": "-",
+      "GOOGLE MAPS": "https://maps.app.goo.gl/ZyhKwBs3MXyZLGfi7",
+      "LAT": -6.2089515,
+      "LNG": 106.7998183,
+      "createdAt": "2026-08-24T02:49:01.784Z",
+      "updatedAt": "2026-08-24T10:34:47.491Z"
+    },
+    {
+      "id": "186621ea-a553-44c9-b11d-eb4061d36f83",
+      "datasetId": "84bd6c3d-847e-4682-b214-08e5d83536af",
+      "NO": "338",
+      "TANGGAL": "8/24/26",
+      "WAKTU MULAI": "16:38",
+      "WAKTU SELESAI": "18:30",
+      "STATUS": "Selesai",
+      "WILAYAH": "JAWA TENGAH",
+      "JUMLAH MASSA": 300,
+      "LOKASI": "Kantor DPRD Provinsi Jawa Tengah, Kota Semarang",
+      "KELOMPOK AKSI": "Mahasiswa Universitas Diponegoro (UNDIP)",
+      "KATEGORI DEMO": "Kontra",
+      "TUNTUTAN": "Evaluasi program pemerintah, penolakan revisi UU Pemilu dan militerisme di ranah sipil, reformasi institusi dan komunikasi publik; transparansi dan pemerataan anggaran pendidikan, evaluasi Merdeka Belajar, peningkatan fasilitas riset dan kebebasan akademik; pengesahan RUU Perampasan Aset dan penguatan independensi KPK; serta evaluasi pelaksanaan MBG, pengendalian harga BBM khususnya Pertamax dan stabilisasi harga bahan pangan",
+      "RINGKASAN": "Pada 24 Agustus 2026, pukul 12.00 WIB, direncanakan aksi unjuk rasa oleh Mahasiswa Universitas Diponegoro (UNDIP), dipimpin Sdr. Nur Maajid Taufiqurrahman (Ketua BEM FIB UNDIP), bertempat di depan Kantor DPRD Provinsi Jawa Tengah, Kota Semarang, dengan estimasi massa ±250 orang, dengan tuntutan evaluasi program pemerintah, penolakan revisi UU Pemilu dan militerisme di ranah sipil, reformasi institusi dan komunikasi publik, transparansi dan pemerataan anggaran pendidikan, evaluasi Merdeka Belajar, peningkatan fasilitas riset dan kebebasan akademik, pengesahan RUU Perampasan Aset dan penguatan independensi KPK, serta evaluasi pelaksanaan MBG, pengendalian harga BBM khususnya Pertamax, dan stabilisasi harga bahan pangan.",
+      "HAL MENONJOL": "-",
+      "GOOGLE MAPS": "https://maps.app.goo.gl/EHzb9bBxRwrpE3G4A",
+      "LAT": -6.9935055,
+      "LNG": 110.4205273,
+      "createdAt": "2026-08-24T02:50:43.406Z",
+      "updatedAt": "2026-08-24T11:37:28.567Z"
+    },
+    {
+      "id": "da6087d7-bd9f-4be9-82af-c18fc2315f8f",
+      "datasetId": "84bd6c3d-847e-4682-b214-08e5d83536af",
+      "NO": "339",
+      "TANGGAL": "8/24/26",
+      "WAKTU MULAI": "11:00",
+      "WAKTU SELESAI": "11:40",
+      "STATUS": "Selesai",
+      "WILAYAH": "DKI JAKARTA",
+      "JUMLAH MASSA": 50,
+      "LOKASI": "Depan Gd. DPR/MPR RI, Jl. Gatot Subroto, Jakarta Pusat",
+      "KELOMPOK AKSI": "Solidaritas Nasional untuk Papua, pimpinan Sdr. M. Mufit",
+      "KATEGORI DEMO": "Pro",
+      "TUNTUTAN": "Meminta Pemerintah meningkatkan status KKB/OPM menjadi kelompok teroris",
+      "RINGKASAN": "Senin, 24 Agustus 2026, pukul 11.00 WIB, akan dilaksanakan aksi dari Solidaritas Nasional untuk Papua dipimpin M. Mufit di depan Gd. DPR/MPR RI, Jl. Gatot Subroto, Jakarta Pusat, dengan massa sekitar ±50 orang, dengan tuntutan meminta pemerintah meningkatkan status KKB/OPM menjadi kelompok teroris.",
+      "HAL MENONJOL": "-",
+      "GOOGLE MAPS": "https://maps.app.goo.gl/ZyhKwBs3MXyZLGfi7",
+      "LAT": -6.2089515,
+      "LNG": 106.7998183,
+      "createdAt": "2026-08-24T02:51:31.965Z",
+      "updatedAt": "2026-08-24T06:07:06.382Z"
+    },
+    {
+      "id": "84e984e8-eed6-4fcd-b9a0-ec71a7d37eb6",
+      "datasetId": "84bd6c3d-847e-4682-b214-08e5d83536af",
+      "NO": "340",
+      "TANGGAL": "8/24/26",
+      "WAKTU MULAI": "14:30",
+      "WAKTU SELESAI": "15:53",
+      "STATUS": "Selesai",
+      "WILAYAH": "DKI JAKARTA",
+      "JUMLAH MASSA": 300,
+      "LOKASI": "Depan Gd. DPR/MPR RI, Jl. Gatot Subroto, Jakarta Pusat",
+      "KELOMPOK AKSI": "Komando Rakyat Jaga Persatuan (KRJP), pimpinan Sdr. Fauzi Bison",
+      "KATEGORI DEMO": "Pro",
+      "TUNTUTAN": "Menjaga keutuhan NKRI; menolak provokasi, ujaran kebencian, dan upaya memecah belah bangsa; serta mengajak seluruh elemen masyarakat menyampaikan kritik dan aspirasi secara damai melalui demokrasi yang santun",
+      "RINGKASAN": "Senin, 24 Agustus 2026, pukul 14.00 WIB, akan dilaksanakan aksi dari Komando Rakyat Jaga Persatuan (KRJP) dipimpin Fauzi Bison di depan Gd. DPR/MPR RI, Jl. Gatot Subroto, Jakarta Pusat, dengan massa sekitar ±300 orang, dengan tuntutan menjaga keutuhan NKRI, menolak provokasi, ujaran kebencian, dan upaya memecah belah bangsa, serta mengajak seluruh elemen masyarakat menyampaikan kritik dan aspirasi secara damai melalui demokrasi yang santun.",
+      "HAL MENONJOL": "-",
+      "GOOGLE MAPS": "https://maps.app.goo.gl/ZyhKwBs3MXyZLGfi7",
+      "LAT": -6.2089515,
+      "LNG": 106.7998183,
+      "createdAt": "2026-08-24T02:53:31.437Z",
+      "updatedAt": "2026-08-24T10:46:37.999Z"
+    },
+    {
+      "id": "c7db721c-5c84-4349-9c61-1ae53ccbd4af",
+      "datasetId": "84bd6c3d-847e-4682-b214-08e5d83536af",
+      "NO": "341",
+      "TANGGAL": "8/24/26",
+      "WAKTU MULAI": "16:54",
+      "WAKTU SELESAI": "18:00",
+      "STATUS": "Selesai",
+      "WILAYAH": "JAWA TENGAH",
+      "JUMLAH MASSA": 50,
+      "LOKASI": "Tugu Kartasura, Jl. Diponegoro Barat No. 19, Kec. Kartasura, Kab. Sukoharjo",
+      "KELOMPOK AKSI": "BEM Solo Raya",
+      "KATEGORI DEMO": "Kontra",
+      "TUNTUTAN": "Tegakkan KDMP dan pastikan manfaatnya bagi Masyarakat, Evaluasi total program MBG dan keterlibatan TNI/Polri, Evaluasi PSN dan perlindungan masyarakat terdampak, peningkatan kesejahteraan dan kepastian status guru honorer, Pengendalian harga kebutuhan pokok, Pembenahan pendataan desil dan ketepatan sasaran bansos, Pemberantasan KKN/korupsi dan penegakan hukum, Pemerataan pendidikan dan kesehatan khususnya Papua, Jaminan ruang demokrasi dan kebebasan berpendapat, Pengesahan RUU Perampasan Aset, serta Penegakan Tupoksi TNI/Polri secara profesional sesuai kewenangan.",
+      "RINGKASAN": "Pada 24 Agustus 2026, pukul 15.00 WIB, direncanakan aksi unjuk rasa bertempat di Tugu Kartasura, Jl. Diponegoro Barat No. 19, Kec. Kartasura, Kab. Sukoharjo, dengan estimasi massa ±300 orang, dengan tuntutan penegakan KDMP agar memberikan manfaat bagi masyarakat, evaluasi program MBG dan keterlibatan TNI/Polri, evaluasi PSN dan perlindungan masyarakat terdampak, peningkatan kesejahteraan dan kepastian status guru honorer, pengendalian harga kebutuhan pokok, pembenahan pendataan desil dan bansos, pemberantasan KKN/korupsi, pemerataan pendidikan dan kesehatan khususnya Papua, jaminan ruang demokrasi dan kebebasan berpendapat, pengesahan RUU Perampasan Aset, serta penegakan tupoksi TNI/Polri secara profesional sesuai kewenangan.",
+      "HAL MENONJOL": "-",
+      "GOOGLE MAPS": "https://maps.app.goo.gl/rNgrmsyxdrfmkQ3B6",
+      "LAT": -7.5503717,
+      "LNG": 110.7367071,
+      "createdAt": "2026-08-24T02:54:36.554Z",
+      "updatedAt": "2026-08-24T11:24:44.758Z"
+    },
+    {
+      "id": "8756b480-a3d6-4858-8ba5-62cdff8e8de5",
+      "datasetId": "84bd6c3d-847e-4682-b214-08e5d83536af",
+      "NO": "342",
+      "TANGGAL": "8/24/26",
+      "WAKTU MULAI": "14:40",
+      "WAKTU SELESAI": "17:25",
+      "STATUS": "Selesai",
+      "WILAYAH": "DKI JAKARTA",
+      "JUMLAH MASSA": 200,
+      "LOKASI": "Depan Gd. DPR/MPR RI, Jl. Gatot Subroto, Jakarta Pusat",
+      "KELOMPOK AKSI": "Aliansi Mahasiswa Jakarta, pimpinan Sdr. Novran",
+      "KATEGORI DEMO": "Pro",
+      "TUNTUTAN": "Menjaga persatuan dan kesatuan bangsa serta menolak segala bentuk provokasi yang berpotensi mengganggu stabilitas dan keutuhan NKRI",
+      "RINGKASAN": "Senin, 24 Agustus 2026, pukul 14.00 WIB, akan dilaksanakan aksi dari Aliansi Mahasiswa Jakarta dipimpin Novran di depan Gd. DPR/MPR RI, Jl. Gatot Subroto, Jakarta Pusat, dengan massa sekitar ±200 orang, dengan tuntutan menjaga persatuan dan kesatuan bangsa serta menolak segala bentuk provokasi yang berpotensi mengganggu stabilitas dan keutuhan NKRI.",
+      "HAL MENONJOL": "-",
+      "GOOGLE MAPS": "https://maps.app.goo.gl/ZyhKwBs3MXyZLGfi7",
+      "LAT": -6.2089515,
+      "LNG": 106.7998183,
+      "createdAt": "2026-08-24T02:56:02.610Z",
+      "updatedAt": "2026-08-24T10:45:49.109Z"
+    },
+    {
+      "id": "cd4cf77a-289f-4337-a0d0-090a2dabc84d",
+      "datasetId": "84bd6c3d-847e-4682-b214-08e5d83536af",
+      "NO": "343",
+      "TANGGAL": "8/18/26",
+      "WAKTU MULAI": "10:20",
+      "WAKTU SELESAI": "11:30",
+      "STATUS": "Selesai",
+      "WILAYAH": "JAWA TENGAH",
+      "JUMLAH MASSA": 40,
+      "LOKASI": "Kantor DPRD Kabupaten Pati",
+      "KELOMPOK AKSI": "Perwakilan Peternak Unggas Kabupaten Pati",
+      "KATEGORI DEMO": "Kontra",
+      "TUNTUTAN": "mencopot dan memecat Jampidsus Kejaksaan Agung, menyerahkan Jampidsus Kejaksaan Agung kepada pihak Kepolisian untuk diproses, serta mendesak agar Kejaksaan tidak menjadi sarang praktik korupsi",
+      "RINGKASAN": "Pada 18 Agustus 2026, pukul 10.20 s.d. 11.30 WIB, telah dilaksanakan aksi unjuk rasa oleh Perwakilan Peternak Unggas Kabupaten Pati, dipimpin Sdr. Dwi Agus Irawanto, bertempat di Kantor DPRD Kabupaten Pati, dengan estimasi massa ±40 orang, dengan tuntutan mencopot dan memecat Jampidsus Kejaksaan Agung, menyerahkan Jampidsus Kejaksaan Agung kepada pihak Kepolisian untuk diproses, serta mendesak agar Kejaksaan tidak menjadi sarang praktik korupsi.",
+      "HAL MENONJOL": "-",
+      "GOOGLE MAPS": "https://maps.app.goo.gl/sQy3pgpHqpNMWt5v8",
+      "LAT": -6.7525317,
+      "LNG": 111.0408835,
+      "createdAt": "2026-08-24T02:57:16.182Z",
+      "updatedAt": "2026-08-24T02:57:16.182Z"
+    },
+    {
+      "id": "9cb57eaf-4570-4344-8043-f84dcc106966",
+      "datasetId": "84bd6c3d-847e-4682-b214-08e5d83536af",
+      "NO": "344",
+      "TANGGAL": "8/18/26",
+      "WAKTU MULAI": "10:20",
+      "WAKTU SELESAI": "11:30",
+      "STATUS": "Selesai",
+      "WILAYAH": "JAWA TENGAH",
+      "JUMLAH MASSA": 50,
+      "LOKASI": "Kantor DPRD Kabupaten Klaten",
+      "KELOMPOK AKSI": "Aliansi Masyarakat Peduli Klaten",
+      "KATEGORI DEMO": "Pro",
+      "TUNTUTAN": "penolakan terhadap perkembangan LGBT/BOTI di wilayah Kabupaten Klaten",
+      "RINGKASAN": "Pada 18 Agustus 2026, pukul 10.20 s.d. 11.30 WIB, telah dilaksanakan aksi unjuk rasa oleh Aliansi Masyarakat Peduli Klaten, dipimpin Sdr. Bony Azwar Azhar, bertempat di halaman Kantor DPRD Kabupaten Klaten, dengan estimasi massa ±50 orang, dengan tuntutan penolakan terhadap perkembangan LGBT/BOTI di wilayah Kabupaten Klaten. Kegiatan telah selesai.",
+      "HAL MENONJOL": "-",
+      "GOOGLE MAPS": "https://maps.app.goo.gl/xGz463vEGKeANtUw9",
+      "LAT": -7.7131469,
+      "LNG": 110.5916147,
+      "createdAt": "2026-08-24T03:04:12.442Z",
+      "updatedAt": "2026-08-24T03:04:12.442Z"
+    },
+    {
+      "id": "2191a05d-01a7-4308-ac3b-c2b87ee158dd",
+      "datasetId": "84bd6c3d-847e-4682-b214-08e5d83536af",
+      "NO": "345",
+      "TANGGAL": "8/18/26",
+      "WAKTU MULAI": "10:27",
+      "WAKTU SELESAI": "16:17",
+      "STATUS": "Selesai",
+      "WILAYAH": "DI YOGYAKARTA",
+      "JUMLAH MASSA": 70,
+      "LOKASI": "Mapolda DIY",
+      "KELOMPOK AKSI": "Ormas Islam Front Jihad Islam (FJI)",
+      "KATEGORI DEMO": "Kontra",
+      "TUNTUTAN": "penetapan tersangka dalam kasus pembubaran paksa ibadah Gereja Misi Sejahtera (GMS) Bantul",
+      "RINGKASAN": "Pada 18 Agustus 2026, pukul 10.27 s.d. 16.17 WIB, telah dilaksanakan apel oleh Ormas Islam Front Jihad Islam (FJI), dipimpin Sdr. Darohman/Abdurahman Abu Zaki (Ketua FJI), bertempat di Mapolda DIY, Jl. Ringroad Utara, Condongcatur, Depok, Sleman, dengan estimasi massa ±70 orang, terkait penetapan tersangka dalam kasus pembubaran paksa ibadah Gereja Misi Sejahtera (GMS) Bantul.",
+      "HAL MENONJOL": "-",
+      "GOOGLE MAPS": "https://maps.app.goo.gl/5AzZREY74QbkcMWi9",
+      "LAT": -7.7579564,
+      "LNG": 110.400514,
+      "createdAt": "2026-08-24T03:09:59.497Z",
+      "updatedAt": "2026-08-24T03:09:59.497Z"
+    },
+    {
+      "id": "b0d6181d-9aa7-47e9-8ed1-09ede28a925a",
+      "datasetId": "84bd6c3d-847e-4682-b214-08e5d83536af",
+      "NO": "346",
+      "TANGGAL": "8/18/26",
+      "WAKTU MULAI": "16:15",
+      "WAKTU SELESAI": "17:00",
+      "STATUS": "Selesai",
+      "WILAYAH": "SULAWESI SELATAN",
+      "JUMLAH MASSA": 20,
+      "LOKASI": "Pertigaan Pettarani–Alauddin, Kota Makassar",
+      "KELOMPOK AKSI": "Gerakan Solidaritas Mahasiswa Merdeka",
+      "KATEGORI DEMO": "Kontra",
+      "TUNTUTAN": "mengangkat isu “Negara Darurat HAM”.",
+      "RINGKASAN": "Pada 18 Agustus 2026, pukul 16.15 s.d. 17.00 WITA, telah dilaksanakan aksi unjuk rasa oleh Gerakan Solidaritas Mahasiswa Merdeka, dipimpin Sdr. Zadi, bertempat di Pertigaan Pettarani–Alauddin, Kota Makassar, dengan estimasi massa ±20 orang, dengan mengangkat isu “Negara Darurat HAM”.",
+      "HAL MENONJOL": "-",
+      "GOOGLE MAPS": "https://maps.app.goo.gl/ZQh1uzLEnJF744Ss9",
+      "LAT": -5.1694522,
+      "LNG": 119.429053,
+      "createdAt": "2026-08-24T03:12:24.329Z",
+      "updatedAt": "2026-08-24T03:12:24.329Z"
+    },
+    {
+      "id": "85895fea-fab4-4ee6-be4a-d5fa5e1a43a7",
+      "datasetId": "84bd6c3d-847e-4682-b214-08e5d83536af",
+      "NO": "347",
+      "TANGGAL": "8/18/26",
+      "WAKTU MULAI": "14:38",
+      "WAKTU SELESAI": "16:24",
+      "STATUS": "Selesai",
+      "WILAYAH": "KALIMANTAN TIMUR",
+      "JUMLAH MASSA": 100,
+      "LOKASI": "Kantor Bupati Penajam Paser Utara",
+      "KELOMPOK AKSI": "PC PMII Kabupaten Penajam Paser Utara (PPU)",
+      "KATEGORI DEMO": "Kontra",
+      "TUNTUTAN": "memastikan akses BBM bersubsidi bagi masyarakat yang berhak serta mendorong keterlibatan publik dalam pengawasan distribusi BBM bersubsidi",
+      "RINGKASAN": "Pada 18 Agustus 2026, pukul 14.38 s.d. 16.24 WITA, telah dilaksanakan aksi unjuk rasa oleh PC PMII Kabupaten Penajam Paser Utara (PPU), dipimpin Sdr. Zamzam Nur Faturahman (Ketua PC PMII PPU), bertempat di depan Kantor Bupati Penajam Paser Utara, dengan estimasi massa ±100 orang, dengan tuntutan memastikan akses BBM bersubsidi bagi masyarakat yang berhak serta mendorong keterlibatan publik dalam pengawasan distribusi BBM bersubsidi.",
+      "HAL MENONJOL": "-",
+      "GOOGLE MAPS": "https://maps.app.goo.gl/i8fVf7okrRJ5Sp9G9",
+      "LAT": -1.3100278,
+      "LNG": 116.7276056,
+      "createdAt": "2026-08-24T03:15:31.185Z",
+      "updatedAt": "2026-08-24T03:15:31.185Z"
     }
   ],
   "exchangeRateData": {
@@ -7300,9 +7828,9 @@
       "repository": "https://github.com/nasgunawann/bensin-api",
       "province": "Prov. DKI Jakarta",
       "provinceSlug": "dki-jakarta",
-      "sourceIndexUpdatedAt": "2026-06-30T17:00:44.000Z",
-      "syncedAt": "2026-07-28T23:05:09.156916Z",
-      "latestUpdatedAt": "2026-06-30T17:00:44.000Z",
+      "sourceIndexUpdatedAt": "2026-09-02T00:01:00.000Z",
+      "syncedAt": "2026-09-06T23:40:43.108692Z",
+      "latestUpdatedAt": "2026-09-02T00:01:00.000Z",
       "warning": "",
       "historySource": "current-plus-commits",
       "snapshots": [
@@ -7452,16 +7980,212 @@
             }
           ],
           "commitSha": "a953439439ea4edeb638dd4df4e0e32ab0f20a2a"
+        },
+        {
+          "effectiveDate": "2026-08-01",
+          "updatedAt": "2026-08-01T08:00:44.000Z",
+          "fuels": [
+            {
+              "product": "PERTALITE",
+              "name": "Pertalite",
+              "price": 10000,
+              "availability": "available"
+            },
+            {
+              "product": "PERTAMINA BIOSOLAR SUBSIDI",
+              "name": "Biosolar Subsidi",
+              "price": 6800,
+              "availability": "available"
+            },
+            {
+              "product": "PERTAMAX",
+              "name": "Pertamax",
+              "price": 15950,
+              "availability": "available"
+            },
+            {
+              "product": "PERTAMAX GREEN 95",
+              "name": "Pertamax Green 95",
+              "price": 16600,
+              "availability": "available"
+            },
+            {
+              "product": "PERTAMAX TURBO",
+              "name": "Pertamax Turbo",
+              "price": 18300,
+              "availability": "available"
+            },
+            {
+              "product": "DEXLITE",
+              "name": "Dexlite",
+              "price": 19700,
+              "availability": "available"
+            },
+            {
+              "product": "PERTAMINA DEX",
+              "name": "Pertamina Dex",
+              "price": 21150,
+              "availability": "available"
+            }
+          ],
+          "commitSha": "abc4bafcb1b38c6dd53ae6d6b9456838ef0dd8c2"
+        },
+        {
+          "effectiveDate": "2026-08-23",
+          "updatedAt": "2026-08-24T00:01:00.000Z",
+          "fuels": [
+            {
+              "product": "PERTALITE",
+              "name": "Pertalite",
+              "price": 10000,
+              "availability": "available"
+            },
+            {
+              "product": "PERTAMINA BIOSOLAR SUBSIDI",
+              "name": "Biosolar Subsidi",
+              "price": 6800,
+              "availability": "available"
+            },
+            {
+              "product": "PERTAMAX",
+              "name": "Pertamax",
+              "price": 15950,
+              "availability": "available"
+            },
+            {
+              "product": "PERTAMAX GREEN 95",
+              "name": "Pertamax Green 95",
+              "price": 16600,
+              "availability": "available"
+            },
+            {
+              "product": "PERTAMAX TURBO",
+              "name": "Pertamax Turbo",
+              "price": 18300,
+              "availability": "available"
+            },
+            {
+              "product": "DEXLITE",
+              "name": "Dexlite",
+              "price": 19700,
+              "availability": "available"
+            },
+            {
+              "product": "PERTAMINA DEX",
+              "name": "Pertamina Dex",
+              "price": 21150,
+              "availability": "available"
+            }
+          ],
+          "commitSha": "0e3941a90d9511315cd2addd2defda4ded0cbe86"
+        },
+        {
+          "effectiveDate": "2026-08-31",
+          "updatedAt": "2026-09-01T00:01:00.000Z",
+          "fuels": [
+            {
+              "product": "PERTALITE",
+              "name": "Pertalite",
+              "price": 10000,
+              "availability": "available"
+            },
+            {
+              "product": "PERTAMINA BIOSOLAR SUBSIDI",
+              "name": "Biosolar Subsidi",
+              "price": 6800,
+              "availability": "available"
+            },
+            {
+              "product": "PERTAMAX",
+              "name": "Pertamax",
+              "price": 15950,
+              "availability": "available"
+            },
+            {
+              "product": "PERTAMAX GREEN 95",
+              "name": "Pertamax Green 95",
+              "price": 16600,
+              "availability": "available"
+            },
+            {
+              "product": "PERTAMAX TURBO",
+              "name": "Pertamax Turbo",
+              "price": 19600,
+              "availability": "available"
+            },
+            {
+              "product": "DEXLITE",
+              "name": "Dexlite",
+              "price": 23700,
+              "availability": "available"
+            },
+            {
+              "product": "PERTAMINA DEX",
+              "name": "Pertamina Dex",
+              "price": 25200,
+              "availability": "available"
+            }
+          ],
+          "commitSha": "f93d438a7795a26fc3b293d1854d5f4c8a6e9be2"
+        },
+        {
+          "effectiveDate": "2026-09-01",
+          "updatedAt": "2026-09-02T00:01:00.000Z",
+          "fuels": [
+            {
+              "product": "PERTALITE",
+              "name": "Pertalite",
+              "price": 10000,
+              "availability": "available"
+            },
+            {
+              "product": "PERTAMINA BIOSOLAR SUBSIDI",
+              "name": "Biosolar Subsidi",
+              "price": 6800,
+              "availability": "available"
+            },
+            {
+              "product": "PERTAMAX",
+              "name": "Pertamax",
+              "price": 15950,
+              "availability": "available"
+            },
+            {
+              "product": "PERTAMAX GREEN 95",
+              "name": "Pertamax Green 95",
+              "price": 19150,
+              "availability": "available"
+            },
+            {
+              "product": "PERTAMAX TURBO",
+              "name": "Pertamax Turbo",
+              "price": 19600,
+              "availability": "available"
+            },
+            {
+              "product": "DEXLITE",
+              "name": "Dexlite",
+              "price": 23700,
+              "availability": "available"
+            },
+            {
+              "product": "PERTAMINA DEX",
+              "name": "Pertamina Dex",
+              "price": 25200,
+              "availability": "available"
+            }
+          ],
+          "commitSha": "bfd7d9152a28a6f844a25d762fe29f3971562a60"
         }
       ]
     },
-    "updatedAt": 1785284770104
+    "updatedAt": 1788746313939
   },
   "commodityPriceData": {
     "data": {
       "provider": "PIHPS Nasional Bank Indonesia",
       "sourceUrl": "https://www.bi.go.id/hargapangan/WebSite",
-      "tempId": "b20c90aa-7192-44f9-ac44-ed216b2042b6",
+      "tempId": "8988d28a-15c0-490c-87a3-617e5c4cbea2",
       "trackedCommodityCacheVersion": 2,
       "missingCommodityLabels": [
         "Cabe Merah",
@@ -7475,8 +8199,8 @@
           "denomination": "kg",
           "points": [
             {
-              "date": "2026-07-21",
-              "price": 16400,
+              "date": "2026-08-31",
+              "price": 16550,
               "denomination": "kg",
               "changeAmount": 0,
               "changePercent": 0,
@@ -7485,8 +8209,8 @@
               "isStable": false
             },
             {
-              "date": "2026-07-22",
-              "price": 16400,
+              "date": "2026-09-01",
+              "price": 16550,
               "denomination": "kg",
               "changeAmount": 0,
               "changePercent": 0,
@@ -7495,8 +8219,8 @@
               "isStable": false
             },
             {
-              "date": "2026-07-23",
-              "price": 16400,
+              "date": "2026-09-02",
+              "price": 16550,
               "denomination": "kg",
               "changeAmount": 0,
               "changePercent": 0,
@@ -7505,8 +8229,8 @@
               "isStable": false
             },
             {
-              "date": "2026-07-24",
-              "price": 16400,
+              "date": "2026-09-03",
+              "price": 16550,
               "denomination": "kg",
               "changeAmount": 0,
               "changePercent": 0,
@@ -7515,18 +8239,8 @@
               "isStable": false
             },
             {
-              "date": "2026-07-27",
-              "price": 16400,
-              "denomination": "kg",
-              "changeAmount": 0,
-              "changePercent": 0,
-              "isMin": false,
-              "isMax": false,
-              "isStable": false
-            },
-            {
-              "date": "2026-07-28",
-              "price": 16400,
+              "date": "2026-09-04",
+              "price": 16550,
               "denomination": "kg",
               "changeAmount": 0,
               "changePercent": 0,
@@ -7543,61 +8257,51 @@
           "denomination": "kg",
           "points": [
             {
-              "date": "2026-07-21",
-              "price": 38750,
+              "date": "2026-08-31",
+              "price": 42600,
               "denomination": "kg",
               "changeAmount": 0,
               "changePercent": 0,
+              "isMin": false,
+              "isMax": false,
+              "isStable": false
+            },
+            {
+              "date": "2026-09-01",
+              "price": 42550,
+              "denomination": "kg",
+              "changeAmount": -50,
+              "changePercent": -0.12,
               "isMin": true,
               "isMax": false,
               "isStable": false
             },
             {
-              "date": "2026-07-22",
-              "price": 38900,
+              "date": "2026-09-02",
+              "price": 42600,
               "denomination": "kg",
-              "changeAmount": 150,
-              "changePercent": 0.39,
+              "changeAmount": 0,
+              "changePercent": 0,
               "isMin": false,
               "isMax": false,
               "isStable": false
             },
             {
-              "date": "2026-07-23",
-              "price": 39100,
+              "date": "2026-09-03",
+              "price": 42550,
               "denomination": "kg",
-              "changeAmount": 350,
-              "changePercent": 0.9,
+              "changeAmount": -50,
+              "changePercent": -0.12,
               "isMin": false,
               "isMax": false,
               "isStable": false
             },
             {
-              "date": "2026-07-24",
-              "price": 39100,
+              "date": "2026-09-04",
+              "price": 42700,
               "denomination": "kg",
-              "changeAmount": 350,
-              "changePercent": 0.9,
-              "isMin": false,
-              "isMax": false,
-              "isStable": false
-            },
-            {
-              "date": "2026-07-27",
-              "price": 39550,
-              "denomination": "kg",
-              "changeAmount": 800,
-              "changePercent": 2.06,
-              "isMin": false,
-              "isMax": false,
-              "isStable": false
-            },
-            {
-              "date": "2026-07-28",
-              "price": 39650,
-              "denomination": "kg",
-              "changeAmount": 900,
-              "changePercent": 2.32,
+              "changeAmount": 100,
+              "changePercent": 0.23,
               "isMin": false,
               "isMax": true,
               "isStable": false
@@ -7611,63 +8315,53 @@
           "denomination": "kg",
           "points": [
             {
-              "date": "2026-07-21",
-              "price": 150550,
+              "date": "2026-08-31",
+              "price": 151950,
               "denomination": "kg",
               "changeAmount": 0,
               "changePercent": 0,
+              "isMin": false,
+              "isMax": false,
+              "isStable": false
+            },
+            {
+              "date": "2026-09-01",
+              "price": 152000,
+              "denomination": "kg",
+              "changeAmount": 50,
+              "changePercent": 0.03,
+              "isMin": false,
+              "isMax": true,
+              "isStable": false
+            },
+            {
+              "date": "2026-09-02",
+              "price": 151800,
+              "denomination": "kg",
+              "changeAmount": -150,
+              "changePercent": -0.1,
+              "isMin": false,
+              "isMax": false,
+              "isStable": false
+            },
+            {
+              "date": "2026-09-03",
+              "price": 151750,
+              "denomination": "kg",
+              "changeAmount": -200,
+              "changePercent": -0.13,
               "isMin": true,
               "isMax": false,
               "isStable": false
             },
             {
-              "date": "2026-07-22",
-              "price": 150800,
+              "date": "2026-09-04",
+              "price": 151900,
               "denomination": "kg",
-              "changeAmount": 250,
-              "changePercent": 0.17,
+              "changeAmount": -50,
+              "changePercent": -0.03,
               "isMin": false,
               "isMax": false,
-              "isStable": false
-            },
-            {
-              "date": "2026-07-23",
-              "price": 150950,
-              "denomination": "kg",
-              "changeAmount": 400,
-              "changePercent": 0.27,
-              "isMin": false,
-              "isMax": false,
-              "isStable": false
-            },
-            {
-              "date": "2026-07-24",
-              "price": 150900,
-              "denomination": "kg",
-              "changeAmount": 350,
-              "changePercent": 0.23,
-              "isMin": false,
-              "isMax": false,
-              "isStable": false
-            },
-            {
-              "date": "2026-07-27",
-              "price": 150950,
-              "denomination": "kg",
-              "changeAmount": 400,
-              "changePercent": 0.27,
-              "isMin": false,
-              "isMax": false,
-              "isStable": false
-            },
-            {
-              "date": "2026-07-28",
-              "price": 151100,
-              "denomination": "kg",
-              "changeAmount": 550,
-              "changePercent": 0.37,
-              "isMin": false,
-              "isMax": true,
               "isStable": false
             }
           ]
@@ -7679,64 +8373,54 @@
           "denomination": "kg",
           "points": [
             {
-              "date": "2026-07-21",
-              "price": 29600,
+              "date": "2026-08-31",
+              "price": 29550,
               "denomination": "kg",
               "changeAmount": 0,
               "changePercent": 0,
-              "isMin": false,
-              "isMax": false,
-              "isStable": false
-            },
-            {
-              "date": "2026-07-22",
-              "price": 29600,
-              "denomination": "kg",
-              "changeAmount": 0,
-              "changePercent": 0,
-              "isMin": false,
-              "isMax": false,
-              "isStable": false
-            },
-            {
-              "date": "2026-07-23",
-              "price": 29600,
-              "denomination": "kg",
-              "changeAmount": 0,
-              "changePercent": 0,
-              "isMin": false,
-              "isMax": false,
-              "isStable": false
-            },
-            {
-              "date": "2026-07-24",
-              "price": 29600,
-              "denomination": "kg",
-              "changeAmount": 0,
-              "changePercent": 0,
-              "isMin": false,
-              "isMax": false,
-              "isStable": false
-            },
-            {
-              "date": "2026-07-27",
-              "price": 29500,
-              "denomination": "kg",
-              "changeAmount": -100,
-              "changePercent": -0.34,
               "isMin": true,
               "isMax": false,
               "isStable": false
             },
             {
-              "date": "2026-07-28",
-              "price": 29600,
+              "date": "2026-09-01",
+              "price": 29550,
               "denomination": "kg",
               "changeAmount": 0,
               "changePercent": 0,
               "isMin": false,
+              "isMax": false,
+              "isStable": false
+            },
+            {
+              "date": "2026-09-02",
+              "price": 29650,
+              "denomination": "kg",
+              "changeAmount": 100,
+              "changePercent": 0.34,
+              "isMin": false,
+              "isMax": false,
+              "isStable": false
+            },
+            {
+              "date": "2026-09-03",
+              "price": 29650,
+              "denomination": "kg",
+              "changeAmount": 100,
+              "changePercent": 0.34,
+              "isMin": false,
+              "isMax": false,
+              "isStable": false
+            },
+            {
+              "date": "2026-09-04",
+              "price": 29650,
+              "denomination": "kg",
+              "changeAmount": 100,
+              "changePercent": 0.34,
+              "isMin": false,
               "isMax": true,
-              "isStable": true
+              "isStable": false
             }
           ]
         },
@@ -7747,8 +8431,38 @@
           "denomination": "kg",
           "points": [
             {
-              "date": "2026-07-21",
-              "price": 42600,
+              "date": "2026-08-31",
+              "price": 38450,
+              "denomination": "kg",
+              "changeAmount": 0,
+              "changePercent": 0,
+              "isMin": false,
+              "isMax": false,
+              "isStable": false
+            },
+            {
+              "date": "2026-09-01",
+              "price": 38450,
+              "denomination": "kg",
+              "changeAmount": 0,
+              "changePercent": 0,
+              "isMin": false,
+              "isMax": false,
+              "isStable": false
+            },
+            {
+              "date": "2026-09-02",
+              "price": 38450,
+              "denomination": "kg",
+              "changeAmount": 0,
+              "changePercent": 0,
+              "isMin": false,
+              "isMax": false,
+              "isStable": false
+            },
+            {
+              "date": "2026-09-03",
+              "price": 38450,
               "denomination": "kg",
               "changeAmount": 0,
               "changePercent": 0,
@@ -7757,52 +8471,12 @@
               "isStable": false
             },
             {
-              "date": "2026-07-22",
-              "price": 42450,
-              "denomination": "kg",
-              "changeAmount": -150,
-              "changePercent": -0.35,
-              "isMin": false,
-              "isMax": false,
-              "isStable": false
-            },
-            {
-              "date": "2026-07-23",
-              "price": 42250,
+              "date": "2026-09-04",
+              "price": 38100,
               "denomination": "kg",
               "changeAmount": -350,
-              "changePercent": -0.82,
-              "isMin": false,
-              "isMax": false,
-              "isStable": false
-            },
-            {
-              "date": "2026-07-24",
-              "price": 42150,
-              "denomination": "kg",
-              "changeAmount": -450,
-              "changePercent": -1.06,
-              "isMin": false,
-              "isMax": false,
-              "isStable": false
-            },
-            {
-              "date": "2026-07-27",
-              "price": 40800,
-              "denomination": "kg",
-              "changeAmount": -1800,
-              "changePercent": -4.23,
+              "changePercent": -0.91,
               "isMin": true,
-              "isMax": false,
-              "isStable": false
-            },
-            {
-              "date": "2026-07-28",
-              "price": 40800,
-              "denomination": "kg",
-              "changeAmount": -1800,
-              "changePercent": -4.23,
-              "isMin": false,
               "isMax": false,
               "isStable": false
             }
@@ -7815,8 +8489,8 @@
           "denomination": "kg",
           "points": [
             {
-              "date": "2026-07-21",
-              "price": 43200,
+              "date": "2026-08-31",
+              "price": 39600,
               "denomination": "kg",
               "changeAmount": 0,
               "changePercent": 0,
@@ -7825,52 +8499,42 @@
               "isStable": false
             },
             {
-              "date": "2026-07-22",
-              "price": 42900,
+              "date": "2026-09-01",
+              "price": 39550,
+              "denomination": "kg",
+              "changeAmount": -50,
+              "changePercent": -0.13,
+              "isMin": false,
+              "isMax": false,
+              "isStable": false
+            },
+            {
+              "date": "2026-09-02",
+              "price": 39450,
+              "denomination": "kg",
+              "changeAmount": -150,
+              "changePercent": -0.38,
+              "isMin": false,
+              "isMax": false,
+              "isStable": false
+            },
+            {
+              "date": "2026-09-03",
+              "price": 39400,
+              "denomination": "kg",
+              "changeAmount": -200,
+              "changePercent": -0.51,
+              "isMin": false,
+              "isMax": false,
+              "isStable": false
+            },
+            {
+              "date": "2026-09-04",
+              "price": 39300,
               "denomination": "kg",
               "changeAmount": -300,
-              "changePercent": -0.69,
-              "isMin": false,
-              "isMax": false,
-              "isStable": false
-            },
-            {
-              "date": "2026-07-23",
-              "price": 42900,
-              "denomination": "kg",
-              "changeAmount": -300,
-              "changePercent": -0.69,
-              "isMin": false,
-              "isMax": false,
-              "isStable": false
-            },
-            {
-              "date": "2026-07-24",
-              "price": 42700,
-              "denomination": "kg",
-              "changeAmount": -500,
-              "changePercent": -1.16,
-              "isMin": false,
-              "isMax": false,
-              "isStable": false
-            },
-            {
-              "date": "2026-07-27",
-              "price": 42100,
-              "denomination": "kg",
-              "changeAmount": -1100,
-              "changePercent": -2.55,
+              "changePercent": -0.76,
               "isMin": true,
-              "isMax": false,
-              "isStable": false
-            },
-            {
-              "date": "2026-07-28",
-              "price": 42250,
-              "denomination": "kg",
-              "changeAmount": -950,
-              "changePercent": -2.2,
-              "isMin": false,
               "isMax": false,
               "isStable": false
             }
@@ -7883,8 +8547,96 @@
           "denomination": "kg",
           "points": [
             {
-              "date": "2026-07-21",
-              "price": 20550,
+              "date": "2026-08-31",
+              "price": 20450,
+              "denomination": "kg",
+              "changeAmount": 0,
+              "changePercent": 0,
+              "isMin": true,
+              "isMax": false,
+              "isStable": false
+            },
+            {
+              "date": "2026-09-01",
+              "price": 20450,
+              "denomination": "kg",
+              "changeAmount": 0,
+              "changePercent": 0,
+              "isMin": false,
+              "isMax": false,
+              "isStable": false
+            },
+            {
+              "date": "2026-09-02",
+              "price": 20450,
+              "denomination": "kg",
+              "changeAmount": 0,
+              "changePercent": 0,
+              "isMin": false,
+              "isMax": false,
+              "isStable": false
+            },
+            {
+              "date": "2026-09-03",
+              "price": 20450,
+              "denomination": "kg",
+              "changeAmount": 0,
+              "changePercent": 0,
+              "isMin": false,
+              "isMax": false,
+              "isStable": false
+            },
+            {
+              "date": "2026-09-04",
+              "price": 20450,
+              "denomination": "kg",
+              "changeAmount": 0,
+              "changePercent": 0,
+              "isMin": false,
+              "isMax": true,
+              "isStable": true
+            }
+          ]
+        },
+        {
+          "key": "sugar",
+          "label": "Gula Pasir",
+          "name": "Gula Pasir Kualitas Premium",
+          "denomination": "kg",
+          "points": [
+            {
+              "date": "2026-08-31",
+              "price": 20350,
+              "denomination": "kg",
+              "changeAmount": 0,
+              "changePercent": 0,
+              "isMin": false,
+              "isMax": false,
+              "isStable": false
+            },
+            {
+              "date": "2026-09-01",
+              "price": 20350,
+              "denomination": "kg",
+              "changeAmount": 0,
+              "changePercent": 0,
+              "isMin": false,
+              "isMax": false,
+              "isStable": false
+            },
+            {
+              "date": "2026-09-02",
+              "price": 20350,
+              "denomination": "kg",
+              "changeAmount": 0,
+              "changePercent": 0,
+              "isMin": false,
+              "isMax": false,
+              "isStable": false
+            },
+            {
+              "date": "2026-09-03",
+              "price": 20350,
               "denomination": "kg",
               "changeAmount": 0,
               "changePercent": 0,
@@ -7893,51 +8645,30 @@
               "isStable": false
             },
             {
-              "date": "2026-07-22",
-              "price": 20450,
+              "date": "2026-09-04",
+              "price": 20300,
               "denomination": "kg",
-              "changeAmount": -100,
-              "changePercent": -0.49,
+              "changeAmount": -50,
+              "changePercent": -0.25,
               "isMin": true,
               "isMax": false,
               "isStable": false
-            },
+            }
+          ]
+        }
+      ],
+      "earliestActualDate": "2026-08-31",
+      "latestActualDate": "2026-09-04"
+    },
+    "updatedAt": 1788746282210
+  }
+}          },
             {
-              "date": "2026-07-23",
-              "price": 20450,
-              "denomination": "kg",
-              "changeAmount": -100,
-              "changePercent": -0.49,
-              "isMin": false,
-              "isMax": false,
-              "isStable": false
-            },
-            {
-              "date": "2026-07-24",
-              "price": 20450,
-              "denomination": "kg",
-              "changeAmount": -100,
-              "changePercent": -0.49,
-              "isMin": false,
-              "isMax": false,
-              "isStable": false
-            },
-            {
-              "date": "2026-07-27",
-              "price": 20450,
-              "denomination": "kg",
-              "changeAmount": -100,
-              "changePercent": -0.49,
-              "isMin": false,
-              "isMax": false,
-              "isStable": false
-            },
-            {
-              "date": "2026-07-28",
+              "date": "2026-09-01",
               "price": 20500,
               "denomination": "kg",
-              "changeAmount": -50,
-              "changePercent": -0.24,
+              "changeAmount": 200,
+              "changePercent": 0.99,
               "isMin": false,
               "isMax": false,
               "isStable": false
@@ -7951,70 +8682,71 @@
           "denomination": "kg",
           "points": [
             {
-              "date": "2026-07-21",
-              "price": 20300,
-              "denomination": "kg",
-              "changeAmount": 0,
-              "changePercent": 0,
-              "isMin": true,
-              "isMax": false,
-              "isStable": false
-            },
-            {
-              "date": "2026-07-22",
-              "price": 20300,
-              "denomination": "kg",
-              "changeAmount": 0,
-              "changePercent": 0,
-              "isMin": false,
-              "isMax": false,
-              "isStable": false
-            },
-            {
-              "date": "2026-07-23",
-              "price": 20300,
-              "denomination": "kg",
-              "changeAmount": 0,
-              "changePercent": 0,
-              "isMin": false,
-              "isMax": false,
-              "isStable": false
-            },
-            {
-              "date": "2026-07-24",
-              "price": 20300,
-              "denomination": "kg",
-              "changeAmount": 0,
-              "changePercent": 0,
-              "isMin": false,
-              "isMax": false,
-              "isStable": false
-            },
-            {
-              "date": "2026-07-27",
-              "price": 20300,
-              "denomination": "kg",
-              "changeAmount": 0,
-              "changePercent": 0,
-              "isMin": false,
-              "isMax": false,
-              "isStable": false
-            },
-            {
-              "date": "2026-07-28",
-              "price": 20300,
+              "date": "2026-08-25",
+              "price": 20350,
               "denomination": "kg",
               "changeAmount": 0,
               "changePercent": 0,
               "isMin": false,
               "isMax": true,
-              "isStable": true
+              "isStable": false
+            },
+            {
+              "date": "2026-08-26",
+              "price": 20300,
+              "denomination": "kg",
+              "changeAmount": -50,
+              "changePercent": -0.25,
+              "isMin": true,
+              "isMax": false,
+              "isStable": false
+            },
+            {
+              "date": "2026-08-27",
+              "price": 20300,
+              "denomination": "kg",
+              "changeAmount": -50,
+              "changePercent": -0.25,
+              "isMin": false,
+              "isMax": false,
+              "isStable": false
+            },
+            {
+              "date": "2026-08-28",
+              "price": 20300,
+              "denomination": "kg",
+              "changeAmount": -50,
+              "changePercent": -0.25,
+              "isMin": false,
+              "isMax": false,
+              "isStable": false
+            },
+            {
+              "date": "2026-08-31",
+              "price": 20300,
+              "denomination": "kg",
+              "changeAmount": -50,
+              "changePercent": -0.25,
+              "isMin": false,
+              "isMax": false,
+              "isStable": false
+            },
+            {
+              "date": "2026-09-01",
+              "price": 20300,
+              "denomination": "kg",
+              "changeAmount": -50,
+              "changePercent": -0.25,
+              "isMin": false,
+              "isMax": false,
+              "isStable": false
             }
           ]
         }
       ],
-      "earliestActualDate": "2026-07-21",
-      "latestActualDate": "2026-07-28"
-    }
+      "earliestActualDate": "2026-08-25",
+      "latestActualDate": "2026-09-01"
+    },
+    "updatedAt": 1788244938055
   }
 }
