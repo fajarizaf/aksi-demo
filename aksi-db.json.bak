@@ -8662,4 +8662,91 @@
     },
     "updatedAt": 1788746282210
   }
+}          },
+            {
+              "date": "2026-09-01",
+              "price": 20500,
+              "denomination": "kg",
+              "changeAmount": 200,
+              "changePercent": 0.99,
+              "isMin": false,
+              "isMax": false,
+              "isStable": false
+            }
+          ]
+        },
+        {
+          "key": "sugar",
+          "label": "Gula Pasir",
+          "name": "Gula Pasir Kualitas Premium",
+          "denomination": "kg",
+          "points": [
+            {
+              "date": "2026-08-25",
+              "price": 20350,
+              "denomination": "kg",
+              "changeAmount": 0,
+              "changePercent": 0,
+              "isMin": false,
+              "isMax": true,
+              "isStable": false
+            },
+            {
+              "date": "2026-08-26",
+              "price": 20300,
+              "denomination": "kg",
+              "changeAmount": -50,
+              "changePercent": -0.25,
+              "isMin": true,
+              "isMax": false,
+              "isStable": false
+            },
+            {
+              "date": "2026-08-27",
+              "price": 20300,
+              "denomination": "kg",
+              "changeAmount": -50,
+              "changePercent": -0.25,
+              "isMin": false,
+              "isMax": false,
+              "isStable": false
+            },
+            {
+              "date": "2026-08-28",
+              "price": 20300,
+              "denomination": "kg",
+              "changeAmount": -50,
+              "changePercent": -0.25,
+              "isMin": false,
+              "isMax": false,
+              "isStable": false
+            },
+            {
+              "date": "2026-08-31",
+              "price": 20300,
+              "denomination": "kg",
+              "changeAmount": -50,
+              "changePercent": -0.25,
+              "isMin": false,
+              "isMax": false,
+              "isStable": false
+            },
+            {
+              "date": "2026-09-01",
+              "price": 20300,
+              "denomination": "kg",
+              "changeAmount": -50,
+              "changePercent": -0.25,
+              "isMin": false,
+              "isMax": false,
+              "isStable": false
+            }
+          ]
+        }
+      ],
+      "earliestActualDate": "2026-08-25",
+      "latestActualDate": "2026-09-01"
+    },
+    "updatedAt": 1788244938055
+  }
 }
